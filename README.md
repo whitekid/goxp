@@ -1,13 +1,17 @@
 # go utility collection
 
-## request
+## [request](request)
 
 made http request easy
 
-## slug
+## [slug](slug)
 
 uuid to slug
 
-## flxture
+## [flxtures](fixtures)
 
-testing fixture
+testing fixtures collections
+
+## [gogin combined logger](gin/combined)
+
+combined format logger for [gogin](https://github.com/gin-gonic/gin)
