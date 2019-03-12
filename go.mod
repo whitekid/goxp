@@ -1,4 +1,4 @@
-module github.com/go-utils
+module github.com/whitekid/go-utils
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
