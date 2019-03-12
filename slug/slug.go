@@ -6,6 +6,10 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+func New() string {
+	return Slug(uuid.NewV4())
+}
+
 func Slug(uid uuid.UUID) string {
 	encoded := base64.URLEncoding.EncodeToString(uid.Bytes())
 	return encoded[:22]
