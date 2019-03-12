@@ -8,119 +8,51 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/whitekid/go-utils/gin/combined"
-	"github.com/whitekid/go-utils/logging"
+	"github.com/whitekid/go-utils/log"
 )
 
-var (
-	log = logging.New()
-)
-
-// Engine ...
 type Engine struct {
 	*gin.Engine
+
+	Addr *net.TCPAddr // real listening address
 }
 
-// New ...
 func New() *Engine {
-	router := gin.New()
-	router.Use(gin.Recovery())
-	router.Use(combined.New(nil))
+	r := combined.NewRouter()
 
-	return &Engine{router}
+	return &Engine{Engine: r}
 }
 
-// HandlerFunc ...
 type HandlerFunc func(c *Context)
 
-func wrap(handlers ...HandlerFunc) (funcs []gin.HandlerFunc) {
-	funcs = make([]gin.HandlerFunc, len(handlers))
-	for i, handler := range handlers {
-		funcs[i] = func(c *gin.Context) {
-			ctx := &Context{c}
-			handler(ctx)
-		}
+func Handler(fn HandlerFunc) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := &Context{c}
+		fn(ctx)
 	}
-
-	return
 }
 
-// GET ...
-func (g *Engine) GET(relativePath string, handlers ...HandlerFunc) gin.IRoutes {
-	return g.Engine.Handle("GET", relativePath, wrap(handlers...)...)
-}
-
-// POST ...
-func (g *Engine) POST(relativePath string, handlers ...HandlerFunc) gin.IRoutes {
-	return g.Engine.Handle("POST", relativePath, wrap(handlers...)...)
-}
-
-// PUT ...
-func (g *Engine) PUT(relativePath string, handlers ...HandlerFunc) gin.IRoutes {
-	return g.Engine.Handle("PUT", relativePath, wrap(handlers...)...)
-}
-
-// DELETE ...
-func (g *Engine) DELETE(relativePath string, handlers ...HandlerFunc) gin.IRoutes {
-	return g.Engine.Handle("DELETE", relativePath, wrap(handlers...)...)
-}
-
-// PATCH ...
-func (g *Engine) PATCH(relativePath string, handlers ...HandlerFunc) gin.IRoutes {
-	return g.Engine.Handle("PATCH", relativePath, wrap(handlers...)...)
-}
-
-// OPTIONS ...
-func (g *Engine) OPTIONS(relativePath string, handlers ...HandlerFunc) gin.IRoutes {
-	return g.Engine.Handle("OPTIONS", relativePath, wrap(handlers...)...)
-}
-
-// Group ...
-func (g *Engine) Group(relativePath string, handlers ...HandlerFunc) *RouterGroup {
-	return &RouterGroup{g.Engine.Group(relativePath, wrap(handlers...)...)}
-}
-
-// RouterGroup ...
-type RouterGroup struct {
-	*gin.RouterGroup
-}
-
-// GET ...
-func (g *RouterGroup) GET(relativePath string, handlers ...HandlerFunc) gin.IRoutes {
-	return g.RouterGroup.Handle("GET", relativePath, wrap(handlers...)...)
-}
-
-// POST ...
-func (g *RouterGroup) POST(relativePath string, handlers ...HandlerFunc) gin.IRoutes {
-	return g.RouterGroup.Handle("POST", relativePath, wrap(handlers...)...)
-}
-
-// PUT ...
-func (g *RouterGroup) PUT(relativePath string, handlers ...HandlerFunc) gin.IRoutes {
-	return g.RouterGroup.Handle("PUT", relativePath, wrap(handlers...)...)
-}
-
-// DELETE ...
-func (g *RouterGroup) DELETE(relativePath string, handlers ...HandlerFunc) gin.IRoutes {
-	return g.RouterGroup.Handle("DELETE", relativePath, wrap(handlers...)...)
-}
-
-// PATCH ...
-func (g *RouterGroup) PATCH(relativePath string, handlers ...HandlerFunc) gin.IRoutes {
-	return g.RouterGroup.Handle("PATCH", relativePath, wrap(handlers...)...)
-}
-
-// OPTIONS ...
-func (g *RouterGroup) OPTIONS(relativePath string, handlers ...HandlerFunc) gin.IRoutes {
-	return g.RouterGroup.Handle("OPTIONS", relativePath, wrap(handlers...)...)
-}
-
-// RunWithContext ...
+// RunWithContext run http handler in separate goroutine(non blocking) with context to cancel
+//
+// Usage:
+//	ctx, cancel := context.WithCancel(context.Background())
+//  err := e.RunWithContext(ctx, "127.0.0.1:8080")
+//	...
+//
+// to stop server
+// 	cancel()
+//
 func (g *Engine) RunWithContext(ctx context.Context, address string) error {
-	log.Infof("Listening TCP %s", address)
 	ln, err := net.Listen("tcp", address)
 	if err != nil {
+		log.Debugf("Failed to listen: %s", err)
 		return err
 	}
+
+	// when port is set to 0, port will be selected by random
+	// so extract port information from listen address.
+	g.Addr = ln.Addr().(*net.TCPAddr)
+	log.Infof("Listening TCP %s", g.Addr.String())
 
 	server := http.Server{
 		Addr:    address,
@@ -144,4 +76,23 @@ func (g *Engine) RunWithContext(ctx context.Context, address string) error {
 	}()
 
 	return nil
+}
+
+// type aliases
+type IRoutes gin.IRoutes
+type H gin.H
+
+// RouteHandler sub router handler...
+type RouteHandler interface {
+	SetupRoute(r IRoutes)
+}
+
+// WrapGET nomatch에서 python 버전으로 proxy하는데, Get을 응용하는 HEAD, OPTIONS등의 request가
+// python 버전으로 proxy되는 것을 방지.
+//
+// NOTE: proxy 기능이 사라지면 삭재
+func WrapGET(r gin.IRoutes, path string, h gin.HandlerFunc) {
+	for _, method := range []string{http.MethodGet, http.MethodHead, http.MethodOptions} {
+		r.Handle(method, path, h)
+	}
 }

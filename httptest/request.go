@@ -8,35 +8,46 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strings"
+
+	"github.com/whitekid/go/go-utils"
 )
 
 // Options for request
 type Options struct {
-	Headers map[string]string
-	Params  map[string]string
-	Forms   url.Values
-	Body    io.Reader   // for raw data
-	JSON    interface{} // for json request
+	Headers     map[string]string
+	BearerToken string
+	Params      url.Values
+	Forms       url.Values
+	Body        io.Reader   // for raw data
+	JSON        interface{} // for json request, string or struct
 }
 
+// ResponseRecorder is httptest.ResponseRecorder wrapper
 type ResponseRecorder struct {
 	*httptest.ResponseRecorder
 }
 
+// NewOptions create new Options instance
+func NewOptions() *Options {
+	return &Options{
+		Headers: map[string]string{},
+		Params:  url.Values{},
+		Forms:   url.Values{},
+	}
+}
+
 // Request send test request for http.Handler
 func Request(handler http.Handler, method, path string, opts Options) (w *ResponseRecorder) {
+	defer utils.Timer("%s %s", method, path)()
+
 	if method == http.MethodGet && len(opts.Params) > 0 {
-		values := url.Values{}
-		for k, v := range opts.Params {
-			values[k] = []string{v}
-		}
-		path = path + "?" + values.Encode()
+		path = path + "?" + opts.Params.Encode()
 	}
 
 	// post body
 	var body io.Reader
 	var contentType string
-	if method == http.MethodPost {
+	if method == http.MethodPost || method == http.MethodPut {
 		if opts.Body != nil {
 			body = opts.Body
 		}
@@ -47,10 +58,15 @@ func Request(handler http.Handler, method, path string, opts Options) (w *Respon
 		}
 
 		if opts.JSON != nil {
-			buf := &bytes.Buffer{}
-			json.NewEncoder(buf).Encode(opts.JSON)
+			s, ok := opts.JSON.(string)
+			if ok {
+				body = strings.NewReader(s)
+			} else {
+				buf := &bytes.Buffer{}
+				json.NewEncoder(buf).Encode(opts.JSON)
 
-			body = buf
+				body = buf
+			}
 			contentType = "application/json"
 		}
 	}
@@ -65,16 +81,27 @@ func Request(handler http.Handler, method, path string, opts Options) (w *Respon
 		req.Header.Set(k, v)
 	}
 
+	if opts.BearerToken != "" {
+		req.Header.Set("authorization", "bearer "+opts.BearerToken)
+	}
+
 	w = &ResponseRecorder{httptest.NewRecorder()}
 	handler.ServeHTTP(w, req)
 
 	return
 }
 
+// OK return true if response has ok code (200~299)
+func (r *ResponseRecorder) OK() bool {
+	return 200 <= r.Code && r.Code < 300
+}
+
+// CloseNotify ...
 func (r *ResponseRecorder) CloseNotify() <-chan bool {
 	return nil
 }
 
+// JSON read json form response
 func (r *ResponseRecorder) JSON(intf interface{}) error {
 	return json.NewDecoder(r.Body).Decode(intf)
 }

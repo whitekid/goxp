@@ -4,10 +4,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFixture(t *testing.T) {
 	defer Env("HELLO", "WORLD").Teardown()
-	assert.Equal(t, "WORLD", os.Getenv("HELLO"))
+	require.Equal(t, "WORLD", os.Getenv("HELLO"))
 }

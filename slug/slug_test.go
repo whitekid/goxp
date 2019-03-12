@@ -5,23 +5,23 @@ import (
 	"log"
 	"testing"
 
-	"github.com/satori/go.uuid"
-	"github.com/stretchr/testify/assert"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSlug(t *testing.T) {
-	uid := uuid.NewV4()
+	uid := uuid.New()
 
 	slug := Slug(uid)
 	uid1 := UUID(slug)
 
-	assert.Equal(t, uid.String(), uid1.String())
+	require.Equal(t, uid.String(), uid1.String())
 
 	log.Printf("uuid: %s, slug=%s", uid.String(), slug)
 }
 
 func TestExample(t *testing.T) {
-	uid := uuid.NewV4()
+	uid := uuid.New()
 
 	slug := Slug(uid)
 	fmt.Printf("uuid=%s\n", uid.String())

@@ -3,37 +3,44 @@ package service
 import (
 	"context"
 	"errors"
+	"net"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 
-	"github.com/whitekid/go-utils/logging"
+	"github.com/whitekid/go-utils/log"
 )
 
-var (
-	log = logging.New()
-)
-
-// Service ...
-type Service interface {
+// Interface ...
+type Interface interface {
 	// Run service and block until stop
 	Serve(ctx context.Context, args ...string) error
 }
 
-// SetupSignal setup termination signal context
+// AddrGetter for get listen address
+type AddrGetter interface {
+	GetAddr() *net.TCPAddr
+}
+
+// SetupSignal return context done when get system terminmaton signal
+//
+// returned context will be done when os.Interrupt, syscall.SIGTERM are invoked
+// and call os.Exit() to exit program
 func SetupSignal(ctx context.Context) context.Context {
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, []os.Signal{os.Interrupt, syscall.SIGTERM}...)
 
-	ret, cancel := context.WithCancel(ctx)
+	termCtx, cancel := context.WithCancel(ctx)
 	go func() {
-		<-c
+		sig := <-c
+
+		log.Debugf("got signal: %s", sig)
+
 		cancel()
 		os.Exit(1)
 	}()
 
-	return ret
+	return termCtx
 }
 
 // Helper is helper for services
@@ -50,54 +57,41 @@ func (s *Helper) Done(ctx context.Context) bool {
 	}
 }
 
-// MultiService 여러 sub service들을 돌릴 수 있는 서비스
-type MultiService struct {
-	services []Service
+// Multi 여러 sub service들을 돌릴 수 있는 서비스
+type Multi struct {
+	services []Interface
 	ctx      context.Context
 }
 
-// Multi create MultiService
-func Multi(services ...Service) *MultiService {
-	return &MultiService{
+// NewMulti create Multi
+func NewMulti(services ...Interface) *Multi {
+	return &Multi{
 		services: services,
 	}
 }
 
 // Serve runs sub services
-func (s *MultiService) Serve(ctx context.Context, args ...string) error {
+func (s *Multi) Serve(ctx context.Context, args ...string) error {
 	if len(s.services) == 0 {
 		return errors.New("No registered services")
 	}
 
-	wg := sync.WaitGroup{}
-	ctx1, cancel := context.WithCancel(ctx)
-
-	var startError error
+	errorC := make(chan error)
 
 	// run sub service
 	for _, service := range s.services {
-		wg.Add(1)
-		go func(service Service) {
-			defer wg.Done()
-			if err := service.Serve(ctx1); err != nil {
-				log.Errorf("Error %s", err)
-				startError = err
-
-				cancel()
+		go func(service Interface) {
+			if err := service.Serve(ctx); err != nil {
+				errorC <- err
 			}
 		}(service)
 	}
 
-	// wait context canceling
-	go func() {
-		select {
-		case <-ctx.Done():
-			log.Debug("get cancel")
-			cancel()
-		}
-	}()
-
-	wg.Wait()
-
-	return startError
+	select {
+	case <-ctx.Done():
+		return nil
+	case err := <-errorC:
+		log.Errorf("Error %s", err)
+		return err
+	}
 }

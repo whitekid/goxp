@@ -1,10 +1,11 @@
 package gin
 
 import (
+	"io"
+	"net/http"
 	"regexp"
-	"strconv"
-	"strings"
 
+	"github.com/flosch/pongo2"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,85 +14,22 @@ type Context struct {
 	*gin.Context
 }
 
-// Value ...
-type Value struct {
-	v *string
-}
-
-// Int return int
-func (v *Value) Int(defaultValue int) int {
-	if v.v == nil {
-		return defaultValue
-	}
-
-	intVal, err := strconv.Atoi(*v.v)
-	if err == nil {
-		return intVal
-	}
-
-	return defaultValue
-}
-
-// Bool return value as bool
-func (v *Value) Bool(defaultValue bool) bool {
-	if v.v == nil {
-		return defaultValue
-	}
-
-	boolValue := strings.ToLower(*v.v)
-	return boolValue == "true" || boolValue == "1"
-}
-
-// Int64 return query value as int64
-func (v *Value) Int64(defaultValue int64) int64 {
-	if v.v == nil {
-		return defaultValue
-	}
-
-	intVal, err := strconv.ParseInt(*v.v, 10, 64)
-	if err == nil {
-		return intVal
-	}
-
-	return defaultValue
-}
-
-// QueryV get query Value
-func (c *Context) QueryV(key string) *Value {
-	v, ok := c.GetQuery(key)
-	if ok {
-		return &Value{&v}
-	}
-	return &Value{nil}
-}
-
-// Error return http errors
-func (c *Context) Error(code int, err error) {
-	var message string
-
-	if err != nil {
-		message = err.Error()
-		if v, ok := err.(HTTPError); ok {
-			code = v.Code()
-		}
-	}
-
-	log.Errorf("Error: %d %s", code, message)
-	c.AbortWithStatusJSON(code, gin.H{
-		"code":    code,
-		"message": message,
-	})
-}
+const (
+	keyContext = "context"
+)
 
 const (
-	keyAuthToken = ".auth.token"
+	keyAuthToken   = ".auth.token"
+	keyBearerToken = ".baerer.token"
 )
 
 var (
-	tokenRegex = regexp.MustCompile(`(?i)(token)\s+(?P<token>\w+)`)
+	tokenRegex       = regexp.MustCompile(`(?i)(token)\s+(?P<token>.+)\s*`)
+	bearerTokenRegex = regexp.MustCompile(`(?i)(bearer)\s+(?P<token>.+)\s*`)
 )
 
-// AuthToken ...
+// AuthToken return token in header
+// Authorization: token <token>
 func (c *Context) AuthToken() string {
 	value, ok := c.Get(keyAuthToken)
 	if !ok {
@@ -111,4 +49,60 @@ func authToken(value string) (token string) {
 	}
 
 	return token
+}
+
+// BearerToken return bearer token in header
+// Authorization: bearer <token>
+func (c *Context) BearerToken() string {
+	value, ok := c.Get(keyBearerToken)
+	if !ok {
+		token := bearerToken(c.Request.Header.Get("Authorization"))
+
+		c.Set(keyBearerToken, token)
+		return token
+	}
+
+	return value.(string)
+}
+
+func bearerToken(value string) (token string) {
+	m := bearerTokenRegex.FindStringSubmatchIndex(value)
+	if m != nil {
+		token = value[m[4]:m[5]]
+	}
+
+	return token
+}
+
+// Error return http errors
+func (c *Context) Error(err error) error {
+	resp := newErrorResponse(err)
+
+	c.AbortWithStatusJSON(resp.Code, resp)
+
+	return err
+}
+
+// FromReader write response from io.Reader
+// It similar DataFromReader() but not required content-length
+func (c *Context) FromReader(r io.Reader) {
+	c.Stream(func(w io.Writer) bool {
+		io.Copy(w, r)
+
+		return false
+	})
+}
+
+// Template ...
+func (c *Context) Template(code int, template string, context map[string]interface{}) {
+	tpl, err := pongo2.FromString(template)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if err := tpl.ExecuteWriter(context, c.Writer); err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
 }

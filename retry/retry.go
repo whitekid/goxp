@@ -1,8 +1,9 @@
 package retry
 
 import (
-	"log"
 	"time"
+
+	"github.com/whitekid/go-utils/log"
 )
 
 // Retry return new default retrier
@@ -48,7 +49,7 @@ func (r *retrier) Do(fn func() error) (err error) {
 
 	for i := 0; i < r.limit; i++ {
 		if err = fn(); err != nil {
-			log.Printf("try %d failed, retry in %s", i+1, backoff)
+			log.Infof("try %d failed, retry in %s", i+1, backoff)
 			time.Sleep(backoff)
 			backoff = time.Duration(float64(backoff) * r.backoffRatio)
 			continue

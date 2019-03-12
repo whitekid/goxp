@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type requestOpts struct {
@@ -41,9 +41,9 @@ func TestGinCombinedLog(t *testing.T) {
 		buffer.Reset()
 		w := doRequest(router, http.MethodGet, test.path, requestOpts{})
 
-		assert.Equal(t, test.code, w.Code)
-		assert.Contains(t, buffer.String(), fmt.Sprintf("%d", test.code))
-		assert.Contains(t, buffer.String(), "2018")
+		require.Equal(t, test.code, w.Code)
+		require.Contains(t, buffer.String(), fmt.Sprintf("%d", test.code))
+		require.Contains(t, buffer.String(), "2019")
 		log.Printf(buffer.String())
 	}
 }

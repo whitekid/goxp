@@ -3,15 +3,15 @@ package slug
 import (
 	"encoding/base64"
 
-	"github.com/satori/go.uuid"
+	"github.com/google/uuid"
 )
 
 func New() string {
-	return Slug(uuid.NewV4())
+	return Slug(uuid.New())
 }
 
 func Slug(uid uuid.UUID) string {
-	encoded := base64.URLEncoding.EncodeToString(uid.Bytes())
+	encoded := base64.URLEncoding.EncodeToString(uid[0:len(uid)])
 	return encoded[:22]
 }
 

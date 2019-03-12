@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestEquals(t *testing.T) {
@@ -28,7 +28,7 @@ func TestEquals(t *testing.T) {
 			equal: false,
 		},
 	} {
-		assert.Equal(t, test.equal, test.s1.Equals(test.s2))
+		require.Equal(t, test.equal, test.s1.Equals(test.s2))
 	}
 }
 
@@ -42,6 +42,6 @@ func TestContains(t *testing.T) {
 		{"a", true},
 		{"x", false},
 	} {
-		assert.Equal(t, test.contains, s.Contains(test.e))
+		require.Equal(t, test.contains, s.Contains(test.e))
 	}
 }

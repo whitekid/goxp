@@ -8,6 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// NewRouter create combined log enabled router
+func NewRouter() *gin.Engine {
+	router := gin.New()
+	router.Use(gin.Recovery())
+	router.Use(New(nil))
+
+	return router
+}
+
 // New create new combined logger
 func New(writer io.Writer) gin.HandlerFunc {
 	if writer == nil {
