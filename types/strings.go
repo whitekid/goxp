@@ -1,9 +1,19 @@
 package types
 
-import "sort"
+import (
+	"sort"
+	"strings"
+)
 
 // Strings represents string array
 type Strings []string
+
+// Add new string
+func (s *Strings) Add(e ...string) {
+	for _, ee := range e {
+		*s = append(*s, ee)
+	}
+}
 
 // Contains returns if strings contains s1
 func (s Strings) Contains(s1 string) bool {
@@ -42,6 +52,11 @@ func (s Strings) Equals(s1 Strings) bool {
 	}
 
 	return true
+}
+
+// Join ...
+func (s *Strings) Join(sep string) string {
+	return strings.Join([]string(*s), sep)
 }
 
 // Sort string array

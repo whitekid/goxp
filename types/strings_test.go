@@ -31,3 +31,17 @@ func TestEquals(t *testing.T) {
 		assert.Equal(t, test.equal, test.s1.Equals(test.s2))
 	}
 }
+
+func TestContains(t *testing.T) {
+	s := Strings{"a", "b", "c"}
+
+	for _, test := range []struct {
+		e        string
+		contains bool
+	}{
+		{"a", true},
+		{"x", false},
+	} {
+		assert.Equal(t, test.contains, s.Contains(test.e))
+	}
+}
