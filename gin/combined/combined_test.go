@@ -45,7 +45,5 @@ func TestGinCombinedLog(t *testing.T) {
 		assert.Contains(t, buffer.String(), fmt.Sprintf("%d", test.code))
 		assert.Contains(t, buffer.String(), "2018")
 		log.Printf(buffer.String())
-
-		assert.Equal(t, "", buffer.String())
 	}
 }
