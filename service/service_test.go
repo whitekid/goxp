@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/go-utils/log"
 )
 
 type sampleService struct {

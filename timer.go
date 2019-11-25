@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/whitekid/go-utils/log"
+	"github.com/whitekid/go-utils/logging"
 	"go.uber.org/zap"
 )
 
 var (
-	logTimer = log.WithOptions(zap.AddCallerSkip(1))
+	logTimer = logging.WithOptions(zap.AddCallerSkip(1))
 )
 
 // Timer check running time

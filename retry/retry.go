@@ -3,8 +3,10 @@ package retry
 import (
 	"time"
 
-	"github.com/whitekid/go-utils/log"
+	"github.com/whitekid/go-utils/logging"
 )
+
+var log = logging.Named("retry")
 
 // Retry return new default retrier
 func Retry() Retrier {

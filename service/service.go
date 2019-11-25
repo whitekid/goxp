@@ -8,8 +8,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/whitekid/go-utils/log"
+	"github.com/whitekid/go-utils/logging"
 )
+
+var log = logging.Named("service")
 
 // Interface ...
 type Interface interface {
