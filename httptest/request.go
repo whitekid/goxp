@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/whitekid/go/go-utils"
+	"github.com/whitekid/go-utils"
 )
 
 // Options for request
