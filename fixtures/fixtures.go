@@ -1,30 +1,13 @@
 package fixtures
 
-// Fixture ...
-type Fixture interface {
-	Teardown()
-}
+//Teardown teardown function
+type Teardown func()
 
-type dummyFixture struct {
-}
-
-func (d *dummyFixture) Teardown() {
-
-}
-
-// Chain fixture chaining..
-func Chain(fixtures ...Fixture) Fixture {
-	return &chainFixture{
-		fixtures: fixtures,
-	}
-}
-
-type chainFixture struct {
-	fixtures []Fixture
-}
-
-func (c *chainFixture) Teardown() {
-	for _, f := range c.fixtures {
-		f.Teardown()
+//Chain chaining fixtures
+func Chain(tears ...Teardown) Teardown {
+	return func() {
+		for _, f := range tears {
+			f()
+		}
 	}
 }

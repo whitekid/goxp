@@ -6,23 +6,17 @@ import (
 	"strings"
 )
 
-// Env setup fixture environment
-func Env(key, data string) Fixture {
-	os.Setenv(key, data)
+// Env environment fixture
+func Env(key, value string) Teardown {
+	os.Setenv(key, value)
 
-	return &envFixture{key: key}
+	return func() {
+		os.Unsetenv(key)
+	}
 }
 
-type envFixture struct {
-	key string
-}
-
-func (e *envFixture) Teardown() {
-	os.Unsetenv(e.key)
-}
-
-// JSONEnv ...
-func JSONEnv(key, data string) Fixture {
-	encoded := base64.StdEncoding.EncodeToString([]byte(strings.TrimSpace(data)))
+// JSONEnv json environment fixture
+func JSONEnv(key, value string) Teardown {
+	encoded := base64.StdEncoding.EncodeToString([]byte(strings.TrimSpace(value)))
 	return Env(key, encoded)
 }

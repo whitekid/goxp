@@ -20,7 +20,10 @@ type Logger interface {
 	Fatalf(fmt string, args ...interface{})
 }
 
-//Utility functions
+// Default return default logger
+func Default() Logger { return defaultLogger }
+
+// Utility functions
 func Info(args ...interface{})                  { defaultLogger.Info(args...) }
 func Infof(format string, args ...interface{})  { defaultLogger.Infof(format, args...) }
 func Debug(args ...interface{})                 { defaultLogger.Debug(args...) }
