@@ -16,6 +16,12 @@ func TestFormContentType(t *testing.T) {
 	require.Equal(t, ContentTypeForm, req.Header.Get(headerContentType))
 }
 
+func TestSimple(t *testing.T) {
+	resp, err := Get("https://www.google.co.kr").WithClient(http.DefaultClient).Do()
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestPapagoSMT(t *testing.T) {
 	type papagoSMTResp struct {
 		Message struct {

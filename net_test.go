@@ -20,9 +20,6 @@ func TestAvailablePort(t *testing.T) {
 }
 
 func TestURLToListenAddr(t *testing.T) {
-	type args struct {
-	}
-
 	tests := [...]struct {
 		name     string
 		wantErr  bool

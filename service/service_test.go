@@ -26,7 +26,7 @@ func (s *sampleService) Serve(ctx context.Context, args ...string) error {
 		default:
 		}
 
-		log.Infof("Now: %s", time.Now().UTC().String())
+		log.Infof("Now: %s", time.Now().UTC().Format(time.RFC3339))
 		time.Sleep(time.Second)
 	}
 }

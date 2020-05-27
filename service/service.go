@@ -30,6 +30,8 @@ type AddrGetter interface {
 // and call os.Exit() to exit program
 func SetupSignal(ctx context.Context) context.Context {
 	c := make(chan os.Signal, 2)
+	defer close(c)
+
 	signal.Notify(c, []os.Signal{os.Interrupt, syscall.SIGTERM}...)
 
 	termCtx, cancel := context.WithCancel(ctx)
@@ -79,6 +81,7 @@ func (s *Multi) Serve(ctx context.Context, args ...string) error {
 	}
 
 	errorC := make(chan error)
+	defer close(errorC)
 
 	// run sub service
 	for _, service := range s.services {

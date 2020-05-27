@@ -2,11 +2,11 @@ package slug
 
 import (
 	"fmt"
-	"log"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
+	log "github.com/whitekid/go-utils/logging"
 )
 
 func TestSlug(t *testing.T) {
@@ -17,7 +17,7 @@ func TestSlug(t *testing.T) {
 
 	require.Equal(t, uid.String(), uid1.String())
 
-	log.Printf("uuid: %s, slug=%s", uid.String(), slug)
+	log.Infof("uuid: %s, slug=%s", uid.String(), slug)
 }
 
 func TestExample(t *testing.T) {

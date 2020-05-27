@@ -35,8 +35,7 @@ func TestRetry(t *testing.T) {
 					return tt.args.fn()
 				})
 			if (err != nil) != tt.wantErr {
-				t.Errorf("retry error=%v, want=%v", err, tt.wantErr)
-				return
+				require.Fail(t, "retry failed", "error: %v, want: %v", err, tt.wantErr)
 			}
 
 			require.Equal(t, tt.tries, tries)

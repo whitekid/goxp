@@ -52,7 +52,6 @@ func New(method, u string, args ...interface{}) *Request {
 
 func (r *Request) Header(key, value string) *Request {
 	r.header.Add(key, value)
-
 	return r
 }
 
@@ -106,6 +105,8 @@ func (r *Request) JSON(value interface{}) *Request {
 	r.jsonValues = append(r.jsonValues, value)
 	return r
 }
+
+func (r *Request) WithClient(client *http.Client) *Request { r.client = client; return r }
 
 func (r *Request) makeRequest() (*http.Request, error) {
 	u := r.URL
