@@ -16,7 +16,7 @@ func TestRetry(t *testing.T) {
 		fn      func() error
 	}
 
-	tests := []struct {
+	tests := [...]struct {
 		name    string
 		args    args
 		wantErr bool

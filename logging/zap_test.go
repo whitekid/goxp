@@ -14,7 +14,7 @@ func TestNamed(t *testing.T) {
 		loggerName string
 		message    string
 	}
-	tests := []struct {
+	tests := [...]struct {
 		name string
 		args args
 	}{

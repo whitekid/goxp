@@ -6,7 +6,7 @@ var (
 	defaultLogger Logger = WithOptions(zap.AddCallerSkip(1))
 )
 
-//Logger logging interface
+// Logger logging interface
 type Logger interface {
 	Debug(args ...interface{})
 	Debugf(fmt string, args ...interface{})

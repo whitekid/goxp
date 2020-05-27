@@ -17,7 +17,7 @@ func TestDefaultLoggerHasArgs(t *testing.T) {
 		format string
 		args   []interface{}
 	}
-	tests := []struct {
+	tests := [...]struct {
 		name   string
 		fields fields
 		args   args

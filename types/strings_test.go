@@ -7,7 +7,7 @@ import (
 )
 
 func TestEquals(t *testing.T) {
-	for _, test := range []struct {
+	for _, test := range [...]struct {
 		s1    Strings
 		s2    Strings
 		equal bool
@@ -35,7 +35,7 @@ func TestEquals(t *testing.T) {
 func TestContains(t *testing.T) {
 	s := Strings{"a", "b", "c"}
 
-	for _, test := range []struct {
+	for _, test := range [...]struct {
 		e        string
 		contains bool
 	}{

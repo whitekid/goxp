@@ -3,22 +3,20 @@ package request
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 )
 
 const (
-	ContentTypeJSON = "application/json"
-	ContentTypeForm = "application/x-www-form-urlencoded"
+	ContentTypeJSON = "application/json; charset=UTF-8"
+	ContentTypeForm = "application/x-www-form-urlencoded; charset=UTF-8"
 
 	headerContentType = "Content-Type"
 )
-
-var DefaultTimeout time.Duration = 5 * time.Second
 
 type Request struct {
 	URL        string
@@ -27,40 +25,21 @@ type Request struct {
 	params     url.Values
 	formValues url.Values
 	jsonValues []interface{}
+	client     *http.Client
 }
 
-var (
-	client *http.Client
-)
+func Post(url string, args ...interface{}) *Request   { return New(http.MethodPost, url, args...) }
+func Get(url string, args ...interface{}) *Request    { return New(http.MethodGet, url, args...) }
+func Delete(url string, args ...interface{}) *Request { return New(http.MethodDelete, url, args...) }
+func Put(url string, args ...interface{}) *Request    { return New(http.MethodPut, url, args...) }
+func Patch(url string, args ...interface{}) *Request  { return New(http.MethodPatch, url, args...) }
 
-func init() {
-	client = &http.Client{
-		Timeout: DefaultTimeout,
+// New create new request
+func New(method, u string, args ...interface{}) *Request {
+	if len(args) > 0 {
+		u = fmt.Sprintf(u, args...)
 	}
-}
 
-func Post(url string) *Request {
-	return New(http.MethodPost, url)
-}
-
-func Get(url string) *Request {
-	return New(http.MethodGet, url)
-}
-
-func Delete(url string) *Request {
-	return New(http.MethodDelete, url)
-}
-
-func Put(url string) *Request {
-	return New(http.MethodPut, url)
-}
-
-func Patch(url string) *Request {
-	return New(http.MethodPatch, url)
-}
-
-//New create new request
-func New(method, u string) *Request {
 	return &Request{
 		method:     method,
 		URL:        u,
@@ -187,16 +166,23 @@ func (r *Request) makeRequest() (*http.Request, error) {
 	return req, nil
 }
 
+// Do call http request
 func (r *Request) Do() (*Response, error) {
 	req, err := r.makeRequest()
 	if err != nil {
 		return nil, err
 	}
 
+	client := http.DefaultClient
+	if r.client != nil {
+		client = r.client
+	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
+
 	return &Response{resp}, nil
 }
 
@@ -205,7 +191,7 @@ type Response struct {
 }
 
 func (r *Response) Success() bool {
-	return 200 <= r.StatusCode && r.StatusCode < 300
+	return http.StatusOK <= r.StatusCode && r.StatusCode < http.StatusMultipleChoices
 }
 
 func (r *Response) String() string {
@@ -213,6 +199,8 @@ func (r *Response) String() string {
 	return string(data)
 }
 
+// JSON decode response body to json
+// caller should close body
 func (r *Response) JSON(v interface{}) error {
 	return json.NewDecoder(r.Body).Decode(v)
 }

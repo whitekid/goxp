@@ -1,12 +1,12 @@
 package request
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	log "github.com/whitekid/go-utils/logging"
 )
 
 func TestFormContentType(t *testing.T) {
@@ -29,7 +29,7 @@ func TestPapagoSMT(t *testing.T) {
 		} `json:"message"`
 	}
 
-	resp, err := Post("https://openapi.naver.com/v1/language/translate").
+	resp, err := Post("https://openapi.naver.com/v1/papago/n2mt").
 		Headers(map[string]string{
 			"X-Naver-Client-Id":     os.Getenv("NAVER_CLIENT_ID"),
 			"X-Naver-Client-Secret": os.Getenv("NAVER_CLIENT_SECRET"),
@@ -43,8 +43,18 @@ func TestPapagoSMT(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
-	r := &papagoSMTResp{}
-	require.NoError(t, resp.JSON(r))
+	var r struct {
+		Message struct {
+			Type    string `json:"@type"`
+			Service string `json:"@service"`
+			Version string `json:"@version"`
+			Result  struct {
+				TranslatedText string `json:"translatedText"`
+				SrcLangType    string `json:"srcLangType"`
+			} `json:"result"`
+		} `json:"message"`
+	}
+	require.NoError(t, resp.JSON(&r))
 	defer resp.Body.Close()
 	require.Equal(t, "Nice to meet you.", r.Message.Result.TranslatedText)
 }
@@ -90,5 +100,5 @@ func TestGoogleCustomSearch(t *testing.T) {
 	require.NoError(t, resp.JSON(&response))
 	defer resp.Body.Close()
 	require.True(t, len(response.Items) > 0)
-	log.Printf("link: %s", response.Items[0].Link)
+	log.Infof("link: %s", response.Items[0].Link)
 }
