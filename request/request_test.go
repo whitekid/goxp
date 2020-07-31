@@ -108,3 +108,27 @@ func TestGoogleCustomSearch(t *testing.T) {
 	require.True(t, len(response.Items) > 0)
 	log.Infof("link: %s", response.Items[0].Link)
 }
+
+func TestRedirect(t *testing.T) {
+	type args struct {
+		url            string
+		followRedirect bool
+	}
+
+	tests := [...]struct {
+		name           string
+		args           args
+		wantErr        bool
+		wantStatusCode int
+	}{
+		{"", args{"http://google.com", false}, false, http.StatusMovedPermanently},
+		{"", args{"http://google.com", true}, false, http.StatusOK},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp, err := Get("http://google.com").FollowRedirect(tt.args.followRedirect).Do()
+			require.NoError(t, err)
+			require.Equal(t, tt.wantStatusCode, resp.StatusCode)
+		})
+	}
+}

@@ -50,6 +50,22 @@ func New(method, u string, args ...interface{}) *Request {
 	}
 }
 
+func (r *Request) FollowRedirect(follow bool) *Request {
+	if r.client == nil || r.client == http.DefaultClient {
+		r.client = &http.Client{}
+	}
+
+	if follow {
+		r.client.CheckRedirect = nil
+	} else {
+		r.client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}
+	}
+
+	return r
+}
+
 func (r *Request) Header(key, value string) *Request {
 	r.header.Add(key, value)
 	return r
