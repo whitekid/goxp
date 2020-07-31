@@ -30,11 +30,15 @@ func TestDefaultLoggerHasArgs(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			core, logs := observer.New(zapcore.DebugLevel)
+
 			oldLogger := defaultLogger
+			defaultLogger = &zapLogger{
+				SugaredLogger: zap.New(core).Sugar(),
+			}
+
 			defer func() {
 				defaultLogger = oldLogger
 			}()
-			defaultLogger = zap.New(core).Sugar()
 
 			tt.fields.logFn(tt.args.format, tt.args.args...)
 
@@ -42,5 +46,28 @@ func TestDefaultLoggerHasArgs(t *testing.T) {
 			require.Equal(t, 1, len(all))
 			require.Equal(t, tt.want, all[0].Message)
 		})
+	}
+}
+
+func TestLevel(t *testing.T) {
+	p, _ := zap.NewProduction()
+	p.Sugar().Infof("hello world")
+
+	Info("hello")
+	Debug("hello debug")
+
+	defaultLogger.SetLevel(zap.DebugLevel)
+	Info("hello")
+	Debug("hello debug")
+
+	SetLevel(zap.InfoLevel)
+
+	{
+		logger := Named("named")
+		logger.Info("named info")
+		logger.Debug("named debug")
+
+		Info("named info")
+		Debug("named debug")
 	}
 }

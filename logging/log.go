@@ -1,13 +1,11 @@
 package logging
 
-import "go.uber.org/zap"
+import "go.uber.org/zap/zapcore"
 
-var (
-	defaultLogger Logger = WithOptions(zap.AddCallerSkip(1))
-)
+// Interface logging interface
+type Interface interface {
+	SetLevel(zapcore.Level)
 
-// Logger logging interface
-type Logger interface {
 	Debug(args ...interface{})
 	Debugf(fmt string, args ...interface{})
 	Info(args ...interface{})
@@ -20,10 +18,8 @@ type Logger interface {
 	Fatalf(fmt string, args ...interface{})
 }
 
-// Default return default logger
-func Default() Logger { return defaultLogger }
-
 // Utility functions
+func SetLevel(level zapcore.Level)              { defaultLogger.SetLevel(level) }
 func Info(args ...interface{})                  { defaultLogger.Info(args...) }
 func Infof(format string, args ...interface{})  { defaultLogger.Infof(format, args...) }
 func Debug(args ...interface{})                 { defaultLogger.Debug(args...) }
