@@ -8,6 +8,9 @@ import (
 )
 
 func TestFixture(t *testing.T) {
-	defer Env("HELLO", "WORLD")()
+	teardown := Env("HELLO", "WORLD")
 	require.Equal(t, "WORLD", os.Getenv("HELLO"))
+
+	teardown()
+	require.Equal(t, "", os.Getenv("HELLO"))
 }
