@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/whitekid/go-utils/log"
 )
 
 // SetupSignal return context done when get system terminmaton signal

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	log "github.com/whitekid/go-utils/logging"
+	"github.com/whitekid/go-utils/log"
 )
 
 // Timer log execution time

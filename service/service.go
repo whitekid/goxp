@@ -5,10 +5,8 @@ import (
 	"errors"
 	"net"
 
-	"github.com/whitekid/go-utils/logging"
+	"github.com/whitekid/go-utils/log"
 )
-
-var log = logging.Named("service")
 
 // Interface ...
 type Interface interface {

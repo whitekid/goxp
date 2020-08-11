@@ -1,5 +1,5 @@
-// Package logging is zap based logger
-package logging
+// package log is zap based logger
+package log
 
 import (
 	"os"

@@ -14,10 +14,11 @@ func TestDoWithWorker(t *testing.T) {
 
 	ch := make(chan int32)
 
+	sumTo := 1000
 	DoWithWorker(4,
 		func() {
 			defer close(ch)
-			for i := 0; i < 1000; i++ {
+			for i := 0; i < sumTo; i++ {
 				ch <- int32(i)
 			}
 		},

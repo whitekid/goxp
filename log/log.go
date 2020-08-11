@@ -1,8 +1,8 @@
-package logging
+package log
 
 import "go.uber.org/zap/zapcore"
 
-// Interface logging interface
+// Interface log.interface
 type Interface interface {
 	SetLevel(zapcore.Level)
 
