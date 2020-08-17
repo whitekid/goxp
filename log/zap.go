@@ -9,31 +9,32 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func newEncoder() zapcore.Encoder {
+func newLogger() (*zap.Logger, zap.AtomicLevel) {
+	var encorder zapcore.Encoder
 	level := strings.ToLower(os.Getenv("LOG_LEVEL"))
 
 	switch level {
 	case "debug":
 		encoderCfg := zap.NewDevelopmentEncoderConfig()
-		return zapcore.NewConsoleEncoder(encoderCfg)
+		encorder = zapcore.NewConsoleEncoder(encoderCfg)
 	default:
 		encoderCfg := zap.NewProductionEncoderConfig()
-		return zapcore.NewJSONEncoder(encoderCfg)
+		encorder = zapcore.NewJSONEncoder(encoderCfg)
 	}
-}
 
-func newLogger() (*zap.Logger, zap.AtomicLevel) {
-	encoder := newEncoder()
-	level := zap.NewAtomicLevel()
+	atomic := zap.NewAtomicLevel()
+	if strings.ToLower(os.Getenv("LOG_LEVEL")) == "debug" {
+		atomic.SetLevel(zap.DebugLevel)
+	}
 
 	return zap.New(zapcore.NewCore(
-		encoder,
+		encorder,
 		zapcore.Lock(os.Stdout),
-		level,
+		atomic,
 	),
 		zap.AddCaller(),
 		zap.AddCallerSkip(1),
-	), level
+	), atomic
 }
 
 type zapLogger struct {

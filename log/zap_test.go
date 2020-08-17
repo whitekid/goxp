@@ -1,12 +1,45 @@
 package log
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
 )
+
+func TestEnv(t *testing.T) {
+	type args struct {
+		envs map[string]string
+	}
+	tests := [...]struct {
+		name      string
+		args      args
+		wantLevel zapcore.Level
+	}{
+		{"debug", args{map[string]string{"LOG_LEVEL": "DEBUG"}}, zapcore.DebugLevel},
+		{"info", args{map[string]string{"LOG_LEVEL": "INFO"}}, zapcore.InfoLevel},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for k, v := range tt.args.envs {
+				old, exists := os.LookupEnv(k)
+				os.Setenv(k, v)
+				defer func(k string) {
+					if exists {
+						os.Setenv(k, old)
+					} else {
+						os.Unsetenv(k)
+					}
+				}(k)
+			}
+
+			_, level := newLogger()
+			require.Equal(t, tt.wantLevel, level.Level())
+		})
+	}
+}
 
 func TestNamed(t *testing.T) {
 	type args struct {
@@ -17,14 +50,13 @@ func TestNamed(t *testing.T) {
 		name string
 		args args
 	}{
-		{"named", args{"logger", "hello"}},
+		{"named", args{"name", "hello"}},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			core, logs := observer.New(zapcore.DebugLevel)
 			_ = core
-			// rootLogger = zap.New(core)
 
 			named := Named(tt.args.loggerName)
 			named.Info(tt.args.message)
