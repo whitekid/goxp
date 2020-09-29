@@ -42,7 +42,7 @@ type zapLogger struct {
 	level zap.AtomicLevel
 }
 
-func (l *zapLogger) SetLevel(level zapcore.Level) {
+func (l *zapLogger) SetLevel(level Level) {
 	l.level.SetLevel(level)
 }
 

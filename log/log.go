@@ -18,8 +18,22 @@ type Interface interface {
 	Fatalf(fmt string, args ...interface{})
 }
 
+// Level is a logging priority
+type Level = zapcore.Level
+
+// LogLevel aliases
+const (
+	DebugLevel  = zapcore.DebugLevel
+	InfoLevel   = zapcore.InfoLevel
+	WarnLevel   = zapcore.WarnLevel
+	ErrorLevel  = zapcore.ErrorLevel
+	DPanicLevel = zapcore.DPanicLevel
+	PanicLevel  = zapcore.PanicLevel
+	FatalLevel  = zapcore.FatalLevel
+)
+
 // Utility functions
-func SetLevel(level zapcore.Level)              { defaultLogger.SetLevel(level) }
+func SetLevel(level Level)                      { defaultLogger.SetLevel(level) }
 func Info(args ...interface{})                  { defaultLogger.Info(args...) }
 func Infof(format string, args ...interface{})  { defaultLogger.Infof(format, args...) }
 func Debug(args ...interface{})                 { defaultLogger.Debug(args...) }
