@@ -19,13 +19,15 @@ const (
 )
 
 type Request struct {
-	URL        string
-	method     string
-	header     http.Header
-	params     url.Values
-	formValues url.Values
-	jsonValues []interface{}
-	client     *http.Client
+	URL               string
+	method            string
+	header            http.Header
+	basicAuthUser     string
+	basicAuthPassword string
+	params            url.Values
+	formValues        url.Values
+	jsonValues        []interface{}
+	client            *http.Client
 }
 
 func Post(url string, args ...interface{}) *Request   { return New(http.MethodPost, url, args...) }
@@ -81,6 +83,12 @@ func (r *Request) Headers(headers map[string]string) *Request {
 
 func (r *Request) ContentType(contentType string) *Request {
 	r.header.Set(headerContentType, contentType)
+	return r
+}
+
+func (r *Request) AuthBasic(user, password string) *Request {
+	r.basicAuthUser = user
+	r.basicAuthPassword = password
 	return r
 }
 
@@ -172,6 +180,10 @@ func (r *Request) makeRequest() (*http.Request, error) {
 	req, err := http.NewRequest(r.method, u, body)
 	if err != nil {
 		return nil, err
+	}
+
+	if r.basicAuthUser != "" {
+		req.SetBasicAuth(r.basicAuthUser, r.basicAuthPassword)
 	}
 
 	for k, headers := range r.header {
