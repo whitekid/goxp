@@ -27,6 +27,7 @@ type Request struct {
 	params            url.Values
 	formValues        url.Values
 	jsonValues        []interface{}
+	body              io.Reader
 	client            *http.Client
 }
 
@@ -130,6 +131,12 @@ func (r *Request) JSON(value interface{}) *Request {
 	return r
 }
 
+// Body set request body
+func (r *Request) Body(body io.Reader) *Request {
+	r.body = body
+	return r
+}
+
 func (r *Request) WithClient(client *http.Client) *Request { r.client = client; return r }
 
 func (r *Request) makeRequest() (*http.Request, error) {
@@ -174,6 +181,8 @@ func (r *Request) makeRequest() (*http.Request, error) {
 				}
 			}
 			body = buffer
+		case r.body != nil:
+			body = r.body
 		}
 	}
 

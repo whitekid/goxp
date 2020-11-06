@@ -2,9 +2,12 @@ package request
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/require"
 	"github.com/whitekid/go-utils/log"
 )
@@ -131,4 +134,21 @@ func TestRedirect(t *testing.T) {
 			require.Equal(t, tt.wantStatusCode, resp.StatusCode)
 		})
 	}
+}
+
+func TestBody(t *testing.T) {
+	e := echo.New()
+	e.POST("/", func(c echo.Context) error {
+		c.Stream(http.StatusOK, "", c.Request().Body)
+		return nil
+	})
+	ts := httptest.NewServer(e)
+	defer ts.Close()
+
+	message := "hello world"
+	want := message
+	resp, err := Post(ts.URL).Body(strings.NewReader(message)).Do()
+	require.NoError(t, err)
+	require.True(t, resp.Success())
+	require.Equal(t, want, resp.String())
 }
