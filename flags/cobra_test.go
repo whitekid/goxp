@@ -12,6 +12,7 @@ func TestDefaults(t *testing.T) {
 	configs := map[string][]Flag{
 		"hello": {
 			{"hello", "h", "world", "hello world"},
+			{"bool-flag", "b", true, "bool value"},
 		},
 	}
 

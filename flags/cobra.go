@@ -2,6 +2,7 @@
 package flags
 
 import (
+	"strings"
 	"time"
 
 	"github.com/spf13/pflag"
@@ -20,8 +21,6 @@ var configs map[string][]Flag
 
 // InitDefaults initialize config
 func InitDefaults(configs map[string][]Flag) {
-	configs = configs
-
 	for use := range configs {
 		for _, config := range configs[use] {
 			if config.DefaultValue != nil {
@@ -33,10 +32,13 @@ func InitDefaults(configs map[string][]Flag) {
 
 // InitFlagSet init flags to cobra command
 func InitFlagSet(configs map[string][]Flag, use string, fs *pflag.FlagSet) {
-	for _, config := range configs[use] {
+	uses := strings.Split(use, " ")
+	for _, config := range configs[uses[0]] {
 		switch v := config.DefaultValue.(type) {
 		case int:
 			fs.IntP(config.Key, config.Short, v, config.Description)
+		case bool:
+			fs.BoolP(config.Key, config.Short, v, config.Description)
 		case string:
 			fs.StringP(config.Key, config.Short, v, config.Description)
 		case []byte:
