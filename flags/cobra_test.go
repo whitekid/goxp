@@ -20,7 +20,7 @@ func TestDefaults(t *testing.T) {
 
 	for _, use := range configs {
 		for _, config := range use {
-			require.Equal(t, config.DefaultValue, viper.Get(config.Key))
+			require.Equal(t, config.DefaultValue, viper.Get(config.Name))
 		}
 	}
 

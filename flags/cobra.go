@@ -11,10 +11,10 @@ import (
 )
 
 type Flag struct {
-	Key          string
-	Short        string
+	Name         string
+	Shorthand    string
 	DefaultValue interface{}
-	Description  string
+	Usage        string
 }
 
 var configs map[string][]Flag
@@ -24,7 +24,7 @@ func InitDefaults(configs map[string][]Flag) {
 	for use := range configs {
 		for _, config := range configs[use] {
 			if config.DefaultValue != nil {
-				viper.SetDefault(config.Key, config.DefaultValue)
+				viper.SetDefault(config.Name, config.DefaultValue)
 			}
 		}
 	}
@@ -33,21 +33,36 @@ func InitDefaults(configs map[string][]Flag) {
 // InitFlagSet init flags to cobra command
 func InitFlagSet(configs map[string][]Flag, use string, fs *pflag.FlagSet) {
 	uses := strings.Split(use, " ")
-	for _, config := range configs[uses[0]] {
-		switch v := config.DefaultValue.(type) {
+	for _, cfg := range configs[uses[0]] {
+		switch v := cfg.DefaultValue.(type) {
 		case int:
-			fs.IntP(config.Key, config.Short, v, config.Description)
+			fs.IntP(cfg.Name, cfg.Shorthand, v, cfg.Usage)
 		case bool:
-			fs.BoolP(config.Key, config.Short, v, config.Description)
+			fs.BoolP(cfg.Name, cfg.Shorthand, v, cfg.Usage)
 		case string:
-			fs.StringP(config.Key, config.Short, v, config.Description)
+			fs.StringP(cfg.Name, cfg.Shorthand, v, cfg.Usage)
 		case []byte:
-			fs.BytesHexP(config.Key, config.Short, v, config.Description)
+			fs.BytesHexP(cfg.Name, cfg.Shorthand, v, cfg.Usage)
 		case time.Duration:
-			fs.DurationP(config.Key, config.Short, v, config.Description)
+			fs.DurationP(cfg.Name, cfg.Shorthand, v, cfg.Usage)
 		default:
-			log.Errorf("unsupported type %T", config.DefaultValue)
+			log.Errorf("unsupported type %T", cfg.DefaultValue)
 		}
-		viper.BindPFlag(config.Key, fs.Lookup(config.Key))
+
+		var flag *pflag.Flag
+		if cfg.Name != "" {
+			flag = fs.Lookup(cfg.Name)
+		}
+
+		if flag == nil && cfg.Shorthand != "" {
+			flag = fs.ShorthandLookup(cfg.Shorthand)
+		}
+
+		if flag == nil {
+			log.Debugf("flag not found %+v", cfg)
+			continue
+		}
+
+		viper.BindPFlag(cfg.Name, flag)
 	}
 }
