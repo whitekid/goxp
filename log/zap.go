@@ -72,7 +72,7 @@ func New() Interface {
 func Named(name string) Interface {
 	logger, level := newLogger()
 	return &zapLogger{
-		SugaredLogger: logger.Sugar().Named(name),
+		SugaredLogger: logger.WithOptions(zap.AddCallerSkip(1)).Sugar().Named(name),
 		level:         level,
 	}
 }
