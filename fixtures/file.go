@@ -6,6 +6,8 @@ import (
 )
 
 // TempDir create temporary directory and remove it
+//
+// Deprecated: use t.TempDir()
 func TempDir(name, pattern string, callbacks ...func(string)) func() {
 	dir, _ := ioutil.TempDir(name, pattern)
 

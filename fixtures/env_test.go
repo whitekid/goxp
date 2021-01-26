@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestFixture(t *testing.T) {
+func TestEnv(t *testing.T) {
 	teardown := Env("HELLO", "WORLD")
 	require.Equal(t, "WORLD", os.Getenv("HELLO"))
 

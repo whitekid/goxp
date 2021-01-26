@@ -2,9 +2,15 @@ package fixtures
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/whitekid/go-utils/log"
+)
+
+var (
+	timerLogger     log.Interface
+	timerLoggerOnce sync.Once
 )
 
 // Timer log execution time
@@ -14,6 +20,8 @@ func Timer(format string, args ...interface{}) Teardown {
 	return func() {
 		span := time.Now().Sub(start)
 
-		log.Debugf("%s takes %s", span, fmt.Sprintf(format, args...))
+		timerLoggerOnce.Do(func() { timerLogger = log.New() })
+
+		timerLogger.Debugf("%s takes %s", span, fmt.Sprintf(format, args...))
 	}
 }
