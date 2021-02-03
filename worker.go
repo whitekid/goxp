@@ -2,7 +2,7 @@ package utils
 
 import "sync"
 
-// DoWithWorker iteraate chan and run do() with n workers
+// DoWithWorker iterate chan and run do() with n workers
 func DoWithWorker(workers int, gen func(), do func(i int)) {
 	var wg sync.WaitGroup
 	wg.Add(workers)
