@@ -3,5 +3,5 @@ package fixtures
 import "testing"
 
 func TestTempDir(t *testing.T) {
-	defer TempDir("hello", "world")()
+	defer TempDir("", "world")()
 }
