@@ -36,7 +36,7 @@ func URLToListenAddr(addr string) (string, string, string, error) {
 		case "https":
 			port = "443"
 		default:
-			return "", "", "", fmt.Errorf("Unsupported scheme: %s", u.Scheme)
+			return "", "", "", fmt.Errorf("unsupported scheme: %s", u.Scheme)
 		}
 	case "0":
 		port = strconv.Itoa(AvailablePort())

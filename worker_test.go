@@ -58,5 +58,5 @@ func TestDoWithWorkerCancel(t *testing.T) {
 			}
 		})
 
-	require.Truef(t, time.Now().Before(t1.Add(time.Second)), "work should done in %s, it takes %s", time.Second, time.Now().Sub(t1))
+	require.Truef(t, time.Now().Before(t1.Add(time.Second)), "work should done in %s, it takes %s", time.Second, time.Since(t1))
 }
