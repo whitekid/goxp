@@ -1,6 +1,7 @@
 package request
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -20,24 +21,12 @@ func TestFormContentType(t *testing.T) {
 }
 
 func TestSimple(t *testing.T) {
-	resp, err := Get("https://www.google.co.kr").WithClient(http.DefaultClient).Do()
+	resp, err := Get("https://www.google.co.kr").WithClient(http.DefaultClient).Do(context.TODO())
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPapagoSMT(t *testing.T) {
-	type papagoSMTResp struct {
-		Message struct {
-			Type    string `json:"@type"`
-			Service string `json:"@service"`
-			Version string `json:"@version"`
-			Result  struct {
-				TranslatedText string `json:"translatedText"`
-				SrcLangType    string `json:"srcLangType"`
-			} `json:"result"`
-		} `json:"message"`
-	}
-
 	resp, err := Post("https://openapi.naver.com/v1/papago/n2mt").
 		Headers(map[string]string{
 			"X-Naver-Client-Id":     os.Getenv("NAVER_CLIENT_ID"),
@@ -48,7 +37,7 @@ func TestPapagoSMT(t *testing.T) {
 			"target": "en",
 			"text":   "만나서 반갑습니다.",
 		}).
-		Do()
+		Do(context.TODO())
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -69,7 +58,7 @@ func TestPapagoSMT(t *testing.T) {
 }
 
 func TestGithubGet(t *testing.T) {
-	resp, err := Get("https://api.github.com").Do()
+	resp, err := Get("https://api.github.com").Do(context.TODO())
 	require.NoError(t, err)
 
 	r := make(map[string]string)
@@ -88,7 +77,7 @@ func TestGoogleCustomSearch(t *testing.T) {
 		Param("key", key).
 		Param("cx", os.Getenv("GOOGLE_cx")).
 		Param("q", "request").
-		Do()
+		Do(context.TODO())
 
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -129,7 +118,7 @@ func TestRedirect(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resp, err := Get("http://google.com").FollowRedirect(tt.args.followRedirect).Do()
+			resp, err := Get("http://google.com").FollowRedirect(tt.args.followRedirect).Do(context.TODO())
 			require.NoError(t, err)
 			require.Equal(t, tt.wantStatusCode, resp.StatusCode)
 		})
@@ -147,7 +136,7 @@ func TestBody(t *testing.T) {
 
 	message := "hello world"
 	want := message
-	resp, err := Post(ts.URL).Body(strings.NewReader(message)).Do()
+	resp, err := Post(ts.URL).Body(strings.NewReader(message)).Do(context.TODO())
 	require.NoError(t, err)
 	require.True(t, resp.Success())
 	require.Equal(t, want, resp.String())

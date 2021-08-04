@@ -2,6 +2,7 @@ package request
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -205,10 +206,14 @@ func (r *Request) makeRequest() (*http.Request, error) {
 }
 
 // Do call http request
-func (r *Request) Do() (*Response, error) {
+func (r *Request) Do(ctx context.Context) (*Response, error) {
 	req, err := r.makeRequest()
 	if err != nil {
 		return nil, err
+	}
+
+	if ctx != nil {
+		req = req.WithContext(ctx)
 	}
 
 	client := http.DefaultClient
