@@ -20,18 +20,26 @@ type Flag struct {
 var configs map[string][]Flag
 
 // InitDefaults initialize config
-func InitDefaults(configs map[string][]Flag) {
+func InitDefaults(v *viper.Viper, configs map[string][]Flag) {
+	if v == nil {
+		v = viper.GetViper()
+	}
+
 	for use := range configs {
 		for _, config := range configs[use] {
 			if config.DefaultValue != nil {
-				viper.SetDefault(config.Name, config.DefaultValue)
+				v.SetDefault(config.Name, config.DefaultValue)
 			}
 		}
 	}
 }
 
 // InitFlagSet init flags to cobra command
-func InitFlagSet(configs map[string][]Flag, use string, fs *pflag.FlagSet) {
+func InitFlagSet(v *viper.Viper, configs map[string][]Flag, use string, fs *pflag.FlagSet) {
+	if v == nil {
+		v = viper.GetViper()
+	}
+
 	uses := strings.Split(use, " ")
 	for _, cfg := range configs[uses[0]] {
 		switch v := cfg.DefaultValue.(type) {
@@ -63,6 +71,6 @@ func InitFlagSet(configs map[string][]Flag, use string, fs *pflag.FlagSet) {
 			continue
 		}
 
-		viper.BindPFlag(cfg.Name, flag)
+		v.BindPFlag(cfg.Name, flag)
 	}
 }

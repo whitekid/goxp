@@ -12,11 +12,10 @@ func TestDefaults(t *testing.T) {
 	configs := map[string][]Flag{
 		"hello": {
 			{"hello", "h", "world", "hello world"},
-			{"bool-flag", "b", true, "bool value"},
 		},
 	}
 
-	InitDefaults(configs)
+	InitDefaults(nil, configs)
 
 	for _, use := range configs {
 		for _, config := range use {
@@ -28,5 +27,35 @@ func TestDefaults(t *testing.T) {
 		Use: "hello",
 	}
 
-	InitFlagSet(configs, cmd.Use, cmd.Flags())
+	InitFlagSet(nil, configs, cmd.Use, cmd.Flags())
+}
+
+func TestMultipleViper(t *testing.T) {
+	configs := map[string][]Flag{
+		"hello": {
+			{"hello", "h", "world", "hello world"},
+		},
+	}
+
+	configs2 := map[string][]Flag{
+		"hello": {
+			{"hello", "h", "world", "hello world"},
+		},
+	}
+
+	cmd1 := &cobra.Command{
+		Use: "hello",
+	}
+
+	cmd2 := &cobra.Command{
+		Use: "hello",
+	}
+
+	v1 := viper.New()
+	InitDefaults(v1, configs)
+	InitFlagSet(v1, configs, cmd1.Use, cmd1.Flags())
+
+	v2 := viper.New()
+	InitDefaults(v2, configs2)
+	InitFlagSet(v2, configs2, cmd2.Use, cmd2.Flags())
 }
