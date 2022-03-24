@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"runtime"
 	"sync"
 	"time"
 
@@ -9,11 +10,19 @@ import (
 )
 
 // DoWithWorker iterate chan and run do() with n workers
+// if works <=0 then worker set to runtime.NumCPU()
 func DoWithWorker(workers int, gen func(), do func(i int)) {
 	var wg sync.WaitGroup
 	wg.Add(workers)
 
-	go gen()
+	if workers <= 0 {
+		workers = runtime.NumCPU()
+	}
+
+	if gen != nil {
+		go gen()
+	}
+
 	for i := 0; i < workers; i++ {
 		go func(i int) {
 			defer wg.Done()
