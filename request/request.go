@@ -25,7 +25,7 @@ type Request struct {
 	header            http.Header
 	basicAuthUser     string
 	basicAuthPassword string
-	params            url.Values
+	query             url.Values
 	formValues        url.Values
 	jsonValues        []interface{}
 	body              io.Reader
@@ -48,7 +48,7 @@ func New(method, u string, args ...interface{}) *Request {
 		method:     method,
 		URL:        u,
 		header:     http.Header{},
-		params:     url.Values{},
+		query:      url.Values{},
 		formValues: url.Values{},
 		jsonValues: make([]interface{}, 0),
 	}
@@ -102,14 +102,15 @@ func (r *Request) AuthToken(token string) *Request {
 	return r.Header("Authorization", "Token "+token)
 }
 
-func (r *Request) Param(key, value string) *Request {
-	r.params.Add(key, value)
+// Query set query parameters
+func (r *Request) Query(key, value string) *Request {
+	r.query.Add(key, value)
 	return r
 }
 
-func (r *Request) Params(params map[string]string) *Request {
+func (r *Request) Queries(params map[string]string) *Request {
 	for k, v := range params {
-		r.Param(k, v)
+		r.Query(k, v)
 	}
 	return r
 }
@@ -142,7 +143,7 @@ func (r *Request) WithClient(client *http.Client) *Request { r.client = client; 
 
 func (r *Request) makeRequest() (*http.Request, error) {
 	u := r.URL
-	if len(r.params) > 0 {
+	if len(r.query) > 0 {
 		URL, err := url.Parse(u)
 		if err != nil {
 			return nil, err
@@ -156,7 +157,7 @@ func (r *Request) makeRequest() (*http.Request, error) {
 			}
 		}
 
-		for k, v := range r.params {
+		for k, v := range r.query {
 			params[k] = v
 		}
 		URL.RawQuery = params.Encode()

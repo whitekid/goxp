@@ -26,7 +26,7 @@ func TestSignal(t *testing.T) {
 		process.Signal(syscall.SIGUSR1)
 	}()
 
-	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*3)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 
 	<-SetupSignal(ctx, signals...).Done()
 	cancel()

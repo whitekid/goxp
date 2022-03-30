@@ -2,42 +2,49 @@ package request
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
 
-	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/require"
 	"github.com/whitekid/go-utils/log"
 )
 
+func TestSimple(t *testing.T) {
+	resp, err := Get("https://www.google.co.kr").
+		WithClient(http.DefaultClient).
+		Do(context.Background())
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestFormContentType(t *testing.T) {
-	req, err := Post("http:....").Form("Key", "Vaue").Form("Key1", "Value").makeRequest()
+	req, err := Post("http:....").
+		Form("Key", "Vaue").
+		Form("Key1", "Value").
+		makeRequest()
 	require.NoError(t, err)
 
 	require.Equal(t, ContentTypeForm, req.Header.Get(headerContentType))
 }
 
-func TestSimple(t *testing.T) {
-	resp, err := Get("https://www.google.co.kr").WithClient(http.DefaultClient).Do(context.TODO())
-	require.NoError(t, err)
-	require.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestPapagoSMT(t *testing.T) {
+	if _, ok := os.LookupEnv("NAVER_CLIENT_ID"); !ok {
+		t.Skip()
+	}
+
 	resp, err := Post("https://openapi.naver.com/v1/papago/n2mt").
-		Headers(map[string]string{
-			"X-Naver-Client-Id":     os.Getenv("NAVER_CLIENT_ID"),
-			"X-Naver-Client-Secret": os.Getenv("NAVER_CLIENT_SECRET"),
-		}).
+		Header("X-Naver-Client-Id", os.Getenv("NAVER_CLIENT_ID")).
+		Header("X-Naver-Client-Secret", os.Getenv("NAVER_CLIENT_SECRET")).
 		Forms(map[string]string{
 			"source": "ko",
 			"target": "en",
 			"text":   "만나서 반갑습니다.",
 		}).
-		Do(context.TODO())
+		Do(context.Background())
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -58,7 +65,7 @@ func TestPapagoSMT(t *testing.T) {
 }
 
 func TestGithubGet(t *testing.T) {
-	resp, err := Get("https://api.github.com").Do(context.TODO())
+	resp, err := Get("https://api.github.com").Do(context.Background())
 	require.NoError(t, err)
 
 	r := make(map[string]string)
@@ -70,14 +77,14 @@ func TestGithubGet(t *testing.T) {
 func TestGoogleCustomSearch(t *testing.T) {
 	key, ok := os.LookupEnv("GOOGLE_API_KEY")
 	if !ok {
-		t.Skip("GOOGLE_API_KEY missed")
+		t.Skip("GOOGLE_API_KEY required")
 	}
 
 	resp, err := Get("https://www.googleapis.com/customsearch/v1").
-		Param("key", key).
-		Param("cx", os.Getenv("GOOGLE_cx")).
-		Param("q", "request").
-		Do(context.TODO())
+		Query("key", key).
+		Query("cx", os.Getenv("GOOGLE_cx")).
+		Query("q", "request").
+		Do(context.Background())
 
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -118,7 +125,9 @@ func TestRedirect(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resp, err := Get("http://google.com").FollowRedirect(tt.args.followRedirect).Do(context.TODO())
+			resp, err := Get(tt.args.url).
+				FollowRedirect(tt.args.followRedirect).
+				Do(context.Background())
 			require.NoError(t, err)
 			require.Equal(t, tt.wantStatusCode, resp.StatusCode)
 		})
@@ -126,17 +135,16 @@ func TestRedirect(t *testing.T) {
 }
 
 func TestBody(t *testing.T) {
-	e := echo.New()
-	e.POST("/", func(c echo.Context) error {
-		c.Stream(http.StatusOK, "", c.Request().Body)
-		return nil
-	})
-	ts := httptest.NewServer(e)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		io.Copy(w, req.Body)
+	}))
 	defer ts.Close()
 
 	message := "hello world"
 	want := message
-	resp, err := Post(ts.URL).Body(strings.NewReader(message)).Do(context.TODO())
+	resp, err := Post(ts.URL).
+		Body(strings.NewReader(message)).
+		Do(context.Background())
 	require.NoError(t, err)
 	require.True(t, resp.Success())
 	require.Equal(t, want, resp.String())
