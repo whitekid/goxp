@@ -1,7 +1,7 @@
 # Fixtures
 
 ```go
-import "github.com/whitekid/goex/fixtures"
+import "github.com/whitekid/goxp/fixtures"
 
 func TestFixture(t *testing.T) {
     defer fixtures.Env("HELLO", "WORLD")()

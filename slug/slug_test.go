@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/goex/log"
+	"github.com/whitekid/goxp/log"
 )
 
 func TestSlug(t *testing.T) {
