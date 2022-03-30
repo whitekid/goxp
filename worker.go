@@ -1,4 +1,4 @@
-package utils
+package goex
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/whitekid/go-utils/log"
+	"github.com/whitekid/goex/log"
 )
 
 // DoWithWorker iterate chan and run do() with n workers

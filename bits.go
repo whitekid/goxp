@@ -1,4 +1,4 @@
-package utils
+package goex
 
 // SetBit Sets the bit at pos in the  n.
 func SetBit(n byte, pos int) byte {

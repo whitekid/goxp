@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/go-utils/log"
+	"github.com/whitekid/goex/log"
 )
 
 func TestSimple(t *testing.T) {

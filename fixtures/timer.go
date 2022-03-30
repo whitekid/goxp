@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/whitekid/go-utils/log"
+	"github.com/whitekid/goex/log"
 )
 
 var (

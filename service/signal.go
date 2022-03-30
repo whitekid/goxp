@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/whitekid/go-utils/log"
+	"github.com/whitekid/goex/log"
 )
 
 // SetupSignal return context done when get system terminmaton signal
