@@ -7,27 +7,27 @@ type simpleService struct {
 }
 
 func newSampleService() Interface {
-	return &simpleService{}
+    return &simpleService{}
 }
 
 func (s *simpleService) Serve(ctx context.Context) error {
-	goex.Every(ctx, time.Second, func() error {
-		if goex.IsContextDone(ctx) {
-			return nil
-		}
+    goex.Every(ctx, time.Second, func() error {
+        if goex.IsContextDone(ctx) {
+            return nil
+        }
 
-		log.Infof("Now: %s", time.Now().UTC().Format(time.RFC3339))
-		return nil
-	})
+        log.Infof("Now: %s", time.Now().UTC().Format(time.RFC3339))
+        return nil
+    })
 
-	<-ctx.Done()
-	return nil
+    <-ctx.Done()
+    return nil
 }
 ```
 
 run the service and wait terminate
 
 ```go
-	svc := newSampleService()
+    svc := newSampleService()
     svc.Serve(ctx)
 ```

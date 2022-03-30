@@ -18,7 +18,7 @@ may be not classfied yet..
 
 ## sub packages
 
-### [fixtures](flxtures)
+### [fixtures](fixtures)
 
 useful fixtures for test
 
@@ -49,10 +49,6 @@ simple service framework
 ### [slug](slug)
 
 uuid to slug
-
-### [flxtures](fixtures)
-
-testing fixtures collections
 
 ### [types](types)
 
