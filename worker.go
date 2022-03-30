@@ -1,4 +1,4 @@
-package goex
+package goxp
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/whitekid/goex/log"
+	"github.com/whitekid/goxp/log"
 )
 
 // DoWithWorker iterate chan and run do() with n workers

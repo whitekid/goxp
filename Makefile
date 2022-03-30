@@ -5,7 +5,7 @@ test:
 
 dep:
 	@rm -f go.mod go.sum
-	@go mod init github.com/whitekid/goex
+	@go mod init github.com/whitekid/goxp
 
 	@$(MAKE) tidy
 

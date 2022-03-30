@@ -1,10 +1,10 @@
-package goex
+package goxp
 
 import (
 	"fmt"
 	"time"
 
-	"github.com/whitekid/goex/log"
+	"github.com/whitekid/goxp/log"
 	"go.uber.org/zap"
 )
 

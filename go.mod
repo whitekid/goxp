@@ -1,4 +1,4 @@
-module github.com/whitekid/goex
+module github.com/whitekid/goxp
 
 go 1.18
 

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/goex/log"
+	"github.com/whitekid/goxp/log"
 )
 
 func TestSignal(t *testing.T) {
