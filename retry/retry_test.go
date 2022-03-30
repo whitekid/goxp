@@ -1,6 +1,7 @@
 package retry
 
 import (
+	"context"
 	"errors"
 	"testing"
 	"time"
@@ -28,9 +29,11 @@ func TestRetry(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			tries := 0
+
 			err := Retry().Limit(tt.args.limit).Backoff(tt.args.initial, tt.args.backoff).
-				Do(func() error {
+				Do(ctx, func() error {
 					tries++
 					return tt.args.fn()
 				})

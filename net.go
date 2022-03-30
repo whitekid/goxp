@@ -19,6 +19,8 @@ func AvailablePort() int {
 }
 
 // URLToListenAddr parse URL and return correspend listen address
+//
+// http://127.0.0.1:8080/xx returns (127.0.0.1:80, 80, http://127.0.0.1:8080/xx)
 func URLToListenAddr(addr string) (string, string, string, error) {
 	u, err := url.Parse(addr)
 	if err != nil {
