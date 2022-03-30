@@ -1,4 +1,4 @@
-module github.com/whitekid/go-utils
+module github.com/whitekid/goex
 
 go 1.18
 

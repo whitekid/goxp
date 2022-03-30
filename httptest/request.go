@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/whitekid/go-utils"
+	"github.com/whitekid/goex"
 )
 
 // Options for request
@@ -38,7 +38,7 @@ func NewOptions() *Options {
 
 // Request send test request for http.Handler
 func Request(handler http.Handler, method, path string, opts Options) (w *ResponseRecorder) {
-	defer utils.Timer("%s %s", method, path)()
+	defer goex.Timer("%s %s", method, path)()
 
 	if method == http.MethodGet && len(opts.Params) > 0 {
 		path = path + "?" + opts.Params.Encode()

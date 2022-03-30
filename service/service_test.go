@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/go-utils"
-	"github.com/whitekid/go-utils/log"
+	"github.com/whitekid/goex"
+	"github.com/whitekid/goex/log"
 )
 
 type simpleService struct {
@@ -21,8 +21,8 @@ func newSampleService() Interface {
 func (s *simpleService) Serve(ctx context.Context) error {
 	s.started = true
 
-	utils.Every(ctx, time.Second, func() error {
-		if utils.IsContextDone(ctx) {
+	goex.Every(ctx, time.Second, func() error {
+		if goex.IsContextDone(ctx) {
 			return nil
 		}
 

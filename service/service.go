@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net"
 
-	"github.com/whitekid/go-utils/log"
+	"github.com/whitekid/goex/log"
 )
 
 // Interface the service interface

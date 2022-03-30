@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/whitekid/go-utils/log"
+	"github.com/whitekid/goex/log"
 )
 
 type Flag struct {

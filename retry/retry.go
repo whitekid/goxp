@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/whitekid/go-utils"
-	"github.com/whitekid/go-utils/log"
+	"github.com/whitekid/goex"
+	"github.com/whitekid/goex/log"
 )
 
 // Retry return new default retrier
@@ -50,7 +50,7 @@ func (r *retrier) Do(ctx context.Context, fn func() error) (err error) {
 	backoff := r.initialBackoff
 
 	for i := 0; i < r.limit; i++ {
-		if utils.IsContextDone(ctx) {
+		if goex.IsContextDone(ctx) {
 			return ctx.Err()
 		}
 
