@@ -4,6 +4,7 @@ import (
 	crand "crypto/rand"
 	"math/big"
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -12,13 +13,21 @@ const (
 	AsciiUpperCases = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	AsciiLowerCases = "abcdefghijklmnopqrstuvwxyz"
 	AsciiLetters    = AsciiLowerCases + AsciiUpperCases
-	randomLetters   = AsciiLetters + Digits
+	specialLetters  = "!@#$%^&*()"
+	randomLetters   = AsciiLetters + Digits + specialLetters
 )
 
-var seed = rand.New(rand.NewSource(time.Now().UnixNano()))
+var (
+	seed     *rand.Rand
+	seedOnce sync.Once
+)
 
 // RandomString generate random string
 func RandomString(size int) string {
+	seedOnce.Do(func() {
+		seed = rand.New(rand.NewSource(time.Now().UnixNano()))
+	})
+
 	b := make([]byte, size)
 	l := len(randomLetters)
 
@@ -28,6 +37,7 @@ func RandomString(size int) string {
 	return string(b)
 }
 
+// RandomStringWithCrypto generate random string securly but much slower than RandomString()
 func RandomStringWithCrypto(size int) string {
 	b := make([]byte, size)
 	l := big.NewInt(int64(len(randomLetters)))

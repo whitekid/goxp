@@ -33,10 +33,10 @@ func DoWithWorker(workers int, gen func(), do func(i int)) {
 	wg.Wait()
 }
 
-type EveryFunc func() error
-
-// Every execute fn() in every interval
-func Every(ctx context.Context, interval time.Duration, fn EveryFunc) {
+// Every execute fn() in every time duration
+//
+// if you want run scheduled task like cron spec. please see github.com/robfig/cron
+func Every(ctx context.Context, interval time.Duration, fn func() error) {
 	go func() {
 		for {
 			select {

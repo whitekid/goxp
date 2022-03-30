@@ -1,8 +1,10 @@
 package retry
 
 import (
+	"context"
 	"time"
 
+	"github.com/whitekid/go-utils"
 	"github.com/whitekid/go-utils/log"
 )
 
@@ -24,7 +26,7 @@ type Retrier interface {
 	Backoff(initial time.Duration, backoffRatio float64) Retrier
 
 	// run the func
-	Do(func() error) error
+	Do(ctx context.Context, fn func() error) error
 }
 
 type retrier struct {
@@ -44,10 +46,14 @@ func (r *retrier) Backoff(initial time.Duration, ratio float64) Retrier {
 	return r
 }
 
-func (r *retrier) Do(fn func() error) (err error) {
+func (r *retrier) Do(ctx context.Context, fn func() error) (err error) {
 	backoff := r.initialBackoff
 
 	for i := 0; i < r.limit; i++ {
+		if utils.IsContextDone(ctx) {
+			return ctx.Err()
+		}
+
 		if err = fn(); err != nil {
 			log.Infof("try %d failed, retry in %s", i+1, backoff)
 			time.Sleep(backoff)

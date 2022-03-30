@@ -49,6 +49,8 @@ func InitFlagSet(v *viper.Viper, configs map[string][]Flag, use string, fs *pfla
 			fs.BoolP(cfg.Name, cfg.Shorthand, v, cfg.Usage)
 		case string:
 			fs.StringP(cfg.Name, cfg.Shorthand, v, cfg.Usage)
+		case []string:
+			fs.StringSliceP(cfg.Name, cfg.Shorthand, v, cfg.Usage)
 		case []byte:
 			fs.BytesHexP(cfg.Name, cfg.Shorthand, v, cfg.Usage)
 		case time.Duration:

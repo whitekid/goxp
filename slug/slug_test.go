@@ -12,8 +12,8 @@ import (
 func TestSlug(t *testing.T) {
 	uid := uuid.New()
 
-	slug := Slug(uid)
-	uid1 := UUID(slug)
+	slug := ToSlug(uid)
+	uid1 := ToUUID(slug)
 
 	require.Equal(t, uid.String(), uid1.String())
 
@@ -23,10 +23,10 @@ func TestSlug(t *testing.T) {
 func TestExample(t *testing.T) {
 	uid := uuid.New()
 
-	slug := Slug(uid)
+	slug := ToSlug(uid)
 	fmt.Printf("uuid=%s\n", uid.String())
 	fmt.Printf("slug=%s\n", slug)
 
-	uid1 := UUID(slug)
+	uid1 := ToUUID(slug)
 	fmt.Printf("decode=%s\n", uid1.String())
 }

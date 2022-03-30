@@ -34,7 +34,7 @@ func TestDoWithWorker(t *testing.T) {
 func TestDoWithWorkerCancel(t *testing.T) {
 	ch := make(chan int)
 
-	ctx, cancel := context.WithTimeout(context.TODO(), time.Millisecond*500)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*500)
 	defer cancel()
 
 	t1 := time.Now()

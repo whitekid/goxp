@@ -14,8 +14,8 @@ func (s *Strings) Slice() []string {
 	return []string(*s)
 }
 
-// Add new string
-func (s *Strings) Add(e ...string) {
+// Append new string
+func (s *Strings) Append(e ...string) {
 	for _, ee := range e {
 		*s = append(*s, ee)
 	}
@@ -45,7 +45,7 @@ func (s Strings) Copy() (r Strings) {
 	return r
 }
 
-// Remove remove index
+// Remove remove string element
 func (s Strings) Remove(e string) Strings {
 	i := s.Index(e)
 	if i == -1 {
@@ -55,7 +55,7 @@ func (s Strings) Remove(e string) Strings {
 	return s.RemoveAt(i)
 }
 
-// RemoveAt remove index
+// RemoveAt remove indexed string
 func (s Strings) RemoveAt(i int) Strings {
 	return append(s[:i], s[i+1:]...)
 }
@@ -66,8 +66,8 @@ func (s Strings) Equals(s1 Strings) bool {
 		return false
 	}
 
-	for i, e := range s {
-		if e != s1[i] {
+	for i := range s {
+		if s[i] != s1[i] {
 			return false
 		}
 	}

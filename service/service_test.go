@@ -6,30 +6,32 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"github.com/whitekid/go-utils"
 	"github.com/whitekid/go-utils/log"
 )
 
-type sampleService struct {
+type simpleService struct {
 	started bool
 }
 
 func newSampleService() Interface {
-	return &sampleService{}
+	return &simpleService{}
 }
 
-func (s *sampleService) Serve(ctx context.Context, args ...string) error {
+func (s *simpleService) Serve(ctx context.Context) error {
 	s.started = true
 
-	for {
-		select {
-		case <-ctx.Done():
+	utils.Every(ctx, time.Second, func() error {
+		if utils.IsContextDone(ctx) {
 			return nil
-		default:
 		}
 
 		log.Infof("Now: %s", time.Now().UTC().Format(time.RFC3339))
-		time.Sleep(time.Second)
-	}
+		return nil
+	})
+
+	<-ctx.Done()
+	return nil
 }
 
 func TestSingle(t *testing.T) {
@@ -40,7 +42,7 @@ func TestSingle(t *testing.T) {
 
 	svc.Serve(ctx)
 
-	require.True(t, svc.(*sampleService).started)
+	require.True(t, svc.(*simpleService).started)
 }
 
 func TestMulti(t *testing.T) {
@@ -52,7 +54,7 @@ func TestMulti(t *testing.T) {
 
 	require.Nil(t, m.Serve(ctx))
 	for _, svc := range services {
-		require.True(t, svc.(*sampleService).started)
+		require.True(t, svc.(*simpleService).started)
 	}
 }
 

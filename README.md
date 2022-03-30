@@ -1,17 +1,61 @@
 # go utility collection
 
-## [request](request)
+need more detailed usage? please refer test cases.
 
-made http request easy
+## in this package
 
-## [slug](slug)
+may be not classfied yet..
+
+- `AvailablePort()` - allocate random available ports
+- `URLToListenAddr()` - parse url and get listenable address, ports
+- `RandomString()` - generate random string
+- `Timer()` - measure execution time
+- `SetBit()` - set bit position
+- `ClearBit()` - clear bit postion
+- `StrToTime()` - parse standard time format as easy
+- `DoWithWorker()` - run go routine with n works
+- `Every()` - run goroutine in every duration
+
+## sub packages
+
+### [fixtures](flxtures)
+
+useful fixtures for test
+
+### [flags](flags)
+
+cobra & viper make easy
+
+### [httptest](httptest)
+
+test http sever make easy
+
+### [log](log)
+
+simple log powered by zap
+
+### [request](request)
+
+simple http client
+
+### [retry](retry)
+
+retrier with backoff
+
+### [service](service)
+
+simple service framework
+
+### [slug](slug)
 
 uuid to slug
 
-## [flxtures](fixtures)
+### [flxtures](fixtures)
 
 testing fixtures collections
 
-## [types](types)
+### [types](types)
 
-Some useful types
+Some useful types,
+
+- `Strings` add useful function such as `Index()`, `Remove()`, `Reader()`...

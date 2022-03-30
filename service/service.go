@@ -8,10 +8,10 @@ import (
 	"github.com/whitekid/go-utils/log"
 )
 
-// Interface ...
+// Interface the service interface
 type Interface interface {
 	// Run service and block until stop
-	Serve(ctx context.Context, args ...string) error
+	Serve(ctx context.Context) error
 }
 
 // AddrGetter for get listen address
@@ -47,7 +47,7 @@ func NewMulti(services ...Interface) *Multi {
 }
 
 // Serve runs sub services
-func (s *Multi) Serve(ctx context.Context, args ...string) error {
+func (s *Multi) Serve(ctx context.Context) error {
 	if len(s.services) == 0 {
 		return errors.New("No registered services")
 	}

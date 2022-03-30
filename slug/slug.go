@@ -7,15 +7,17 @@ import (
 )
 
 func New() string {
-	return Slug(uuid.New())
+	return ToSlug(uuid.New())
 }
 
-func Slug(uid uuid.UUID) string {
-	encoded := base64.URLEncoding.EncodeToString(uid[0:len(uid)])
+// ToSlug uuid to slug
+func ToSlug(uid uuid.UUID) string {
+	encoded := base64.URLEncoding.EncodeToString(uid[0:])
 	return encoded[:22]
 }
 
-func UUID(slug string) uuid.UUID {
+// ToUUID slug to uuid
+func ToUUID(slug string) uuid.UUID {
 	data, err := base64.URLEncoding.DecodeString(slug + "==")
 	if err != nil {
 		return uuid.UUID{}
