@@ -1,5 +1,7 @@
 # go utility collection
 
+[![Go](https://github.com/whitekid/goxp/actions/workflows/go.yml/badge.svg)](https://github.com/whitekid/goxp/actions/workflows/go.yml)
+
 need more detailed usage? please refer test cases.
 
 ## in this package

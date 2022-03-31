@@ -1,32 +1,53 @@
 package slug
 
 import (
-	"fmt"
+	"math/big"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/goxp/log"
 )
 
 func TestSlug(t *testing.T) {
-	uid := uuid.New()
+	type args struct {
+		uuid string
+	}
+	tests := [...]struct {
+		name     string
+		args     args
+		wantSlug string
+	}{
+		{"default", args{"fcf9853b-27aa-4ea1-b60c-2b2f443afb1a"}, "_PmFOyeqTqG2DCsvRDr7Gg"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			uid, err := uuid.Parse(tt.args.uuid)
+			require.NoError(t, err)
 
-	slug := ToSlug(uid)
-	uid1 := ToUUID(slug)
+			slug := ToSlug(uid)
+			require.Equal(t, tt.wantSlug, slug)
 
-	require.Equal(t, uid.String(), uid1.String())
-
-	log.Infof("uuid: %s, slug=%s", uid.String(), slug)
+			uid1 := ToUUID(slug)
+			require.Equal(t, uid.String(), uid1.String())
+		})
+	}
 }
 
-func TestExample(t *testing.T) {
-	uid := uuid.New()
+const urlEncoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" // url encoding
 
-	slug := ToSlug(uid)
-	fmt.Printf("uuid=%s\n", uid.String())
-	fmt.Printf("slug=%s\n", slug)
+func TestSlugger(t *testing.T) {
+	sl := New(urlEncoding)
 
-	uid1 := ToUUID(slug)
-	fmt.Printf("decode=%s\n", uid1.String())
+	got := sl.Encode(big.NewInt(1).Bytes())
+	require.Equal(t, "AQ", got)
+
+	dec, err := sl.Decode(got)
+	require.NoError(t, err)
+
+	b := big.NewInt(1)
+
+	require.Equal(t, b.Bytes(), dec)
+
+	s := New(string(urlEncoding))
+	s.Encode(big.NewInt(1).Bytes())
 }

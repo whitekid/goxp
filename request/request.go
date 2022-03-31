@@ -16,6 +16,7 @@ const (
 	ContentTypeJSON = "application/json; charset=UTF-8"
 	ContentTypeForm = "application/x-www-form-urlencoded; charset=UTF-8"
 
+	HeaderReferer     = "Referer"
 	headerContentType = "Content-Type"
 )
 
@@ -238,8 +239,12 @@ func (r *Response) Success() bool {
 	return http.StatusOK <= r.StatusCode && r.StatusCode < http.StatusMultipleChoices
 }
 
+// String return body as string
+//
+// string() read all data from response.Body. So that if you call more time, it returns empty string
 func (r *Response) String() string {
 	data, _ := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
 	return string(data)
 }
 

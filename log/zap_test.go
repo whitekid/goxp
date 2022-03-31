@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
 )
@@ -58,11 +59,13 @@ func TestNamed(t *testing.T) {
 			core, logs := observer.New(zapcore.DebugLevel)
 			_ = core
 
-			named := Named(tt.args.loggerName)
-			named.Info(tt.args.message)
+			named := Named(tt.args.loggerName, zap.WrapCore(func(c zapcore.Core) zapcore.Core { return core }))
 
-			all := logs.All()
+			named.Debug(tt.args.message)
+
+			all := logs.TakeAll()
 			require.Equal(t, 1, len(all))
+
 			e := all[0]
 			require.Equal(t, tt.args.message, e.Message)
 			require.Equal(t, tt.args.loggerName, e.LoggerName)

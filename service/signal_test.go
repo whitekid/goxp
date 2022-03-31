@@ -30,6 +30,4 @@ func TestSignal(t *testing.T) {
 
 	<-SetupSignal(ctx, signals...).Done()
 	cancel()
-
-	require.Fail(t, "@@@@")
 }
