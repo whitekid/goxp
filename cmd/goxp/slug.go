@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
-	"github.com/whitekid/goxp"
+	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/slug"
 )
 
@@ -37,7 +37,7 @@ func init() {
 		Use:   "short",
 		Short: "encode int to URL friendly.",
 		Run: func(cmd *cobra.Command, args []string) {
-			encoding := goxp.Shuffle([]byte("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"))
+			encoding := fx.Shuffle([]byte("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"))
 			shortner := slug.NewShortner(string(encoding))
 			fmt.Printf("encoding: %s\n\n", string(encoding))
 

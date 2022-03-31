@@ -28,6 +28,10 @@ useful fixtures for test
 
 cobra & viper make easy
 
+### [fx](fx)
+
+experimental: some functional functions
+
 ### [httptest](httptest)
 
 test http sever make easy
