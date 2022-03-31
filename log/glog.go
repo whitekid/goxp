@@ -19,7 +19,7 @@ func (l *logWritter) Write(p []byte) (int, error) {
 
 func newLogWriter(level Level) io.Writer {
 	w := &logWritter{
-		logger: WithOptions(zap.AddCallerSkip(-1)),
+		logger: New(zap.AddCallerSkip(-1)),
 	}
 
 	w.out = map[Level]func(args ...interface{}){

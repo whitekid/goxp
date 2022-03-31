@@ -60,28 +60,24 @@ func init() {
 }
 
 // New create new logger
-func New() Interface {
+func New(opts ...zap.Option) Interface {
 	logger, level := newLogger()
 	return &zapLogger{
-		SugaredLogger: logger.Sugar(),
+		SugaredLogger: logger.WithOptions(opts...).Sugar(),
 		level:         level,
 	}
 }
 
 // Named create new named logger
-func Named(name string) Interface {
+func Named(name string, opts ...zap.Option) Interface {
 	logger, level := newLogger()
-	return &zapLogger{
-		SugaredLogger: logger.WithOptions(zap.AddCallerSkip(-1)).Sugar().Named(name),
-		level:         level,
+	options := []zap.Option{
+		zap.AddCallerSkip(-1),
 	}
-}
+	options = append(options, opts...)
 
-// WithOptions create logger with option
-func WithOptions(opts ...zap.Option) Interface {
-	logger, level := newLogger()
 	return &zapLogger{
-		SugaredLogger: logger.WithOptions(opts...).Sugar(),
+		SugaredLogger: logger.WithOptions(options...).Sugar().Named(name),
 		level:         level,
 	}
 }
