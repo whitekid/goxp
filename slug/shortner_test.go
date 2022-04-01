@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/goxp"
+	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
 )
 
 func TestShortner(t *testing.T) {
-	encoding := goxp.Shuffle([]byte(urlEncoding))
+	encoding := fx.Shuffle([]byte(urlEncoding))
 	shortner := NewShortner(string(encoding))
 
 	for i := 1; i < 100000; i++ {

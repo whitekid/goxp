@@ -13,7 +13,7 @@ func TestRetry(t *testing.T) {
 	type args struct {
 		limit   int
 		initial time.Duration
-		backoff float64
+		ratio   float64
 		fn      func() error
 	}
 
@@ -32,7 +32,7 @@ func TestRetry(t *testing.T) {
 			ctx := context.Background()
 			tries := 0
 
-			err := Retry().Limit(tt.args.limit).Backoff(tt.args.initial, tt.args.backoff).
+			err := Retry().Limit(tt.args.limit).Backoff(tt.args.initial, tt.args.ratio).
 				Do(ctx, func() error {
 					tries++
 					return tt.args.fn()
