@@ -10,53 +10,55 @@ import (
 )
 
 func TestDoWithWorker(t *testing.T) {
-	sum := int32(0)
+	type args struct {
+		workers int
+		sumTo   int
+	}
+	tests := [...]struct {
+		name string
+		args args
+		want int
+	}{
+		{"default", args{0, 10000}, 49995000},
+		{"default", args{4, 1000}, 499500},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sum := int32(0)
 
-	ch := make(chan int32)
+			ch := make(chan int32)
 
-	sumTo := 1000
-	DoWithWorker(4,
-		func() {
-			defer close(ch)
-			for i := 0; i < sumTo; i++ {
-				ch <- int32(i)
-			}
-		},
-		func(i int) {
-			for x := range ch {
-				atomic.AddInt32(&sum, x)
-			}
+			go func() {
+				defer close(ch)
+				for i := 0; i < tt.args.sumTo; i++ {
+					ch <- int32(i)
+				}
+			}()
+
+			DoWithWorker(tt.args.workers, func(i int) {
+				for x := range ch {
+					atomic.AddInt32(&sum, x)
+				}
+			})
+
+			require.Equal(t, int32(tt.want), sum)
 		})
-
-	require.Equal(t, int32(499500), sum)
+	}
 }
 
 func TestDoWithWorkerCancel(t *testing.T) {
-	ch := make(chan int)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*500)
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	defer cancel()
 
 	t1 := time.Now()
-	DoWithWorker(4,
-		func() {
-			defer close(ch)
-			for i := 0; i < 1000; i++ {
-				ch <- i
-			}
-		},
-		func(i int) {
-		exit:
-			for x := range ch {
-				time.Sleep(time.Millisecond*100 + time.Duration(x*0))
-
-				select {
-				case <-ctx.Done():
-					break exit
-				default:
-				}
-			}
-		})
+	DoWithWorker(0, func(i int) {
+		select {
+		case <-ctx.Done():
+			break
+		case <-time.After(time.Hour):
+			require.Fail(t, "must canceled by context")
+		}
+	})
 
 	require.Truef(t, time.Now().Before(t1.Add(time.Second)), "work should done in %s, it takes %s", time.Second, time.Since(t1))
 }
