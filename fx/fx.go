@@ -181,12 +181,16 @@ func (i *ifElse[T]) Else(elseValue T) T {
 	return elseValue
 }
 
-func Ternary[T any](cond func() bool, trueValue T, falseValue T) T {
-	if cond() {
+func Ternary[T any](cond bool, trueValue T, falseValue T) T {
+	if cond {
 		return trueValue
 	}
 
 	return falseValue
+}
+
+func TernaryF[T any](cond func() bool, trueValue T, falseValue T) T {
+	return Ternary(cond(), trueValue, falseValue)
 }
 
 type Number interface {
@@ -196,9 +200,9 @@ type Number interface {
 func Sum[T Number](collection []T) T { return Reduce(collection, func(x T, y T) T { return x + y }) }
 
 func Max[T Number](collection []T) T {
-	return Reduce(collection, func(x T, y T) T { return Ternary(func() bool { return x > y }, x, y) })
+	return Reduce(collection, func(x T, y T) T { return Ternary(x > y, x, y) })
 }
 
 func Min[T Number](collection []T) T {
-	return Reduce(collection, func(x T, y T) T { return Ternary(func() bool { return x > y }, y, x) })
+	return Reduce(collection, func(x T, y T) T { return Ternary(x > y, y, x) })
 }

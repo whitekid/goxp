@@ -22,14 +22,15 @@ func init() {
 		Use:   "uuid",
 		Short: "encode uuid to URL friendly",
 		Run: func(cmd *cobra.Command, args []string) {
-			uid := uuid.New()
-			sg := slug.NewUUID()
-			slug := sg.Encode(uid)
+			fx.ForEach(
+				fx.Times(10, func(i int) uuid.UUID { return uuid.New() }),
+				func(i int, x uuid.UUID) {
+					sg := slug.NewUUID()
+					slug := sg.Encode(x)
+					uid1 := sg.Decode(slug)
 
-			fmt.Printf("UUID: %s => slug=%s\n", uid, slug)
-
-			uid1 := sg.Decode(slug)
-			fmt.Printf("slug: %s => UUID=%s\n", slug, uid1)
+					fmt.Printf("%s => %s => %s\n", x, slug, uid1)
+				})
 		},
 	})
 
@@ -43,9 +44,14 @@ func init() {
 
 			max, _ := rand.Int(rand.Reader, big.NewInt(math.MaxInt16))
 
-			for i := max.Int64(); i < max.Int64()+10; i++ {
-				fmt.Printf("%d => %s\n", i, shortner.Encode(i))
-			}
+			fx.ForEach(
+				fx.Times(10, func(i int) *big.Int { return big.NewInt(int64(i)) }),
+				func(i int, b *big.Int) {
+					n := max.Int64() + int64(i)
+					code := shortner.Encode(n)
+					decoded, _ := shortner.Decode(code)
+					fmt.Printf("%d => %s => %d\n", n, code, decoded)
+				})
 		},
 	})
 

@@ -6,29 +6,24 @@ import (
 	"sync"
 	"time"
 
+	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
 )
 
 // DoWithWorker iterate chan and run do() with n workers
 // if works <=0 then worker set to runtime.NumCPU()
-func DoWithWorker(workers int, gen func(), do func(i int)) {
+func DoWithWorker(workers int, do func(i int)) {
 	var wg sync.WaitGroup
-	wg.Add(workers)
 
-	if workers <= 0 {
-		workers = runtime.NumCPU()
-	}
-
-	if gen != nil {
-		go gen()
-	}
+	workers = fx.Ternary(workers <= 0, runtime.NumCPU(), workers)
 
 	for i := 0; i < workers; i++ {
+		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
 			do(i)
 		}(i)
-	}
+	} 
 
 	wg.Wait()
 }

@@ -61,7 +61,7 @@ func TestTernary(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := Ternary(func() bool { return tt.args.value%2 == 0 }, "even", "odd")
+			got := Ternary(tt.args.value%2 == 0, "even", "odd")
 			require.Equal(t, tt.want, got)
 		})
 	}

@@ -44,6 +44,6 @@ func Envs(envs map[string]string) Teardown {
 
 // JSONEnv json environment fixture
 func JSONEnv(key, value string) Teardown {
-	encoded := base64.StdEncoding.EncodeToString([]byte(strings.TrimSpace(value)))
+	encoded := base64.RawStdEncoding.EncodeToString([]byte(strings.TrimSpace(value)))
 	return Env(key, encoded)
 }
