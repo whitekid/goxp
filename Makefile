@@ -4,13 +4,19 @@ SRC=$(shell find . -type f -name '*.go' -not -path "./vendor/*" -not -path "*_te
 GO?=go
 BUILD_FLAGS?=-v
 
-.PHONY: clean test get tidy
+.PHONY: clean install test get tidy
 
 all: build
 build: $(TARGET)
 
 $(TARGET): $(SRC)
 	${GO} build -o bin/ ${BUILD_FLAGS} ./cmd/...
+
+install:
+	@go install -v ./...
+
+clean:
+	rm -rf bin/
 
 test:
 	@go test -v ./...
