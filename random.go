@@ -4,38 +4,44 @@ import (
 	crand "crypto/rand"
 	"math/big"
 	"math/rand"
-	"sync"
 	"time"
+
+	"github.com/whitekid/goxp/fx"
 )
 
 const (
-	Digits          = "0123456789"
-	AsciiUpperCases = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	AsciiLowerCases = "abcdefghijklmnopqrstuvwxyz"
-	AsciiLetters    = AsciiLowerCases + AsciiUpperCases
+	digits          = "0123456789"
+	asciiUpperCases = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	asciiLowerCases = "abcdefghijklmnopqrstuvwxyz"
+	asciiLetters    = asciiLowerCases + asciiUpperCases
 	specialLetters  = "!@#$%^&*()"
-	randomLetters   = AsciiLetters + Digits + specialLetters
+	randomLetters   = asciiLetters + digits + specialLetters
 )
 
 var (
-	randString     *rand.Rand
-	randStringOnce sync.Once
+	rnd *rand.Rand
 )
+
+func init() {
+	rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
+}
 
 // RandomString generate random string
 func RandomString(size int) string {
-	randStringOnce.Do(func() {
-		randString = rand.New(rand.NewSource(time.Now().UnixNano()))
-	})
-
 	b := make([]byte, size)
 	l := len(randomLetters)
 
 	for i := 0; i < size; i++ {
-		b[i] = randomLetters[randString.Intn(l)]
+		b[i] = randomLetters[rnd.Intn(l)]
 	}
 
 	return string(b)
+}
+
+// RandomStringFx generate random string
+func RandomStringFx(size int) string {
+	l := len(randomLetters)
+	return string(fx.Times(size, func(i int) byte { return randomLetters[rnd.Intn(l)] }))
 }
 
 // RandomStringWithCrypto generate random string securly but much slower than RandomString()
@@ -48,4 +54,10 @@ func RandomStringWithCrypto(size int) string {
 		b[i] = randomLetters[int(n.Int64())]
 	}
 	return string(b)
+}
+
+func RandomByte(size int) []byte {
+	r := make([]byte, size)
+	crand.Read(r)
+	return r
 }
