@@ -18,15 +18,18 @@ func ForEach[T any](collection []T, fx func(int, T)) {
 }
 
 func Filter[T any](collection []T, fx func(T) bool) []T {
-	var result []T
+	result := make([]T, len(collection))
 
+	j := 0
 	ForEach(collection, func(i int, e T) {
-		if fx(e) {
-			result = append(result, e)
+		if !fx(e) {
+			return
 		}
+		result[j] = e
+		j++
 	})
 
-	return result
+	return result[:j]
 }
 
 func Map[T any, R any](collection []T, fx func(T) R) []R {
@@ -54,29 +57,18 @@ func Times[T any](count int, fx func(int) T) []T {
 
 // Shuffle return shuffled slice
 func Shuffle[T any](x []T) []T {
-
 	sf := make([]T, len(x))
 	copy(sf, x)
 
-	rnd.Shuffle(len(sf), func(i, j int) {
-		sf[i], sf[j] = sf[j], sf[i]
-	})
+	rnd.Shuffle(len(sf), func(i, j int) { sf[i], sf[j] = sf[j], sf[i] })
 
 	return sf
 }
 
 func Distinct[T comparable](collection []T) []T {
-	set := make(map[T]struct{})
-	var result []T
-
-	ForEach(collection, func(_ int, e T) {
-		if _, ok := set[e]; !ok {
-			set[e] = struct{}{}
-			result = append(result, e)
-		}
-	})
-
-	return result
+	set := NewSet[T]()
+	set.Append(collection...)
+	return set.Slice()
 }
 
 func Contains[T comparable](x []T, e T) bool {
@@ -116,18 +108,26 @@ func Samples[T any](collection []T, count int) []T {
 }
 
 func Keys[K comparable, V any](m map[K]V) []K {
-	var result []K
+	result := make([]K, len(m))
+
+	i := 0
 	for k := range m {
-		result = append(result, k)
+		result[i] = k
+		i++
 	}
+
 	return result
 }
 
 func Values[K comparable, V any](m map[K]V) []V {
-	var result []V
+	result := make([]V, len(m))
+
+	i := 0
 	for _, v := range m {
-		result = append(result, v)
+		result[i] = v
+		i++
 	}
+
 	return result
 }
 
@@ -139,6 +139,7 @@ func ForEachMap[K comparable, V any](collection map[K]V, fx func(k K, v V)) {
 
 func MapMap[K comparable, V any, U any](collection map[K]V, fx func(K) U) map[K]U {
 	result := make(map[K]U)
+
 	for k := range collection {
 		result[k] = fx(k)
 	}
@@ -147,6 +148,7 @@ func MapMap[K comparable, V any, U any](collection map[K]V, fx func(K) U) map[K]
 
 func MapValues[K comparable, V any](m map[K]V, fx func(x V) V) map[K]V {
 	var result map[K]V
+
 	for k, v := range m {
 		result[k] = fx(v)
 	}
