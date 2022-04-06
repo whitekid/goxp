@@ -12,8 +12,9 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "goxp",
-	Short: "goxp examples",
+	Use:     "goxp",
+	Short:   "goxp examples",
+	Version: fmt.Sprintf("%s %s %s %s", GitTag, GitBranch, GitDirty, BuildTime),
 }
 
 func init() {
