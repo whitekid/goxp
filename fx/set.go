@@ -6,7 +6,9 @@ type Set[T comparable] struct {
 }
 
 func NewSet[T comparable]() *Set[T] {
-	return &Set[T]{}
+	return &Set[T]{
+		keys: make(map[T]struct{}),
+	}
 }
 
 func (s *Set[T]) Slice() []T { return s.values }
@@ -18,6 +20,7 @@ func (s *Set[T]) Append(elements ...T) {
 			continue
 		}
 
+		s.keys[e] = struct{}{}
 		s.values = append(s.values, e)
 	}
 }
