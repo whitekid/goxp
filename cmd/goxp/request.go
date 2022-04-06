@@ -19,7 +19,9 @@ func init() {
 		Short: "request package example",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := request.Get(args[0]).Do(cmd.Context())
+			resp, err := request.Get(args[0]).
+				Header(request.HeaderUserAgent, v.GetString("user-agent")).
+				Do(cmd.Context())
 			if err != nil {
 				return err
 			}
@@ -40,6 +42,7 @@ func init() {
 
 	configs := map[string][]flags.Flag{
 		"request": {
+			{"user-agent", "A", "goxp request example " + GitTag, "user agent"},
 			{"verbose", "v", false, "verbose"},
 		},
 	}

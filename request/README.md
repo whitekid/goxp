@@ -1,7 +1,7 @@
 # Easy Request Library for golang
 
 ```go
-resp, err := Get("https://api.github.com").Do()
+resp, err := Get("https://api.github.com").Do(context.Background())
 
 r := map[string]string{}
 resp.JSON(&r)

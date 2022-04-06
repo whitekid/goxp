@@ -9,7 +9,7 @@ import (
 )
 
 func TestShortner(t *testing.T) {
-	encoding := fx.Shuffle([]byte(urlEncoding))
+	encoding := fx.Shuffle([]byte(EncodeURL))
 	shortner := NewShortner(string(encoding))
 
 	for i := 1; i < 100000; i++ {

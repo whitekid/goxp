@@ -16,8 +16,9 @@ const (
 	ContentTypeJSON = "application/json; charset=UTF-8"
 	ContentTypeForm = "application/x-www-form-urlencoded; charset=UTF-8"
 
+	HeaderUserAgent   = "User-Agent"
 	HeaderReferer     = "Referer"
-	headerContentType = "Content-Type"
+	HeaderContentType = "Content-Type"
 )
 
 type Request struct {
@@ -85,7 +86,7 @@ func (r *Request) Headers(headers map[string]string) *Request {
 }
 
 func (r *Request) ContentType(contentType string) *Request {
-	r.header.Set(headerContentType, contentType)
+	r.header.Set(HeaderContentType, contentType)
 	return r
 }
 
@@ -172,10 +173,10 @@ func (r *Request) makeRequest() (*http.Request, error) {
 	case http.MethodPost, http.MethodPut:
 		switch {
 		case len(r.formValues) > 0:
-			r.header.Set(headerContentType, ContentTypeForm)
+			r.header.Set(HeaderContentType, ContentTypeForm)
 			body = strings.NewReader(r.formValues.Encode())
 		case len(r.jsonValues) > 0:
-			r.header.Set(headerContentType, ContentTypeJSON)
+			r.header.Set(HeaderContentType, ContentTypeJSON)
 			buffer := &bytes.Buffer{}
 			for _, js := range r.jsonValues {
 				buf := &bytes.Buffer{}

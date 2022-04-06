@@ -25,7 +25,7 @@ func init() {
 			fx.ForEach(
 				fx.Times(10, func(i int) uuid.UUID { return uuid.New() }),
 				func(i int, x uuid.UUID) {
-					sg := slug.NewUUID()
+					sg := slug.NewUUID(nil)
 					slug := sg.Encode(x)
 					uid1 := sg.Decode(slug)
 
@@ -38,9 +38,9 @@ func init() {
 		Use:   "short",
 		Short: "encode int to URL friendly.",
 		Run: func(cmd *cobra.Command, args []string) {
-			encoding := fx.Shuffle([]byte("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"))
-			shortner := slug.NewShortner(string(encoding))
-			fmt.Printf("encoding: %s\n\n", string(encoding))
+			encoding := string(fx.Shuffle([]byte(slug.EncodeURL)))
+			shortner := slug.NewShortner(encoding)
+			fmt.Printf("encoding: %s\n\n", encoding)
 
 			max, _ := rand.Int(rand.Reader, big.NewInt(math.MaxInt16))
 

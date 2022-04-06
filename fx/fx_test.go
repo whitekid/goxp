@@ -8,10 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func dump[T any](collection []T) {
-	fmt.Printf("dump: %v\n", collection)
-}
-
 func TestFX(t *testing.T) {
 	s := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 	ForEach(s, func(_, e int) { fmt.Printf("%d", e) })
@@ -20,14 +16,13 @@ func TestFX(t *testing.T) {
 	s1 := Map(s, func(e int) int { return e * 2 })
 	s2 := Filter(s1, func(e int) bool { return e%3 == 0 })
 	s3 := Map(s2, func(e int) string { return strconv.FormatInt(int64(e), 10) })
+	fmt.Printf("dump: %v\n", s3)
 
 	require.Equal(t, 45, Sum(s))
 	require.Equal(t, 9, Max(s))
 	require.Equal(t, 0, Min(s))
 
 	require.Equal(t, []int{1, 2, 3, 4, 5, 6, 7}, Distinct([]int{1, 1, 1, 2, 3, 4, 5, 5, 6, 7}))
-
-	dump(s3)
 }
 
 func TestFXObject(t *testing.T) {
