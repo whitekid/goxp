@@ -146,8 +146,8 @@ func MapMap[K comparable, V any, U any](collection map[K]V, fx func(K) U) map[K]
 	return result
 }
 
-func MapValues[K comparable, V any](m map[K]V, fx func(x V) V) map[K]V {
-	var result map[K]V
+func MapValues[K comparable, V any, U any](m map[K]V, fx func(x V) U) map[K]U {
+	var result map[K]U
 
 	for k, v := range m {
 		result[k] = fx(v)

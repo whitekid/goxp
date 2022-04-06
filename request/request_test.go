@@ -28,7 +28,7 @@ func TestFormContentType(t *testing.T) {
 		makeRequest()
 	require.NoError(t, err)
 
-	require.Equal(t, ContentTypeForm, req.Header.Get(headerContentType))
+	require.Equal(t, ContentTypeForm, req.Header.Get(HeaderContentType))
 }
 
 func TestPapagoSMT(t *testing.T) {

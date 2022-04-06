@@ -33,10 +33,8 @@ func TestSlug(t *testing.T) {
 	}
 }
 
-const urlEncoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" // url encoding
-
 func TestSlugger(t *testing.T) {
-	sl := New(urlEncoding)
+	sl := New(EncodeURL)
 
 	got := sl.Encode(big.NewInt(1).Bytes())
 	require.Equal(t, "AQ", got)
@@ -48,6 +46,6 @@ func TestSlugger(t *testing.T) {
 
 	require.Equal(t, b.Bytes(), dec)
 
-	s := New(string(urlEncoding))
-	s.Encode(big.NewInt(1).Bytes())
+	s := New(EncodeURL)
+	require.Equal(t, "AQ", s.Encode(big.NewInt(1).Bytes()))
 }

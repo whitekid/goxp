@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
+const EncodeURL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" // url encoding; base64.encodeURL 와 동일
+
 type Slug struct {
 	encoder *base64.Encoding
 }
@@ -27,7 +29,11 @@ type UUID struct {
 	slugger *Slug
 }
 
-func NewUUID() *UUID {
+func NewUUID(encoding *base64.Encoding) *UUID {
+	if encoding == nil {
+		encoding = base64.RawURLEncoding
+	}
+
 	return &UUID{
 		slugger: withEncoding(base64.RawURLEncoding),
 	}
@@ -52,7 +58,7 @@ func (s *UUID) Decode(slug string) uuid.UUID {
 	return uuid.UUID{}
 }
 
-var uuidSlugger = NewUUID()
+var uuidSlugger = NewUUID(nil)
 
 // ToSlug ...
 // Deprecated:
