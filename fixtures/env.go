@@ -34,7 +34,7 @@ func Env(key, value string) Teardown {
 // Envs multiple environments fixture
 func Envs(envs map[string]string) Teardown {
 	log.Debugf("envs = %+v", envs)
-	teardownsMap := fx.MapMap(envs, func(x string) Teardown {
+	teardownsMap := fx.MapValues(envs, func(x string) Teardown {
 		log.Debugf("%s = %s", x, envs[x])
 		return Env(x, envs[x])
 	})

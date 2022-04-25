@@ -5,30 +5,83 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/whitekid/goxp/log"
 )
 
 func TestSimple(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
 	resp, err := Get("https://www.google.co.kr").
 		WithClient(http.DefaultClient).
-		Do(context.Background())
+		ContentType(MIMEApplicationJSON).
+		Do(ctx)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestFormContentType(t *testing.T) {
-	req, err := Post("http:....").
-		Form("Key", "Vaue").
-		Form("Key1", "Value").
-		makeRequest()
-	require.NoError(t, err)
+func TestMakeRequest(t *testing.T) {
+	{
+		req, err := Get("http:....").
+			Header("Key", "Value").
+			Headers(map[string]string{
+				"Key1": "Value1",
+				"Key2": "Value2",
+			}).
+			Query("queryKey", "queryValue").
+			Queries(map[string]string{
+				"queryKey1": "queryValue1",
+				"queryKey2": "queryValue2",
+			}).
+			makeRequest()
+		require.NoError(t, err)
 
-	require.Equal(t, ContentTypeForm, req.Header.Get(HeaderContentType))
+		query, _ := url.ParseQuery(req.URL.RawQuery)
+		require.Equal(t, "queryValue", query.Get("queryKey"))
+		require.Equal(t, "queryValue2", query.Get("queryKey2"))
+		require.Equal(t, "Value", req.Header.Get("Key"))
+		require.Equal(t, "Value2", req.Header.Get("Key2"))
+	}
+
+	{
+		req, err := Post("http:....").
+			Form("Key", "Vaue").
+			Form("Key1", "Value").
+			makeRequest()
+		require.NoError(t, err)
+
+		require.Equal(t, MIMEApplicationForm, req.Header.Get(HeaderContentType))
+	}
+}
+
+func TestRequest(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+
+	}))
+	defer ts.Close()
+
+	ctx := context.Background()
+	{
+		resp, err := Get(ts.URL).Do(ctx)
+		require.NoError(t, err)
+		require.Truef(t, resp.Success(), "status=%d", resp.StatusCode)
+	}
+
+	{
+		var param = map[string]string{
+			"key": "value",
+		}
+		resp, err := Post(ts.URL).JSON(&param).JSON(&param).Do(ctx)
+		require.NoError(t, err)
+		require.True(t, resp.Success())
+	}
 }
 
 func TestPapagoSMT(t *testing.T) {
@@ -59,8 +112,8 @@ func TestPapagoSMT(t *testing.T) {
 			} `json:"result"`
 		} `json:"message"`
 	}
-	require.NoError(t, resp.JSON(&r))
 	defer resp.Body.Close()
+	require.NoError(t, resp.JSON(&r))
 	require.Equal(t, "Nice to meet you.", r.Message.Result.TranslatedText)
 }
 
@@ -69,8 +122,8 @@ func TestGithubGet(t *testing.T) {
 	require.NoError(t, err)
 
 	r := make(map[string]string)
-	require.NoError(t, resp.JSON(&r))
 	defer resp.Body.Close()
+	require.NoError(t, resp.JSON(&r))
 	require.Equal(t, "https://api.github.com/hub", r["hub_url"])
 }
 
@@ -102,8 +155,8 @@ func TestGoogleCustomSearch(t *testing.T) {
 			Link  string `json:"link"`
 		} `json:"items"`
 	}
-	require.NoError(t, resp.JSON(&response))
 	defer resp.Body.Close()
+	require.NoError(t, resp.JSON(&response))
 	require.True(t, len(response.Items) > 0)
 	log.Infof("link: %s", response.Items[0].Link)
 }
@@ -111,7 +164,7 @@ func TestGoogleCustomSearch(t *testing.T) {
 func TestRedirect(t *testing.T) {
 	type args struct {
 		url            string
-		followRedirect bool
+		followRedirect bool 
 	}
 
 	tests := [...]struct {
@@ -134,7 +187,7 @@ func TestRedirect(t *testing.T) {
 	}
 }
 
-func TestBody(t *testing.T) {
+func TestResponseBody(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		io.Copy(w, req.Body)
 	}))
