@@ -25,6 +25,10 @@ func StrToTime(s string) (time.Time, error) {
 		time.StampMilli,
 		time.StampMicro,
 		time.StampNano,
+
+		// usually used
+		"2006. 1. 2.",
+		"January 2, 2006",
 	} {
 		if t, err := time.Parse(layout, s); err == nil {
 			return t, err

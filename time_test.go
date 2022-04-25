@@ -33,6 +33,8 @@ func TestStrToTime(t *testing.T) {
 		{"StampMicro", args{"Jan 2 15:04:05.000000", time.Date(0, 1, 2, 15, 4, 5, 0, time.UTC)}, false},
 		{"StampNano", args{"Jan 2 15:04:05.000000000", time.Date(0, 1, 2, 15, 4, 5, 0, time.UTC)}, false},
 		{"String", args{"2006-01-02 15:04:05 +0000 UTC", time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC)}, false},
+		{"", args{"2021. 3. 2.", time.Date(2021, 3, 2, 0, 0, 0, 0, time.UTC)}, false},
+		{"", args{"January 2, 2006", time.Date(2006, 1, 2, 0, 0, 0, 0, time.UTC)}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
