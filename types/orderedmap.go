@@ -47,7 +47,7 @@ func (o *OrderedMap[K, V]) Keys() []K { return o.keys }
 
 func (o *OrderedMap[K, V]) ForEach(each func(int, K, V) bool) {
 	for i, k := range o.keys {
-		if each(i, k, o.store[k]) == false {
+		if !each(i, k, o.store[k]) {
 			break
 		}
 	}

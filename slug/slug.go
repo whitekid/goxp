@@ -35,7 +35,7 @@ func NewUUID(encoding *base64.Encoding) *UUID {
 	}
 
 	return &UUID{
-		slugger: withEncoding(base64.RawURLEncoding),
+		slugger: withEncoding(encoding),
 	}
 }
 

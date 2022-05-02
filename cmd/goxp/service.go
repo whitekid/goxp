@@ -30,7 +30,7 @@ func init() {
 
 type timerService struct{}
 
-var _ service.Interface = &timerService{} // interface guard
+var _ service.Interface = (*timerService)(nil) // interface guard
 
 func newTimerService() service.Interface {
 	return &timerService{}
