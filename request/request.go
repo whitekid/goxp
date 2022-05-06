@@ -26,6 +26,7 @@ const (
 	HeaderReferer       = "Referer"
 	HeaderContentType   = "Content-Type"
 	HeaderAuthorization = "Authorization"
+	HeaderLocation      = "Location"
 )
 
 type Request struct {
@@ -50,10 +51,14 @@ func Put(url string, args ...interface{}) *Request    { return New(http.MethodPu
 func Patch(url string, args ...interface{}) *Request  { return New(http.MethodPatch, url, args...) }
 
 // New create new request
-func New(method, u string, args ...interface{}) *Request {
+func New(method, URL string, args ...interface{}) *Request {
+	if len(args) > 0 {
+		URL = fmt.Sprintf(URL, args...)
+	}
+
 	return &Request{
 		method:     method,
-		URL:        fmt.Sprintf(u, args...),
+		URL:        URL,
 		header:     http.Header{},
 		query:      url.Values{},
 		formValues: url.Values{},

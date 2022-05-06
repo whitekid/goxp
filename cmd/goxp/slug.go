@@ -55,5 +55,14 @@ func init() {
 		},
 	})
 
+	cmd.AddCommand(&cobra.Command{
+		Use:   "new",
+		Short: "generate new random encoding",
+		Run: func(cmd *cobra.Command, args []string) {
+			enc := fx.Shuffle([]rune(slug.EncodeURL))
+			fmt.Printf("%s\n", string(enc))
+		},
+	})
+
 	rootCmd.AddCommand(cmd)
 }
