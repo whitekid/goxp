@@ -27,6 +27,7 @@ func StrToTime(s string) (time.Time, error) {
 		time.StampNano,
 
 		// usually used
+		"2006-01-02T15:04:05Z0700", // RFC3339Z without colon(:)
 		"2006. 1. 2.",
 		"January 2, 2006",
 	} {
