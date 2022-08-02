@@ -52,10 +52,14 @@ func Map[T any, R any](collection []T, fx func(T) R) []R {
 	return result
 }
 
-func Reduce[T any, R any](collection []T, fx func(r R, e T) R) R {
-	var agg R
+func Reduce[T any](collection []T, fx func(r T, e T) T) T {
+	if len(collection) == 1 {
+		return collection[0]
+	}
 
-	ForEach(collection, func(i int, e T) { agg = fx(agg, collection[i]) })
+	agg := collection[0]
+
+	ForEach(collection[1:], func(i int, e T) { agg = fx(agg, collection[i+1]) })
 
 	return agg
 }
@@ -263,10 +267,5 @@ type Ordered interface {
 
 func Sum[T Ordered](collection []T) T { return Reduce(collection, func(x T, y T) T { return x + y }) }
 
-func Max[T Ordered](collection []T) T {
-	return Reduce(collection, func(x T, y T) T { return Ternary(x > y, x, y) })
-}
-
-func Min[T Ordered](collection []T) T {
-	return Reduce(collection, func(x T, y T) T { return Ternary(x > y, y, x) })
-}
+func Max[T Ordered](col []T) T { return Reduce(col, func(x T, y T) T { return Ternary(x > y, x, y) }) }
+func Min[T Ordered](col []T) T { return Reduce(col, func(x T, y T) T { return Ternary(x > y, y, x) }) }
