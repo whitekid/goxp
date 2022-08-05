@@ -16,17 +16,21 @@ import (
 )
 
 const (
-	MIMEApplicationJSON            = "application/json"
-	MIMEApplicationJSONCharsetUTF8 = MIMEApplicationJSON + "; " + charsetUTF8
-	MIMEApplicationForm            = "application/x-www-form-urlencoded"
-
-	charsetUTF8 = "charset=UTF-8"
-
 	HeaderUserAgent     = "User-Agent"
 	HeaderReferer       = "Referer"
 	HeaderContentType   = "Content-Type"
 	HeaderAuthorization = "Authorization"
 	HeaderLocation      = "Location"
+)
+
+var (
+	MIMEApplicationForm = "application/x-www-form-urlencoded"
+
+	MIMEApplicationJSON = mimeByExt(".json")
+	MIMEImagePNG        = mimeByExt(".png")
+	MIMEImageJPEG       = mimeByExt(".jpg")
+	MIMEImageGIF        = mimeByExt(".gif")
+	MIMEVCard           = mimeByExt(".vcf")
 )
 
 type Request struct {
@@ -119,15 +123,11 @@ func (r *Request) AuthToken(token string) *Request {
 
 // Query set query parameters
 func (r *Request) Query(key, value string) *Request {
-	return r.addOptF(func() {
-		r.query.Add(key, value)
-	})
+	return r.addOptF(func() { r.query.Add(key, value) })
 }
 
 func (r *Request) Queries(params map[string]string) *Request {
-	fx.ForEachMap(params, func(k string, v string) {
-		r.addOptF(func() { r.query.Add(k, v) })
-	})
+	fx.ForEachMap(params, func(k string, v string) { r.addOptF(func() { r.query.Add(k, v) }) })
 	return r
 }
 
@@ -178,7 +178,7 @@ func (r *Request) makeRequest() (*http.Request, error) {
 			r.header.Set(HeaderContentType, MIMEApplicationForm)
 			body = strings.NewReader(r.formValues.Encode())
 		case len(r.jsonValues) > 0:
-			r.header.Set(HeaderContentType, MIMEApplicationJSONCharsetUTF8)
+			r.header.Set(HeaderContentType, MIMEApplicationJSON)
 
 			buffer := fx.Map(r.jsonValues, func(v interface{}) io.Reader {
 				buf := &bytes.Buffer{}
