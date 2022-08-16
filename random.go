@@ -19,29 +19,15 @@ const (
 )
 
 var (
-	rnd *rand.Rand
+	rnd *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 )
 
-func init() {
-	rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
-}
-
 // RandomString generate random string
-func RandomString(size int) string {
-	b := make([]byte, size)
-	l := len(randomLetters)
+func RandomString(size int) string { return RandomStringFrom(size, randomLetters) }
 
-	for i := 0; i < size; i++ {
-		b[i] = randomLetters[rnd.Intn(l)]
-	}
-
-	return string(b)
-}
-
-// RandomStringFx generate random string
-func RandomStringFx(size int) string {
-	l := len(randomLetters)
-	return string(fx.Times(size, func(i int) byte { return randomLetters[rnd.Intn(l)] }))
+func RandomStringFrom(size int, source string) string {
+	l := len(source)
+	return string(fx.Times(size, func(i int) byte { return source[rnd.Intn(l)] }))
 }
 
 // RandomStringWithCrypto generate random string securly but much slower than RandomString()

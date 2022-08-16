@@ -2,31 +2,31 @@ package cryptox
 
 import (
 	"bytes"
-	"crypto/aes"
 	"crypto/cipher"
+	"crypto/des"
 	"crypto/rand"
 	"io"
 
 	"github.com/pkg/errors"
 )
 
-type aesCipher struct {
+type desCipher struct {
 	key []byte
 }
 
-var _ Interface = (*aesCipher)(nil)
+var _ Interface = (*desCipher)(nil)
 
-func NewAes(key []byte) Interface { return &aesCipher{key: key} }
+func NewDes(key []byte) Interface { return &desCipher{key: key} }
 
-func (c *aesCipher) newCipher(key []byte) (cipher.Block, error) {
-	if len(key) < aes.BlockSize {
-		key = append(key, make([]byte, aes.BlockSize-len(key))...)
+func (c *desCipher) newCipher(key []byte) (cipher.Block, error) {
+	if len(key) < des.BlockSize {
+		key = append(key, make([]byte, des.BlockSize-len(key))...)
 	}
 
-	return aes.NewCipher(key)
+	return des.NewCipher(key)
 }
 
-func (c *aesCipher) Encrypt(data []byte) ([]byte, error) {
+func (c *desCipher) Encrypt(data []byte) ([]byte, error) {
 	block, err := c.newCipher(c.key)
 	if err != nil {
 		return nil, errors.Wrap(err, "encrypt failed")
@@ -49,7 +49,7 @@ func (c *aesCipher) Encrypt(data []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-func (c *aesCipher) Decrypt(data []byte) ([]byte, error) {
+func (c *desCipher) Decrypt(data []byte) ([]byte, error) {
 	block, err := c.newCipher(c.key)
 	if err != nil {
 		return nil, errors.Wrap(err, "decrypt failed")

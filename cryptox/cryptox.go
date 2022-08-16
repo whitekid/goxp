@@ -6,9 +6,17 @@ import (
 	"github.com/whitekid/goxp/log"
 )
 
-type Interface interface {
+type Encrypter interface {
 	Encrypt(data []byte) ([]byte, error)
+}
+
+type Decrypter interface {
 	Decrypt(data []byte) ([]byte, error)
+}
+
+type Interface interface {
+	Encrypter
+	Decrypter
 }
 
 func Encrypt(key, data string) (string, error) {
