@@ -5,7 +5,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/whitekid/goxp/fx"
-	"github.com/whitekid/goxp/log"
 )
 
 func TestShortner(t *testing.T) {
@@ -18,8 +17,5 @@ func TestShortner(t *testing.T) {
 		got, err := shortner.Decode(s)
 		require.NoError(t, err)
 		require.Equal(t, int64(i), got)
-		if i == 99999 {
-			log.Infof("%d => %s", i, s)
-		}
 	}
 }

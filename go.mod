@@ -1,6 +1,6 @@
 module github.com/whitekid/goxp
 
-go 1.18
+go 1.19
 
 require (
 	github.com/google/uuid v1.3.0
@@ -9,8 +9,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.0
-	go.uber.org/zap v1.21.0
-	golang.org/x/net v0.0.0-20220802222814-0bcc04d9c69b
+	go.uber.org/zap v1.22.0
+	golang.org/x/net v0.0.0-20220812174116-3211cb980234
 )
 
 require (

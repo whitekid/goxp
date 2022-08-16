@@ -13,7 +13,6 @@ func BenchmarkRandomString(b *testing.B) {
 		args args
 	}{
 		{"rand", args{RandomString}},
-		{"randfx", args{RandomStringFx}},
 		{"crypto", args{RandomStringWithCrypto}},
 	}
 	for _, tt := range tests {

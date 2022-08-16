@@ -5,11 +5,7 @@ import (
 	"time"
 )
 
-var rnd *rand.Rand
-
-func init() {
-	rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
-}
+var rnd *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 // ForEach iteraterate slice and apply function
 func ForEach[T any](collection []T, fx func(int, T)) {

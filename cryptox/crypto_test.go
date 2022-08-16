@@ -2,6 +2,7 @@ package cryptox
 
 import (
 	"crypto/aes"
+	"crypto/des"
 	"math/rand"
 	"testing"
 
@@ -81,4 +82,31 @@ func TestEncryptError(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
+}
+
+func TestEncrypter(t *testing.T) {
+	data := "hello world"
+
+	type args struct {
+		cipher Interface
+	}
+	tests := [...]struct {
+		name string
+		args args
+	}{
+		{"aes", args{NewAes(goxp.RandomByte(aes.BlockSize))}},
+		{"des", args{NewDes(goxp.RandomByte(des.BlockSize))}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			encrypted, err := tt.args.cipher.Encrypt([]byte(data))
+			require.NoError(t, err)
+
+			decrypted, err := tt.args.cipher.Decrypt(encrypted)
+			require.NoError(t, err)
+
+			require.Equal(t, data, string(decrypted))
+		})
+	}
+
 }
