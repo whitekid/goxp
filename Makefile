@@ -42,5 +42,8 @@ dep:
 
 	@$(MAKE) tidy
 
+	@go mod edit -retract="[v0.0.4,v0.0.10]"
+	@$(MAKE) tidy
+
 tidy:
-	@go mod tidy
+	@go mod tidy -v
