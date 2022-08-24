@@ -3,6 +3,7 @@ package goxp
 import (
 	"bytes"
 	"encoding/json"
+	"os"
 	"runtime"
 )
 
@@ -11,6 +12,11 @@ import (
 func Filename() string {
 	_, filename, _, _ := runtime.Caller(1)
 	return filename
+}
+
+func FileExists(name string) bool {
+	_, err := os.Stat(name)
+	return err == nil
 }
 
 func JsonRedecode(dest, src interface{}) error {
