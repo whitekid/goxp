@@ -12,6 +12,26 @@ func TestFilename(t *testing.T) {
 	require.Equal(t, filename, Filename())
 }
 
+func TestFileExists(t *testing.T) {
+	type args struct {
+		filename string
+	}
+	tests := [...]struct {
+		name string
+		args args
+		want bool
+	}{
+		{"not exists", args{"not-exists"}, false},
+		{"not exists", args{Filename()}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := FileExists(tt.args.filename)
+			require.Equalf(t, tt.want, got, "want: %v, got: %v, file:%v", tt.want, got, tt.args.filename)
+		})
+	}
+}
+
 func TestJsonRedecode(t *testing.T) {
 	type HelloStruct struct {
 		Message string `json:"message"`
