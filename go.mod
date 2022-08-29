@@ -9,8 +9,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.0
-	go.uber.org/zap v1.22.0
-	golang.org/x/net v0.0.0-20220812174116-3211cb980234
+	go.uber.org/zap v1.23.0
+	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b
 )
 
 require (
