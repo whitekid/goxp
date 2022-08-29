@@ -26,6 +26,10 @@ func ForEachE[T any](collection []T, fx func(int, T) error) error {
 
 // Filter return filtered slice
 func Filter[T any](collection []T, fx func(T) bool) []T {
+	if collection == nil {
+		return nil
+	}
+
 	result := make([]T, len(collection))
 
 	j := 0
@@ -42,6 +46,10 @@ func Filter[T any](collection []T, fx func(T) bool) []T {
 
 // Map map element and return new type
 func Map[T any, R any](collection []T, fx func(T) R) []R {
+	if collection == nil {
+		return nil
+	}
+
 	result := make([]R, len(collection))
 	ForEach(collection, func(i int, e T) { result[i] = fx(e) })
 
@@ -71,6 +79,10 @@ func Times[T any](count int, fx func(int) T) []T {
 
 // Shuffle return shuffled slice
 func Shuffle[T any](collection []T) []T {
+	if collection == nil {
+		return nil
+	}
+
 	sf := make([]T, len(collection))
 	copy(sf, collection)
 
@@ -81,6 +93,10 @@ func Shuffle[T any](collection []T) []T {
 
 // Distinct return distinct slice
 func Distinct[T comparable](collection []T) []T {
+	if collection == nil {
+		return nil
+	}
+
 	set := NewSet[T]()
 	set.Append(collection...)
 	return set.Slice()
@@ -131,11 +147,19 @@ func Every[T comparable](collection, subset []T) bool {
 func Sample[T any](collection []T) T { return collection[rnd.Intn(len(collection))] }
 
 func Samples[T any](collection []T, count int) []T {
+	if collection == nil {
+		return nil
+	}
+
 	return Map(make([]T, count), func(e T) T { return Sample(collection) })
 }
 
 // Keys returns key slice
 func Keys[K comparable, V any](mapping map[K]V) []K {
+	if mapping == nil {
+		return nil
+	}
+
 	result := make([]K, len(mapping))
 
 	i := 0
@@ -149,6 +173,10 @@ func Keys[K comparable, V any](mapping map[K]V) []K {
 
 // Values return values slice
 func Values[K comparable, V any](mapping map[K]V) []V {
+	if mapping == nil {
+		return nil
+	}
+
 	result := make([]V, len(mapping))
 
 	i := 0
@@ -180,6 +208,10 @@ func ForEachMapE[K comparable, V any](mapping map[K]V, fx func(k K, v V) error) 
 
 // MapValues map mappings
 func MapValues[K comparable, V any, U any](mapping map[K]V, fx func(K) U) map[K]U {
+	if mapping == nil {
+		return nil
+	}
+
 	result := make(map[K]U)
 
 	for k := range mapping {
@@ -189,6 +221,10 @@ func MapValues[K comparable, V any, U any](mapping map[K]V, fx func(K) U) map[K]
 }
 
 func MergeMap[K comparable, V any](mapping ...map[K]V) map[K]V {
+	if mapping == nil {
+		return nil
+	}
+
 	result := map[K]V{}
 
 	for _, m := range mapping {
