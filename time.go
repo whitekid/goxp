@@ -1,8 +1,9 @@
 package goxp
 
 import (
-	"fmt"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // StrToTime parse standard layout string to time
@@ -35,5 +36,5 @@ func StrToTime(s string) (time.Time, error) {
 		}
 	}
 
-	return time.Time{}, fmt.Errorf("parse failed: %s", s)
+	return time.Time{}, errors.Errorf("parse failed: %s", s)
 }

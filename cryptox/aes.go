@@ -5,9 +5,9 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"errors"
-	"fmt"
 	"io"
+
+	"github.com/pkg/errors"
 )
 
 type aesCipher struct {
@@ -29,7 +29,7 @@ func (c *aesCipher) newCipher(key []byte) (cipher.Block, error) {
 func (c *aesCipher) Encrypt(data []byte) ([]byte, error) {
 	block, err := c.newCipher(c.key)
 	if err != nil {
-		return nil, fmt.Errorf("encrypt failed: %w", err)
+		return nil, errors.Wrap(err, "encrypt failed")
 	}
 
 	if mod := len(data) % block.BlockSize(); mod != 0 {
@@ -40,7 +40,7 @@ func (c *aesCipher) Encrypt(data []byte) ([]byte, error) {
 	ciphertext := make([]byte, block.BlockSize()+len(data))
 	iv := ciphertext[:block.BlockSize()]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return nil, fmt.Errorf("random read failed: %w", err)
+		return nil, errors.Wrapf(err, "random read failed")
 	}
 
 	mode := cipher.NewCBCEncrypter(block, iv)
@@ -52,11 +52,11 @@ func (c *aesCipher) Encrypt(data []byte) ([]byte, error) {
 func (c *aesCipher) Decrypt(data []byte) ([]byte, error) {
 	block, err := c.newCipher(c.key)
 	if err != nil {
-		return nil, fmt.Errorf("decrypt failed: %w", err)
+		return nil, errors.Wrap(err, "decrypt failed")
 	}
 
 	if len(data)%block.BlockSize() != 0 {
-		return nil, errors.New("data size mismatch")
+		return nil, errors.Errorf("data size mismatch")
 	}
 
 	iv := data[:block.BlockSize()]
