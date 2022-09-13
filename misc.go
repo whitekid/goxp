@@ -31,3 +31,13 @@ func JsonRedecode(dest, src interface{}) error {
 
 	return nil
 }
+
+func IfThen(condition bool, thenF func(), falseF ...func()) {
+	if condition {
+		thenF()
+	}
+
+	if len(falseF) > 0 {
+		falseF[0]()
+	}
+}
