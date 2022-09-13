@@ -293,8 +293,12 @@ func TernaryF[T any](cond func() bool, trueValue T, falseValue T) T {
 	return Ternary(cond(), trueValue, falseValue)
 }
 
+type Int interface {
+	uint | uint8 | uint16 | uint32 | uint64 | int | int8 | int16 | int32 | int64
+}
+
 type Number interface {
-	uint | uint8 | uint16 | uint32 | uint64 | int | int8 | int16 | int32 | int64 | float32 | float64
+	Int | float64
 }
 
 type Ordered interface {
