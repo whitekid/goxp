@@ -13,6 +13,7 @@ type Interface interface {
 	Delete(url string, args ...interface{}) *Request
 	Put(url string, args ...interface{}) *Request
 	Patch(url string, args ...interface{}) *Request
+	Head(url string, args ...interface{}) *Request
 }
 
 func NewSession(client *http.Client) Interface {
@@ -49,4 +50,8 @@ func (s *Session) Put(url string, args ...interface{}) *Request {
 
 func (s *Session) Patch(url string, args ...interface{}) *Request {
 	return Patch(url, args...).WithClient(s.client)
+}
+
+func (s *Session) Head(url string, args ...interface{}) *Request {
+	return Head(url, args...).WithClient(s.client)
 }

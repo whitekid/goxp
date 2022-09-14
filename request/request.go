@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -53,6 +52,7 @@ func Get(url string, args ...interface{}) *Request    { return New(http.MethodGe
 func Delete(url string, args ...interface{}) *Request { return New(http.MethodDelete, url, args...) }
 func Put(url string, args ...interface{}) *Request    { return New(http.MethodPut, url, args...) }
 func Patch(url string, args ...interface{}) *Request  { return New(http.MethodPatch, url, args...) }
+func Head(url string, args ...interface{}) *Request   { return New(http.MethodHead, url, args...) }
 
 // New create new request
 func New(method, URL string, args ...interface{}) *Request {
@@ -248,7 +248,7 @@ func (r *Response) Success() bool {
 //
 // string() read all data from response.Body. So that if you call more time, it returns empty string
 func (r *Response) String() string {
-	body, _ := ioutil.ReadAll(r.Body)
+	body, _ := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	return string(body)
 }
