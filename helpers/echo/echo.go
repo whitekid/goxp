@@ -11,8 +11,6 @@ import (
 var validate = validator.New()
 
 // NewEcho create new default echo handlers
-//
-// TODO move to goxp
 func NewEcho(middlewares ...echo.MiddlewareFunc) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true

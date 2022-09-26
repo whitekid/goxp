@@ -45,7 +45,7 @@ func init() {
 			go goxp.Every(ctx, time.Second, func() error {
 				fmt.Printf("%s\n", time.Now().Format(time.RFC3339))
 				return nil
-			})
+			}, nil)
 			<-ctx.Done()
 		},
 	})

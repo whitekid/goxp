@@ -30,21 +30,21 @@ func init() {
 
 type timerService struct{}
 
-var _ service.Interface = (*timerService)(nil) // interface guard
+var _ service.Interface = (*timerService)(nil)
 
 func newTimerService() service.Interface {
 	return &timerService{}
 }
 
 func (s *timerService) Serve(ctx context.Context) error {
-	goxp.Every(ctx, time.Second, func() error {
+	go goxp.Every(ctx, time.Second, func() error {
 		if goxp.IsContextDone(ctx) {
 			return ctx.Err()
 		}
 
 		fmt.Printf("%s\n", time.Now().UTC().Format(time.RFC3339))
 		return nil
-	})
+	}, nil)
 
 	<-ctx.Done()
 	return ctx.Err()

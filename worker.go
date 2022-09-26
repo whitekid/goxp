@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/whitekid/goxp/fx"
-	"github.com/whitekid/goxp/log"
 )
 
 // DoWithWorker iterate chan and run do() with n workers
@@ -23,25 +22,27 @@ func DoWithWorker(workers int, do func(i int)) {
 			defer wg.Done()
 			do(i)
 		}(i)
-	} 
+	}
 
 	wg.Wait()
 }
 
-// Every execute fn() in every time duration
+// Every execute fn() in every time interval
 //
 // if you want run scheduled task like cron spec. please see github.com/robfig/cron
-func Every(ctx context.Context, interval time.Duration, fn func() error) {
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-time.After(interval):
-				if err := fn(); err != nil {
-					log.Errorf("task failed with %+v", err)
+func Every(ctx context.Context, interval time.Duration, fn func() error, errCh chan<- error) {
+exit:
+	for {
+		select {
+		case <-ctx.Done():
+			break exit
+
+		case <-time.After(interval):
+			if err := fn(); err != nil {
+				if errCh != nil {
+					errCh <- err
 				}
 			}
 		}
-	}()
+	}
 }

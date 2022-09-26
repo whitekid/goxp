@@ -21,14 +21,14 @@ func newSampleService() Interface {
 func (s *simpleService) Serve(ctx context.Context) error {
 	s.started = true
 
-	goxp.Every(ctx, time.Second, func() error {
+	go goxp.Every(ctx, time.Second, func() error {
 		if goxp.IsContextDone(ctx) {
 			return nil
 		}
 
 		log.Infof("Now: %s", time.Now().UTC().Format(time.RFC3339))
 		return nil
-	})
+	}, nil)
 
 	<-ctx.Done()
 	return nil
