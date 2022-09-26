@@ -293,6 +293,13 @@ func TernaryF[T any](cond func() bool, trueValue T, falseValue T) T {
 	return Ternary(cond(), trueValue, falseValue)
 }
 
+func TernaryCF[T any](cond bool, trueFn func() T, falseFn func() T) T {
+	if cond {
+		return trueFn()
+	}
+	return falseFn()
+}
+
 type Int interface {
 	uint | uint8 | uint16 | uint32 | uint64 | int | int8 | int16 | int32 | int64
 }
