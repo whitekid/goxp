@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-// AvailablePort return any available ports
+// AvailablePort return any available TCP ports
 func AvailablePort() int {
 	ln, err := net.Listen("tcp", ":")
 	if err != nil {
@@ -16,6 +16,17 @@ func AvailablePort() int {
 	defer ln.Close()
 
 	return ln.Addr().(*net.TCPAddr).Port
+}
+
+// AvailableUdpPort return any available UDP ports
+func AvailableUdpPort() int {
+	ln, err := net.ListenUDP("udp", &net.UDPAddr{Port: 0, IP: net.ParseIP("0.0.0.0")})
+	if err != nil {
+		panic(err)
+	}
+	defer ln.Close()
+
+	return ln.LocalAddr().(*net.UDPAddr).Port
 }
 
 // URLToListenAddr parse URL and return correspend listen address
