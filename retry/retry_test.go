@@ -10,7 +10,11 @@ import (
 )
 
 func TestRetry(t *testing.T) {
+	ctxDone, cancel := context.WithCancel(context.Background())
+	cancel()
+
 	type args struct {
+		ctx     context.Context
 		limit   int
 		initial time.Duration
 		ratio   float64
@@ -18,21 +22,28 @@ func TestRetry(t *testing.T) {
 	}
 
 	tests := [...]struct {
-		name    string
-		args    args
-		wantErr bool
-		tries   int
+		name      string
+		args      args
+		wantErr   bool
+		wantTries int
 	}{
-		{"default", args{3, time.Millisecond * 100, 1.3, func() error { return nil }}, false, 1},
-		{"error", args{3, time.Millisecond * 100, 1.3, func() error { return errors.New("fail") }}, true, 3},
+		{"default", args{nil, 3, time.Millisecond * 100, 1.3, func() error { return nil }}, false, 1},
+		{"error", args{nil, 3, time.Millisecond * 100, 1.3, func() error { return errors.New("fail") }}, true, 3},
+		{"stop", args{nil, 3, time.Millisecond * 100, 1.3, func() error { return ErrStop }}, true, 1},
+		{"done context", args{ctxDone, 3, time.Millisecond * 100, 1.3, func() error { return nil }}, true, 0},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := context.Background()
-			tries := 0
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			defer cancel()
 
-			err := Retry().Limit(tt.args.limit).Backoff(tt.args.initial, tt.args.ratio).
+			if tt.args.ctx != nil {
+				ctx = tt.args.ctx
+			}
+
+			tries := 0
+			err := New().Limit(tt.args.limit).Backoff(tt.args.initial, tt.args.ratio).
 				Do(ctx, func() error {
 					tries++
 					return tt.args.fn()
@@ -41,7 +52,7 @@ func TestRetry(t *testing.T) {
 				require.Fail(t, "retry failed", "error: %v, want: %v", err, tt.wantErr)
 			}
 
-			require.Equal(t, tt.tries, tries)
+			require.Equal(t, tt.wantTries, tries)
 		})
 	}
 }
