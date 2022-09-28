@@ -19,6 +19,16 @@ func TestAvailablePort(t *testing.T) {
 	defer ln.Close()
 }
 
+func TestAvailableUdpPort(t *testing.T) {
+	port := AvailableUdpPort()
+
+	require.Greater(t, port, 1024)
+	ln, err := net.ListenUDP("udp", &net.UDPAddr{Port: port, IP: net.ParseIP("0.0.0.0")})
+	require.NoError(t, err)
+	defer ln.Close()
+
+}
+
 func TestURLToListenAddr(t *testing.T) {
 	tests := [...]struct {
 		name     string
