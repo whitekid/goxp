@@ -5,24 +5,24 @@ import (
 	"time"
 )
 
-type Backoff interface {
+type backoffer interface {
 	// return current backoff durations
 	CurrentBackoff() time.Duration
 
 	// when next backoff comes data will be here
-	NextBackoff() <-chan *time.Time
+	NextBackoff() <-chan struct{}
 }
 
-func NewZeroBackoff(ctx context.Context) Backoff { return NewFixedBackoff(ctx, 0) }
+func newZeroBackoff(ctx context.Context) backoffer { return newFixedBackoff(ctx, 0) }
 
-func NewFixedBackoff(ctx context.Context, interval time.Duration) Backoff {
-	return NewRatioBackoff(ctx, interval, interval, 0)
+func newFixedBackoff(ctx context.Context, interval time.Duration) backoffer {
+	return newRatioBackoff(ctx, interval, interval, 0)
 }
 
-const MaxBackoff = 60 * time.Second
+const defaultMaxBackoff = 60 * time.Second
 
-func NewRatioBackoff(ctx context.Context, initial time.Duration, maxBackoff time.Duration, ratio float64) Backoff {
-	ch := make(chan *time.Time)
+func newRatioBackoff(ctx context.Context, initial time.Duration, maxBackoff time.Duration, ratio float64) backoffer {
+	ch := make(chan struct{})
 
 	go func() {
 		<-ctx.Done()
@@ -30,7 +30,7 @@ func NewRatioBackoff(ctx context.Context, initial time.Duration, maxBackoff time
 	}()
 
 	if maxBackoff == 0 {
-		maxBackoff = MaxBackoff
+		maxBackoff = defaultMaxBackoff
 	}
 
 	return &backoffImpl{
@@ -43,7 +43,7 @@ func NewRatioBackoff(ctx context.Context, initial time.Duration, maxBackoff time
 }
 
 type backoffImpl struct {
-	ch         chan *time.Time
+	ch         chan struct{}
 	initial    time.Duration
 	maxBackoff time.Duration
 	ratio      float64
@@ -51,23 +51,24 @@ type backoffImpl struct {
 	backoff time.Duration
 }
 
+var _ backoffer = (*backoffImpl)(nil)
+
 func (back *backoffImpl) CurrentBackoff() time.Duration { return back.backoff }
 
-func (back *backoffImpl) NextBackoff() <-chan *time.Time {
+func (back *backoffImpl) NextBackoff() <-chan struct{} {
 	go func() {
 		<-time.After(back.next())
 
-		now := time.Now()
-		back.ch <- &now
+		back.ch <- struct{}{}
 	}()
 
 	return back.ch
 }
 
+// calculate next backoff
 func (back *backoffImpl) next() time.Duration {
 	current := back.backoff
 
-	// calculate next backoff
 	backoff := back.backoff + time.Duration(float64(back.backoff)*back.ratio)
 	if backoff > back.maxBackoff {
 		backoff = current

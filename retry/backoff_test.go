@@ -14,15 +14,15 @@ func TestBackoff(t *testing.T) {
 	defer cancel()
 
 	type args struct {
-		backoff Backoff
+		backoff backoffer
 	}
 	tests := [...]struct {
 		name string
 		args args
 	}{
-		{"zero", args{NewZeroBackoff(ctx)}},
-		{"fixed", args{NewFixedBackoff(ctx, 100*time.Millisecond)}},
-		{"ratio", args{NewRatioBackoff(ctx, 100*time.Millisecond, time.Second, 0.1)}},
+		{"zero", args{newZeroBackoff(ctx)}},
+		{"fixed", args{newFixedBackoff(ctx, 100*time.Millisecond)}},
+		{"ratio", args{newRatioBackoff(ctx, 100*time.Millisecond, time.Second, 0.1)}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
