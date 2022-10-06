@@ -46,3 +46,13 @@ exit:
 		}
 	}
 }
+
+// After run func after duration
+func After(ctx context.Context, duration time.Duration, fn func()) {
+	select {
+	case <-ctx.Done():
+		return
+	case <-time.After(duration):
+		fn()
+	}
+}
