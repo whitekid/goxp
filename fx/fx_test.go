@@ -26,7 +26,7 @@ func TestFX(t *testing.T) {
 }
 
 func TestFXObject(t *testing.T) {
-	s := NewSlice(Times(10, func(i int) int { return i }))
+	s := S(Times(10, func(i int) int { return i }))
 
 	s1 := s.Map(func(e int) int { return e*2 + 1 }).
 		Filter(func(e int) bool { return e%3 == 0 })
