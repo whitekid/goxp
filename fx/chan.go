@@ -10,7 +10,11 @@ exit:
 		case <-ctx.Done():
 			break exit
 
-		case v := <-ch:
+		case v, ok := <-ch:
+			if !ok {
+				break exit
+			}
+
 			fx(v)
 		}
 	}

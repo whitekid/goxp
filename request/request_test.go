@@ -114,7 +114,7 @@ func TestPapagoSMT(t *testing.T) {
 	}
 	defer resp.Body.Close()
 	require.NoError(t, resp.JSON(&r))
-	require.Equal(t, "Nice to meet you.", r.Message.Result.TranslatedText)
+	require.Equal(t, "Good to meet you.", r.Message.Result.TranslatedText)
 }
 
 func TestGithubGet(t *testing.T) {
@@ -164,7 +164,7 @@ func TestGoogleCustomSearch(t *testing.T) {
 func TestRedirect(t *testing.T) {
 	type args struct {
 		url            string
-		followRedirect bool 
+		followRedirect bool
 	}
 
 	tests := [...]struct {
