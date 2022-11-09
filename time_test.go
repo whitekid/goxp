@@ -17,6 +17,7 @@ func TestStrToTime(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
+		{"ANSIC", args{time.Layout, time.Date(2006, 1, 2, 15, 4, 5, 0, time.FixedZone("", -25200))}, false},
 		{"ANSIC", args{"Mon Jan 2 15:04:05 2006", time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC)}, false},
 		{"UnixDate", args{"Mon Jan 2 15:04:05 MST 2006", time.Date(2006, 1, 2, 15, 4, 5, 0, time.FixedZone("MST", 0))}, false},
 		{"RubyDate", args{"Mon Jan 02 15:04:05 -0700 2006", time.Date(2006, 1, 2, 15, 4, 5, 0, time.FixedZone("", -25200))}, false},

@@ -9,16 +9,16 @@ import (
 // StrToTime parse standard layout string to time
 func StrToTime(s string) (time.Time, error) {
 	for _, layout := range [...]string{
-		time.RFC3339,
-		"2006-01-02 15:04:05.999999999 -0700 MST", // String() format
-		time.RFC1123Z,
-		time.RFC1123,
+		time.Layout,
 		time.ANSIC,
+		time.RFC3339,
 		time.UnixDate,
 		time.RubyDate,
 		time.RFC822,
 		time.RFC822Z,
 		time.RFC850,
+		time.RFC1123Z,
+		time.RFC1123,
 		time.RFC3339Nano,
 		time.Kitchen,
 		time.Stamp,
@@ -26,6 +26,7 @@ func StrToTime(s string) (time.Time, error) {
 		time.StampMicro,
 		time.StampNano,
 
+		"2006-01-02 15:04:05.999999999 -0700 MST", // String() format
 		// usually used
 		"2006-01-02T15:04:05Z0700", // RFC3339Z without colon(:)
 		"2006. 1. 2.",
