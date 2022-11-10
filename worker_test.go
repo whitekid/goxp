@@ -52,10 +52,14 @@ func TestDoWithWorkerCancel(t *testing.T) {
 
 	t1 := time.Now()
 	DoWithWorker(0, func(i int) {
+		after := time.NewTimer(time.Hour)
 		select {
 		case <-ctx.Done():
+			if !after.Stop() {
+				go func() { <-after.C }()
+			}
 			break
-		case <-time.After(time.Hour):
+		case <-after.C:
 			require.Fail(t, "must canceled by context")
 		}
 	})

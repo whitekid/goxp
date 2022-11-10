@@ -30,9 +30,13 @@ func init() {
 
 				sleepMSec, _ := rand.Int(rand.Reader, big.NewInt(10))
 
+				after := time.NewTimer(time.Duration(sleepMSec.Int64()) * time.Second)
 				select {
 				case <-ctx.Done():
-				case <-time.After(time.Duration(sleepMSec.Int64()) * time.Second):
+					if !after.Stop() {
+						go func() { <-after.C }()
+					}
+				case <-after.C:
 				}
 			})
 		},

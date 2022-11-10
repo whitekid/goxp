@@ -33,11 +33,16 @@ func DoWithWorker(workers int, do func(i int)) {
 func Every(ctx context.Context, interval time.Duration, fn func() error, errCh chan<- error) {
 exit:
 	for {
+		after := time.NewTimer(interval)
+
 		select {
 		case <-ctx.Done():
+			if !after.Stop() {
+				go func() { <-after.C }()
+			}
 			break exit
 
-		case <-time.After(interval):
+		case <-after.C:
 			if err := fn(); err != nil {
 				if errCh != nil {
 					errCh <- err
@@ -49,10 +54,17 @@ exit:
 
 // After run func after duration
 func After(ctx context.Context, duration time.Duration, fn func()) {
+	after := time.NewTimer(duration)
+
 	select {
 	case <-ctx.Done():
+		if !after.Stop() {
+			go func() { <-after.C }()
+		}
+
 		return
-	case <-time.After(duration):
+
+	case <-after.C:
 		fn()
 	}
 }
