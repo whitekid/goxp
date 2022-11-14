@@ -25,4 +25,9 @@ func (s *Set[T]) Append(elements ...T) {
 	}
 }
 
+func (s *Set[T]) Has(e T) bool {
+	_, ok := s.keys[e]
+	return ok
+}
+
 func (s *Set[T]) ForEach(fx func(int, T)) { ForEach(s.values, fx) }
