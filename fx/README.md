@@ -201,7 +201,7 @@ for _, e := range set.Slice() {
 require.Equal(t, "true", If(func() bool { return true }, "true").Else("false"))
 ```
 
-## Ternary
+### Ternary
 
 ```go
 r := Ternary(10%2 == 0, "even", "odd")

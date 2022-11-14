@@ -8,17 +8,32 @@ need more detailed usage? please refer test cases.
 
 may be not classfied yet..
 
-- `AvailablePort()` - allocate random available ports
-- `URLToListenAddr()` - parse url and get listenable address, ports
-- `RandomString()` - generate random string
-- `Timer()` - measure execution time
-- `SetBit()` - set bit position
+- `After()` - run func after some duration
+- `AvailablePort()` - return random available tcp ports
+- `AvailableUdpPort()` - return random available udp ports
 - `ClearBit()` - clear bit postion
-- `StrToTime()` - parse standard time format as easy
 - `DoWithWorker()` - run go routine with n works
 - `Every()` - run goroutine in every duration
+- `FileExists()` - return true if file exists
+- `Filename()` - return current source file name
+- `IfThen()` - run func as condition
+- `IsContextDone()` - return true if context is done
+- `JsonRedoce()` - redecode as new type
+- `NewPool()` - `sync.Pool` with type
+- `RandomByte()` - generate random byte
+- `RandomString()` - generate random string
+- `RandomStringWithCrypto()` - generate random string with `crpto.rand`
+- `SetBit()` - set bit position
+- `SetNX()` - acts as redis SetNX
+- `StrToTime()` - parse standard time format as easy
+- `Timer()` - measure execution time
+- `URLToListenAddr()` - parse url and get listenable address, ports
 
 ## sub packages
+
+### [cryptox](cryptox)
+
+encrypt/ decrypt functions
 
 ### [fixtures](fixtures)
 
