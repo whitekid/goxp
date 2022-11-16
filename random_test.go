@@ -1,8 +1,23 @@
 package goxp
 
 import (
+	"encoding/hex"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
+
+func TestRandomString(t *testing.T) {
+	s := RandomString(10)
+	require.Equal(t, 10, len(s))
+	require.NotEqual(t, "", s)
+}
+
+func TestRandomStringWithCrypto(t *testing.T) {
+	s := RandomStringWithCrypto(10)
+	require.Equal(t, 10, len(s))
+	require.NotEqual(t, "", s)
+}
 
 func BenchmarkRandomString(b *testing.B) {
 	type args struct {
@@ -22,6 +37,18 @@ func BenchmarkRandomString(b *testing.B) {
 			}
 		})
 	}
+}
+
+func TestRandomStringWith(t *testing.T) {
+	s := RandomStringWith(10, []rune("abcdefg"))
+	require.Equal(t, 10, len(s))
+	require.NotEqual(t, "", s)
+}
+
+func TestRandomByte(t *testing.T) {
+	b := RandomByte(10)
+	require.Equal(t, 10, len(b))
+	require.NotEqual(t, "", hex.EncodeToString(b))
 }
 
 func BenchmarkRandomByte(b *testing.B) {
