@@ -62,8 +62,6 @@ func After(ctx context.Context, duration time.Duration, fn func()) {
 			go func() { <-after.C }()
 		}
 
-		return
-
 	case <-after.C:
 		fn()
 	}
