@@ -73,48 +73,14 @@ s := RandomStringWithCrypto(10)
 
 ## sub packages
 
-### [cryptox](cryptox)
-
-encrypt/ decrypt functions
-
-### [fixtures](fixtures)
-
-useful fixtures for test
-
-### [flags](flags)
-
-cobra & viper make easy
-
-### [fx](fx)
-
-experimental: some functional functions
-
-### [httptest](httptest)
-
-test http sever make easy
-
-### [log](log)
-
-simple log powered by zap
-
-### [request](request)
-
-simple http client
-
-### [retry](retry)
-
-retrier with backoff
-
-### [service](service)
-
-simple service framework
-
-### [slug](slug)
-
-uuid to slug
-
-### [types](types)
-
-Some useful types,
-
-- `Strings` add useful function such as `Index()`, `Remove()`, `Reader()`...
+- [cryptox](cryptox) - encrypt/ decrypt functions
+- [fixtures](fixtures) - useful fixture functions for test
+- [flags](flags) - cobra & viper make easy
+- [fx](fx) - experimental: some functional functions
+- [httptest](httptest) - test http sever make easy
+- [log](log) - simple log powered by zap
+- [request](request) - simple http client
+- [retry](retry) - retrier with backoff
+- [service](service) - simple service framework
+- [slug](slug) - uuid to slug
+- [types](types) - Some useful types
