@@ -20,14 +20,39 @@ may be not classfied yet..
 - `IsContextDone()` - return true if context is done
 - `JsonRedoce()` - redecode as new type
 - `NewPool()` - `sync.Pool` with type
-- `RandomByte()` - generate random byte
-- `RandomString()` - generate random string
-- `RandomStringWithCrypto()` - generate random string with `crpto.rand`
 - `SetBit()` - set bit position
 - `SetNX()` - acts as redis SetNX
 - `StrToTime()` - parse standard time format as easy
 - `Timer()` - measure execution time
 - `URLToListenAddr()` - parse url and get listenable address, ports
+
+### `RandomByte()` - generate random byte
+
+```go
+b := RandomByte(10)
+// hex.EncodeToString(b) = "4d46ef2f87b8191daf58"
+```
+
+### `RandomString()` - generate random string
+
+```go
+s := RandomString(10)
+// s = "$c&I$#LR3Y"
+```
+
+### `RandomStringWith()` - generate random string
+
+```go
+s := RandomStringWith(10, []rune("abcdefg"))
+// s = "bbffedabda"
+```
+
+### `RandomStringWithCrypto()` - generate random string with `crpto.rand`
+
+```go
+s := RandomStringWithCrypto(10)
+// s = "d0tu0r3)oZ"
+```
 
 ## sub packages
 
