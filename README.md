@@ -16,7 +16,6 @@ may be not classfied yet..
 - `Every()` - run goroutine in every duration
 - `FileExists()` - return true if file exists
 - `Filename()` - return current source file name
-- `IfThen()` - run func as condition
 - `IsContextDone()` - return true if context is done
 - `JsonRedoce()` - redecode as new type
 - `NewPool()` - `sync.Pool` with type
@@ -25,6 +24,24 @@ may be not classfied yet..
 - `StrToTime()` - parse standard time format as easy
 - `Timer()` - measure execution time
 - `URLToListenAddr()` - parse url and get listenable address, ports
+
+### `IfThen()` - run func as condition
+
+```go
+IfThen(true, func() { fmt.Printf("true\n") })
+// true
+
+IfThen(true, func() { fmt.Printf("true\n") }, func() { fmt.Printf("false\n") })
+// true
+
+IfThen(false, func() { fmt.Printf("true\n") }, func() { fmt.Printf("false\n") })
+// false
+
+IfThen(false, func() { fmt.Printf("true\n") }, func() { fmt.Printf("false\n") }, func() { fmt.Printf("false\n") })
+// false
+```
+
+[play](https://go.dev/play/p/wNadBmhNYR-)
 
 ### `RandomByte()` - generate random byte
 

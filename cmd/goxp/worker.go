@@ -36,6 +36,7 @@ func init() {
 					if !after.Stop() {
 						go func() { <-after.C }()
 					}
+
 				case <-after.C:
 				}
 			})
