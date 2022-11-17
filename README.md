@@ -1,4 +1,4 @@
-# go utility collection
+# go utility function collection
 
 [![Go](https://github.com/whitekid/goxp/actions/workflows/go.yml/badge.svg)](https://github.com/whitekid/goxp/actions/workflows/go.yml)
 
@@ -22,7 +22,6 @@ may be not classfied yet..
 - `SetBit()` - set bit position
 - `SetNX()` - acts as redis SetNX
 - `StrToTime()` - parse standard time format as easy
-- `Timer()` - measure execution time
 - `URLToListenAddr()` - parse url and get listenable address, ports
 
 ### `IfThen()` - run func as condition
@@ -70,6 +69,20 @@ s := RandomStringWith(10, []rune("abcdefg"))
 s := RandomStringWithCrypto(10)
 // s = "d0tu0r3)oZ"
 ```
+
+### `Timer()` - measure execution time
+
+```go
+func doSomething() {
+ defer goxp.Timer("doSomething()")()
+ time.Sleep(500 * time.Millisecond)
+}
+
+doSomething()
+// time takes 500.505063ms: doSomething()
+```
+
+[play](https://go.dev/play/p/Wcj2Hw5CLL6)
 
 ## sub packages
 
