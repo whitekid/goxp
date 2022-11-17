@@ -16,10 +16,16 @@ var (
 
 // Timer check running time
 // Usage:
-//	defer Timer("check it")()
+//
+//	   func doSomething(){
+//		      defer Timer("doSomething()")()
+//
+// .   .      bla.... bla...
+//
+//	}
 func Timer(format string, args ...interface{}) func() {
 	logTimerOnce.Do(func() {
-		log.New(zap.AddCallerSkip(1))
+		logTimer = log.New(zap.AddCallerSkip(1))
 	})
 
 	t := time.Now()
