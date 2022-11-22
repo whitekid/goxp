@@ -19,7 +19,7 @@ func FileExists(name string) bool {
 	return err == nil
 }
 
-func JsonRedecode(dest, src interface{}) error {
+func JsonRecode(dest, src interface{}) error {
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(src); err != nil {
 		return err
