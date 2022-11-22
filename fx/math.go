@@ -1,35 +1,76 @@
 package fx
 
-func Sum[T Ordered](collection []T) T { return Reduce(collection, func(x T, y T) T { return x + y }) }
+import (
+	"golang.org/x/exp/constraints"
+)
 
-func Max[T Ordered](col []T) T {
-	switch len(col) {
-	case 0:
-		panic("empty collection")
-	case 1:
-		return col[0]
-	case 2:
-		if col[0] > col[1] {
-			return col[0]
-		}
-		return col[1]
-	default:
-		return Reduce(col, func(x T, y T) T { return Ternary(x > y, x, y) })
+func Sum[T constraints.Integer | constraints.Float](collection []T) (r T) {
+	for _, v := range collection {
+		r += v
 	}
+	return r
 }
 
-func Min[T Ordered](col []T) T {
-	switch len(col) {
-	case 0:
-		panic("empty collection")
-	case 1:
-		return col[0]
-	case 2:
-		if col[0] > col[1] {
-			return col[1]
-		}
-		return col[1]
-	default:
-		return Reduce(col, func(x T, y T) T { return Ternary(x > y, y, x) })
+func Max[T constraints.Ordered](col []T) (r T) {
+	if len(col) == 0 {
+		return
 	}
+
+	r = col[0]
+
+	for i := 1; i < len(col); i++ {
+		if col[i] > r {
+			r = col[i]
+		}
+	}
+
+	return
+}
+
+func MaxBy[T any](col []T, cmp func(a T, b T) bool) (r T) {
+	if len(col) == 0 {
+		return
+	}
+
+	r = col[0]
+
+	for i := 1; i < len(col); i++ {
+		if cmp(col[i], r) {
+			r = col[i]
+		}
+	}
+
+	return
+}
+
+func Min[T constraints.Ordered](col []T) (r T) {
+	if len(col) == 0 {
+		return
+	}
+
+	r = col[0]
+
+	for i := 1; i < len(col); i++ {
+		if col[i] < r {
+			r = col[i]
+		}
+	}
+
+	return
+}
+
+func MinBy[T any](col []T, cmp func(a T, b T) bool) (r T) {
+	if len(col) == 0 {
+		return
+	}
+
+	r = col[0]
+
+	for i := 1; i < len(col); i++ {
+		if cmp(col[i], r) {
+			r = col[i]
+		}
+	}
+
+	return
 }

@@ -14,4 +14,10 @@ func TestSet(t *testing.T) {
 	for _, e := range set.Slice() {
 		require.True(t, set.Has(e))
 	}
+
+	slice := set.Slice()
+	set.Remove(slice[0])
+	require.Equal(t, len(slice)-1, set.Len())
+	require.Equal(t, len(slice)-1, len(set.keys))
+	require.False(t, set.Has(slice[0]))
 }
