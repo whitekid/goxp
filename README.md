@@ -4,8 +4,6 @@
 
 need more detailed usage? please refer test cases.
 
-## in this package
-
 may be not classfied yet..
 
 - `After()` - run func after some duration
@@ -24,7 +22,7 @@ may be not classfied yet..
 - `StrToTime()` - parse standard time format as easy
 - `URLToListenAddr()` - parse url and get listenable address, ports
 
-### - `Exec()` - simple run command
+## `Exec()` - simple run command
 
 run command and output to stdin/stdout
 
@@ -43,7 +41,7 @@ require.NoError(t, err)
 require.Contains(t, string(output), "README.md")
 ```
 
-### `IfThen()` - run func as condition
+## `IfThen()` - run func as condition
 
 ```go
 IfThen(true, func() { fmt.Printf("true\n") })
@@ -60,6 +58,8 @@ IfThen(false, func() { fmt.Printf("true\n") }, func() { fmt.Printf("false\n") },
 ```
 
 [play](https://go.dev/play/p/wNadBmhNYR-)
+
+## Random string/ byte generator
 
 ### `RandomByte()` - generate random byte
 
@@ -89,12 +89,12 @@ s := RandomStringWithCrypto(10)
 // s = "d0tu0r3)oZ"
 ```
 
-### `Timer()` - measure execution time
+## `Timer()` - measure execution time
 
 ```go
 func doSomething() {
- defer goxp.Timer("doSomething()")()
- time.Sleep(500 * time.Millisecond)
+    defer goxp.Timer("doSomething()")()
+    time.Sleep(500 * time.Millisecond)
 }
 
 doSomething()

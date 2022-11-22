@@ -32,6 +32,27 @@ r := Filter([]int{1, 2, 3, 4}, func(v int) bool { return v%2 == 0 })
 require.Equal(t, []int{2, 4}, r)
 ```
 
+### Flatten
+
+```go
+r := Flatten([]int{1, 2}, []int{2, 3})
+require.Equal(t, []int{1, 2, 2, 3}, r)
+```
+
+### Intersect
+
+```go
+r := Intersect([]int{1, 2, 3, 4}, []int{1, 2})
+require.Equal(t, []int{3, 4}, r)
+```
+
+### Union
+
+```go
+r := Union([]int{1, 2}, []int{2, 3})
+require.Equal(t, []int{1, 2, 3}, r)
+```
+
 ### Map
 
 ```go

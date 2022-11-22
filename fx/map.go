@@ -108,19 +108,17 @@ func MergeMap[K comparable, V any](mapping ...map[K]V) map[K]V {
 	return result
 }
 
-func SampleMap[K comparable, V any](mapping map[K]V) (K, V) {
+func SampleMap[K comparable, V any](mapping map[K]V) (rk K, rv V) {
 	n := rand.Intn(len(mapping))
 
 	i := 0
-	var rk K
-	var rv V
+
 	for k, v := range mapping {
 		if i == n {
-			rk, rv = k, v
-			break
+			return k, v
 		}
 		i++
 	}
 
-	return rk, rv
+	return
 }

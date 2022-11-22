@@ -56,16 +56,11 @@ func Map[T any, R any](collection []T, fx func(T) R) []R {
 	return result
 }
 
-func Reduce[T any](collection []T, fx func(r T, e T) T) T {
-	if len(collection) == 1 {
-		return collection[0]
+func Reduce[T any, R any](collection []T, fx func(r R, e T) R, initVal R) R {
+	for _, e := range collection {
+		initVal = fx(initVal, e)
 	}
-
-	agg := collection[0]
-
-	ForEach(collection[1:], func(i int, e T) { agg = fx(agg, collection[i+1]) })
-
-	return agg
+	return initVal
 }
 
 // Times repeat count times
@@ -97,8 +92,7 @@ func Distinct[T comparable](collection []T) []T {
 		return nil
 	}
 
-	set := NewSet[T]()
-	set.Append(collection...)
+	set := NewSet(collection)
 	return set.Slice()
 }
 
@@ -135,8 +129,10 @@ func Find[T any](collection []T, fx func(T) bool) (T, bool) {
 
 // Every return true if y is subset x
 func Every[T comparable](collection, subset []T) bool {
+	s := NewSet(collection)
+
 	for _, e := range subset {
-		if !Contains(collection, e) {
+		if !s.Has(e) {
 			return false
 		}
 	}
@@ -160,6 +156,50 @@ func Zip[K comparable, V any](keys []K, values []V) (r map[K]V) {
 	r = make(map[K]V)
 
 	ForEach(keys, func(i int, k K) { r[k] = values[i] })
+
+	return r
+}
+
+func Interset[T comparable](cola, colb []T) []T {
+	s := NewSet(colb)
+
+	return Filter(cola, func(e T) bool {
+		if s.Has(e) {
+			return false
+		}
+
+		s.Append(e)
+		return true
+	})
+}
+
+func Flatten[T any](cols ...[]T) []T {
+	length := 0
+
+	for i := range cols {
+		length += len(cols[i])
+	}
+
+	r := make([]T, 0, length)
+	for i := range cols {
+		r = append(r, cols[i]...)
+	}
+
+	return r
+}
+
+func Union[T comparable](cols ...[]T) (r []T) {
+	r = make([]T, 0)
+	s := NewSet[T]()
+
+	ForEach(Flatten(cols...), func(i int, e T) {
+		if s.Has(e) {
+			return
+		}
+
+		s.Append(e)
+		r = append(r, e)
+	})
 
 	return r
 }

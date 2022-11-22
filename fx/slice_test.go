@@ -53,7 +53,7 @@ func TestMap(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
-	r := Reduce([]int{1, 2, 3, 4}, func(x, y int) int { return x + y })
+	r := Reduce([]int{1, 2, 3, 4}, func(x, y int) int { return x + y }, 0)
 	require.Equal(t, 10, r)
 }
 
@@ -125,4 +125,67 @@ func TestZip(t *testing.T) {
 		2: "b",
 		3: "c",
 	}, r)
+}
+
+func TestIntersect(t *testing.T) {
+	type args struct {
+		cola []int
+		colb []int
+	}
+	tests := [...]struct {
+		name string
+		args args
+		want []int
+	}{
+		{`valid`, args{[]int{1, 2, 3, 4}, []int{3}}, []int{1, 2, 4}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Interset(tt.args.cola, tt.args.colb)
+			require.Equal(t, tt.want, got, `Interset() failed: want=%v, got=%v`, tt.want, got)
+		})
+	}
+}
+
+func TestFlatten(t *testing.T) {
+	type args struct {
+		cola []int
+		colb []int
+	}
+	tests := [...]struct {
+		name string
+		args args
+		want []int
+	}{
+		{`valid`, args{[]int{1, 2}, []int{3, 4}}, []int{1, 2, 3, 4}},
+		{`valid`, args{[]int{1, 2}, []int{2, 4}}, []int{1, 2, 2, 4}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Flatten(tt.args.cola, tt.args.colb)
+			require.Equal(t, tt.want, got, `Flatten() failed: want=%v, got=%v`, tt.want, got)
+		})
+	}
+}
+
+func TestUnion(t *testing.T) {
+	type args struct {
+		cola []int
+		colb []int
+	}
+	tests := [...]struct {
+		name string
+		args args
+		want []int
+	}{
+		{`valid`, args{[]int{1, 2}, []int{3, 4}}, []int{1, 2, 3, 4}},
+		{`valid`, args{[]int{1, 2}, []int{2, 4}}, []int{1, 2, 4}},
+		{`valid`, args{[]int{}, []int{2, 4}}, []int{2, 4}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Union(tt.args.cola, tt.args.colb)
+			require.Equal(t, tt.want, got, `Union() failed: want=%v, got=%v`, tt.want, got)
+		})
+	}
 }
