@@ -17,12 +17,31 @@ may be not classfied yet..
 - `FileExists()` - return true if file exists
 - `Filename()` - return current source file name
 - `IsContextDone()` - return true if context is done
-- `JsonRedoce()` - redecode as new type
+- `JsonRecode()` - redecode as new type
 - `NewPool()` - `sync.Pool` with type
 - `SetBit()` - set bit position
 - `SetNX()` - acts as redis SetNX
 - `StrToTime()` - parse standard time format as easy
 - `URLToListenAddr()` - parse url and get listenable address, ports
+
+### - `Exec()` - simple run command
+
+run command and output to stdin/stdout
+
+```go
+exc := Exec("ls", "-al")
+err := exc.Do(context.Background())
+require.NoError(t, err)
+```
+
+run command and get output
+
+```go
+exc := Exec("ls", "-al")
+output, err := exc.Output(context.Background())
+require.NoError(t, err)
+require.Contains(t, string(output), "README.md")
+```
 
 ### `IfThen()` - run func as condition
 
@@ -97,3 +116,4 @@ doSomething()
 - [service](service) - simple service framework
 - [slug](slug) - uuid to slug
 - [types](types) - Some useful types
+- [validator](validator) - validator make easy

@@ -32,7 +32,7 @@ func TestFileExists(t *testing.T) {
 	}
 }
 
-func TestJsonRedecode(t *testing.T) {
+func TestJsonRecode(t *testing.T) {
 	type HelloStruct struct {
 		Message string `json:"message"`
 	}
@@ -41,6 +41,6 @@ func TestJsonRedecode(t *testing.T) {
 		"message": "world",
 	}
 
-	require.NoError(t, JsonRedecode(&hello, helloMap))
+	require.NoError(t, JsonRecode(&hello, helloMap))
 	require.Equal(t, &HelloStruct{Message: "world"}, &hello)
 }
