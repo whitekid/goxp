@@ -52,9 +52,9 @@ func (s *Set[T]) Remove(elements ...T) {
 	}
 }
 
-func (s *Set[T]) Has(e T) bool {
-	_, ok := s.keys[e]
-	return ok
+func (s *Set[T]) Has(e T) (ok bool) {
+	_, ok = s.keys[e]
+	return
 }
 
 func (s *Set[T]) ForEach(fx func(int, T)) { ForEach(s.values, fx) }
