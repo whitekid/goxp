@@ -1,6 +1,7 @@
 package fx
 
 import (
+	"fmt"
 	"sort"
 	"testing"
 
@@ -8,10 +9,23 @@ import (
 )
 
 func TestKeys(t *testing.T) {
-	v := map[int]string{1: "a", 2: "b", 3: "c"}
-	keys := Keys(v)
-	sort.Ints(keys)
-	require.Equal(t, []int{1, 2, 3}, keys)
+	type args struct {
+		m map[int]string
+	}
+	tests := [...]struct {
+		name string
+		args args
+		want interface{}
+	}{
+		{`valid`, args{map[int]string{1: "a", 2: "b", 3: "c"}}, []int{1, 2, 3}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Keys(tt.args.m)
+			sort.Ints(got)
+			require.Equalf(t, tt.want, got, `Keys() failed: got = %+v, want = %v`, got, tt.want)
+		})
+	}
 }
 
 func TestValues(t *testing.T) {
@@ -32,6 +46,12 @@ func TestForEachMap(t *testing.T) {
 	require.Equal(t, map[string]int{"a": 1, "b": 2, "c": 3}, r)
 }
 
+func TestMapItems(t *testing.T) {
+	r := MapItems(map[int]string{1: "a", 2: "b", 3: "c"},
+		func(k int, v string) (string, string) { return fmt.Sprintf("%d%s", k, v), v })
+	require.Equal(t, map[string]string{"1a": "a", "2b": "b", "3c": "c"}, r)
+}
+
 func TestMapKeys(t *testing.T) {
 	r := MapKeys(map[int]string{1: "a", 2: "b", 3: "c"}, func(k int, v string) string { return v })
 	require.Equal(t, map[string]string{"a": "a", "b": "b", "c": "c"}, r)
@@ -40,6 +60,13 @@ func TestMapKeys(t *testing.T) {
 func TestMapValues(t *testing.T) {
 	r := MapValues(map[int]string{1: "a", 2: "b", 3: "c"}, func(k int, v string) int { return k })
 	require.Equal(t, map[int]int{1: 1, 2: 2, 3: 3}, r)
+}
+
+func TestMapToSlice(t *testing.T) {
+	r := MapToSlice(map[int]string{1: "a", 2: "b", 3: "c"},
+		func(k int, v string) string { return fmt.Sprintf("%d:%s", k, v) })
+	r = Sort(r)
+	require.Equal(t, []string{"1:a", "2:b", "3:c"}, r)
 }
 
 func TestMergeMap(t *testing.T) {
