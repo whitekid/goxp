@@ -1,44 +1,55 @@
 package fx
 
-import "math/rand"
+import (
+	"math/rand"
+
+	"golang.org/x/exp/maps"
+)
 
 // Keys returns key slice
-func Keys[K comparable, V any](mapping map[K]V) []K {
-	if mapping == nil {
-		return nil
-	}
-
-	result := make([]K, len(mapping))
-
-	i := 0
-	for k := range mapping {
-		result[i] = k
-		i++
-	}
-
-	return result
-}
+func Keys[M ~map[K]V, K comparable, V any](m M) []K { return maps.Keys(m) }
 
 // Values return values slice
-func Values[K comparable, V any](mapping map[K]V) []V {
-	if mapping == nil {
-		return nil
+func Values[M ~map[K]V, K comparable, V any](m M) []V { return maps.Values(m) }
+
+func EqualMap[M1, M2 ~map[K]V, K, V comparable](m1 M1, m2 M2) bool { return maps.Equal(m1, m2) }
+func EqualMapFunc[M1 ~map[K]V1, M2 ~map[K]V2, K comparable, V1, V2 any](m1 M1, m2 M2, eq func(V1, V2) bool) bool {
+	return maps.EqualFunc(m1, m2, eq)
+}
+
+func ClearMap[M ~map[K]V, K comparable, V any](m M)                         { maps.Clear(m) }
+func CloneMap[M ~map[K]V, K comparable, V any](m M) M                       { return maps.Clone(m) }
+func CopyMap[M1 ~map[K]V, M2 ~map[K]V, K comparable, V any](dst M1, src M2) { maps.Copy(dst, src) }
+func DeleteMapFunc[M ~map[K]V, K comparable, V any](m M, del func(K, V) bool) {
+	maps.DeleteFunc(m, del)
+}
+
+type Pair[K comparable, V any] struct {
+	Key   K
+	Value V
+}
+
+func Items[M ~map[K]V, K comparable, V any](m M) []Pair[K, V] {
+	r := make([]Pair[K, V], 0, len(m))
+	for k, v := range m {
+		r = append(r, Pair[K, V]{Key: k, Value: v})
 	}
 
-	result := make([]V, len(mapping))
+	return r
+}
 
-	i := 0
-	for _, v := range mapping {
-		result[i] = v
-		i++
+func FromPair[M ~map[K]V, K comparable, V any](p []Pair[K, V]) M {
+	r := make(M)
+	for i := 0; i < len(p); i++ {
+		r[p[i].Key] = p[i].Value
 	}
 
-	return result
+	return r
 }
 
 // FilterMap ...
-func FilterMap[K comparable, V any](m map[K]V, fx func(K, V) bool) map[K]V {
-	r := make(map[K]V)
+func FilterMap[M ~map[K]V, K comparable, V any](m M, fx func(K, V) bool) M {
+	r := make(M)
 
 	for k, v := range m {
 		if fx(k, v) {
@@ -50,15 +61,15 @@ func FilterMap[K comparable, V any](m map[K]V, fx func(K, V) bool) map[K]V {
 }
 
 // ForEachMap iterate map and apply function
-func ForEachMap[K comparable, V any](mapping map[K]V, fx func(k K, v V)) {
-	for k, v := range mapping {
+func ForEachMap[M ~map[K]V, K comparable, V any](m M, fx func(k K, v V)) {
+	for k, v := range m {
 		fx(k, v)
 	}
 }
 
 // ForEachMapE stop for each if error
-func ForEachMapE[K comparable, V any](mapping map[K]V, fx func(k K, v V) error) error {
-	for k, v := range mapping {
+func ForEachMapE[M ~map[K]V, K comparable, V any](m M, fx func(k K, v V) error) error {
+	for k, v := range m {
 		if err := fx(k, v); err != nil {
 			return err
 		}
@@ -67,53 +78,72 @@ func ForEachMapE[K comparable, V any](mapping map[K]V, fx func(k K, v V) error) 
 	return nil
 }
 
-func MapKeys[K comparable, V any, U comparable](mapping map[K]V, fx func(K, V) U) map[U]V {
-	if mapping == nil {
+func MapKeys[M ~map[K]V, K comparable, V any, U comparable](m M, fx func(K, V) U) map[U]V {
+	if m == nil {
 		return nil
 	}
 
-	result := make(map[U]V)
+	r := make(map[U]V, len(m))
 
-	for k, v := range mapping {
-		result[fx(k, v)] = v
+	for k, v := range m {
+		r[fx(k, v)] = v
 	}
-	return result
+
+	return r
 }
 
 // MapValues map mappings
-func MapValues[K comparable, V any, U any](mapping map[K]V, fx func(K, V) U) map[K]U {
-	if mapping == nil {
+func MapValues[M ~map[K]V, K comparable, V any, U any](m M, fx func(K, V) U) map[K]U {
+	if m == nil {
 		return nil
 	}
 
-	result := make(map[K]U)
+	r := make(map[K]U, len(m))
 
-	for k, v := range mapping {
-		result[k] = fx(k, v)
+	for k, v := range m {
+		r[k] = fx(k, v)
 	}
-	return result
+
+	return r
 }
 
-func MergeMap[K comparable, V any](mapping ...map[K]V) map[K]V {
-	if mapping == nil {
+func MapItems[M ~map[K1]V1, K1 comparable, V1 any, K2 comparable, V2 any](m M, f func(K1, V1) (K2, V2)) map[K2]V2 {
+	r := make(map[K2]V2, len(m))
+	for k, v := range m {
+		k2, v2 := f(k, v)
+		r[k2] = v2
+	}
+	return r
+}
+
+func MapToSlice[M ~map[K]V, K comparable, V any, T any](m M, f func(K, V) T) []T {
+	r := make([]T, 0, len(m))
+	for k, v := range m {
+		r = append(r, f(k, v))
+	}
+	return r
+}
+
+func MergeMap[M ~map[K]V, K comparable, V any](m ...M) M {
+	if m == nil {
 		return nil
 	}
 
-	result := map[K]V{}
+	r := make(M)
 
-	for _, m := range mapping {
-		ForEachMap(m, func(k K, v V) { result[k] = v })
+	for _, m := range m {
+		ForEachMap(m, func(k K, v V) { r[k] = v })
 	}
 
-	return result
+	return r
 }
 
-func SampleMap[K comparable, V any](mapping map[K]V) (rk K, rv V) {
-	n := rand.Intn(len(mapping))
+func SampleMap[M ~map[K]V, K comparable, V any](m M) (rk K, rv V) {
+	n := rand.Intn(len(m))
 
 	i := 0
 
-	for k, v := range mapping {
+	for k, v := range m {
 		if i == n {
 			return k, v
 		}

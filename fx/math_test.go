@@ -1,6 +1,7 @@
 package fx
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -48,6 +49,18 @@ func TestMax(t *testing.T) {
 	}
 }
 
-func TestSum(t *testing.T) {
+func TestSumBy(t *testing.T) {
 	require.Equal(t, 6, Sum([]int{1, 2, 3}))
+}
+
+func TestSum(t *testing.T) {
+	require.Equal(t, 6,
+		SumBy([]string{"1", "2", "3"}, func(s string) int {
+			v, _ := strconv.Atoi(s)
+			return int(v)
+		}))
+}
+
+func TestScale(t *testing.T) {
+	require.Equal(t, []int{2, 4, 6, 8}, Scale([]int{1, 2, 3, 4}, 2))
 }

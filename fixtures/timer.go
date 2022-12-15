@@ -25,7 +25,7 @@ func Timer(format string, args ...interface{}) Teardown {
 			return
 		}
 
-		span := time.Now().Sub(start)
+		span := time.Since(start)
 		timerLogger.Debugf("%s takes %s", span, fmt.Sprintf(format, args...))
 
 		cleared = true

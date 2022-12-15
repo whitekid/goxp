@@ -19,14 +19,14 @@ func (s Strings) Slice() []string {
 }
 
 // Append new string
-func (s *Strings) Append(e ...string) *Strings {
-	*s = append(*s, e...)
+func (s Strings) Append(e ...string) Strings {
+	s = append(s, e...)
 	return s
 }
 
 // Contains returns if strings contains s1
 func (s Strings) Contains(s1 string) bool {
-	return s.Index(s1) >= 0
+	return s.Index(s1) > -1
 }
 
 // Index returns index of s1
@@ -103,7 +103,7 @@ func (s Strings) ToInterface() (result []interface{}) {
 	return
 }
 
-// Reader returns new concat readers
+// Reader returns new concat reader
 func (s Strings) Reader(sep string) io.Reader {
 	n := len(s)
 	switch n {
@@ -139,7 +139,7 @@ func (s Strings) Sort() {
 	sort.Strings(s)
 }
 
-func (s Strings) Map(f func(s string) string) *Strings {
+func (s Strings) Map(f func(s string) string) Strings {
 	sl := Strings(fx.Map(s, func(e string) string { return f(e) }))
-	return &sl
+	return sl
 }
