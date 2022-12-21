@@ -5,13 +5,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/whitekid/goxp"
 	"github.com/whitekid/goxp/fx"
 )
 
 func TestEnv(t *testing.T) {
-	t.Parallel()
-
 	os.Setenv("HELLO", "OLD")
+	defer os.Unsetenv("HELLO")
 
 	teardown := Env("HELLO", "WORLD")
 	defer teardown()
@@ -31,5 +31,32 @@ func TestEnvs(t *testing.T) {
 
 	fx.ForEachMap(vars, func(k, v string) {
 		require.Equal(t, v, os.Getenv(k))
+	})
+}
+
+func TestUnsetEnv(t *testing.T) {
+	defer Env("HELLO", "WORLD")()
+
+	teardown := UnsetEnv("HELLO")
+	require.False(t, goxp.EnvExists("HELLO"))
+
+	teardown()
+	value, exists := os.LookupEnv("HELLO")
+	require.Equal(t, "WORLD", value)
+	require.True(t, exists)
+}
+
+func TestUnsetEnvs(t *testing.T) {
+	envs := []string{"HELLO", "SEOUL"}
+	teardown := Chain(fx.Map(envs, func(k string) Teardown { return Env(k, k+"_value") })...)
+	defer teardown()
+
+	fx.ForEach(envs, func(_ int, k string) {
+		require.Equal(t, k+"_value", os.Getenv(k))
+	})
+
+	teardown() // clear env
+	fx.ForEach(envs, func(_ int, k string) {
+		require.False(t, goxp.EnvExists(k))
 	})
 }

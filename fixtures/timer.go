@@ -18,16 +18,12 @@ func Timer(format string, args ...interface{}) Teardown {
 	timerLoggerOnce.Do(func() { timerLogger = log.New() })
 	start := time.Now()
 
-	cleared := false
+	var once sync.Once
 
 	return func() {
-		if cleared {
-			return
-		}
-
-		span := time.Since(start)
-		timerLogger.Debugf("%s takes %s", span, fmt.Sprintf(format, args...))
-
-		cleared = true
+		once.Do(func() {
+			span := time.Since(start)
+			timerLogger.Debugf("%s takes %s", span, fmt.Sprintf(format, args...))
+		})
 	}
 }

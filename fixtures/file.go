@@ -2,6 +2,7 @@ package fixtures
 
 import (
 	"os"
+	"sync"
 )
 
 // TempFile tempfile
@@ -15,5 +16,7 @@ func TempFile(dir, pattern string, callbacks ...func(string)) func() {
 		callback(f.Name())
 	}
 
-	return func() { os.Remove(f.Name()) }
+	var once sync.Once
+
+	return func() { once.Do(func() { os.Remove(f.Name()) }) }
 }
