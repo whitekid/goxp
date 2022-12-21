@@ -31,3 +31,9 @@ func JsonRecode(dest, src interface{}) error {
 
 	return nil
 }
+
+// EnvExists return true if environment variabes exists
+func EnvExists(k string) bool {
+	_, exists := os.LookupEnv(k)
+	return exists
+}
