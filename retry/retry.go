@@ -24,6 +24,9 @@ const (
 	defaultBackoffRatio   = 1.3
 )
 
+// Do shortcut with default retrier
+func Do(ctx context.Context, fn func() error) error { return New().Do(ctx, fn) }
+
 // Interface is retrier interface
 type Interface interface {
 	// total try limit
