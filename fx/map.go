@@ -38,8 +38,8 @@ func Items[M ~map[K]V, K comparable, V any](m M) []Pair[K, V] {
 	return r
 }
 
-func FromPair[M ~map[K]V, K comparable, V any](p []Pair[K, V]) M {
-	r := make(M)
+func FromPair[K comparable, V any](p []Pair[K, V]) map[K]V {
+	r := make(map[K]V, len(p))
 	for i := 0; i < len(p); i++ {
 		r[p[i].Key] = p[i].Value
 	}
