@@ -23,14 +23,14 @@ type Executor struct {
 	dir     string
 
 	// pipe
-	stdin          func(io.WriteCloser)
-	stdout, stderr func(io.ReadCloser)
+	stdin          func(io.Writer)
+	stdout, stderr func(io.Reader)
 }
 
 func (exc *Executor) Shell(shell bool) *Executor { exc.shell = shell; return exc }
 func (exc *Executor) Dir(dir string) *Executor   { exc.dir = dir; return exc }
 
-func (exc *Executor) Pipe(stdin func(io.WriteCloser), stdout, stderr func(io.ReadCloser)) *Executor {
+func (exc *Executor) Pipe(stdin func(io.Writer), stdout, stderr func(io.Reader)) *Executor {
 	exc.stdin = stdin
 	exc.stdout = stdout
 	exc.stderr = stderr
@@ -69,7 +69,10 @@ func (exc *Executor) buildCmd(ctx context.Context) (*exec.Cmd, error) {
 		if err != nil {
 			return nil, err
 		}
-		go func() { exc.stdin(stdin) }()
+		go func() {
+			exc.stdin(stdin)
+			stdin.Close()
+		}()
 	}
 
 	if exc.stdout != nil {
@@ -78,16 +81,22 @@ func (exc *Executor) buildCmd(ctx context.Context) (*exec.Cmd, error) {
 			return nil, err
 		}
 
-		go func() { exc.stdout(stdout) }()
+		go func() {
+			exc.stdout(stdout)
+			stdout.Close()
+		}()
 	}
 
 	if exc.stderr != nil {
-		stdout, err := cmd.StderrPipe()
+		stderr, err := cmd.StderrPipe()
 		if err != nil {
 			return nil, err
 		}
 
-		go func() { exc.stderr(stdout) }()
+		go func() {
+			exc.stderr(stderr)
+			stderr.Close()
+		}()
 	}
 
 	return cmd, nil
