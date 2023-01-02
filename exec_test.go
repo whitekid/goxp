@@ -71,8 +71,7 @@ func TestExecPipeIn(t *testing.T) {
 
 			exc := Exec(tt.args.cmd...)
 			if tt.args.stdin != "" {
-				exc = exc.Pipe(func(wc io.WriteCloser) {
-					defer wc.Close()
+				exc = exc.Pipe(func(wc io.Writer) {
 					wc.Write([]byte(tt.args.stdin))
 				}, nil, nil)
 			}
@@ -106,8 +105,7 @@ func TestExecPipeOut(t *testing.T) {
 
 			exc := Exec(tt.args.cmd...)
 			var output []byte
-			exc = exc.Pipe(nil, func(rc io.ReadCloser) {
-				defer rc.Close()
+			exc = exc.Pipe(nil, func(rc io.Reader) {
 				out, err := io.ReadAll(rc)
 
 				require.NoError(t, err)
