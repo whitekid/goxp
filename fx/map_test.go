@@ -80,3 +80,14 @@ func TestSampleMap(t *testing.T) {
 	k, v := SampleMap(m)
 	require.Equal(t, v, m[k])
 }
+
+func TestFromPair(t *testing.T) {
+	pair := []Pair[int, string]{
+		{Key: 1, Value: "1"},
+		{Key: 2, Value: "2"},
+	}
+	require.Equal(t, map[int]string{
+		1: "1",
+		2: "2",
+	}, FromPair(pair))
+}

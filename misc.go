@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
+	"path"
 	"runtime"
 )
 
@@ -30,6 +31,11 @@ func JsonRecode(dest, src interface{}) error {
 	}
 
 	return nil
+}
+
+// ReplaceExt returns with new file extensions
+func ReplaceExt(filename string, ext string) string {
+	return filename[:len(filename)-len(path.Ext(filename))] + ext
 }
 
 // EnvExists return true if environment variabes exists
