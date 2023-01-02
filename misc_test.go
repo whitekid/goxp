@@ -44,3 +44,9 @@ func TestJsonRecode(t *testing.T) {
 	require.NoError(t, JsonRecode(&hello, helloMap))
 	require.Equal(t, &HelloStruct{Message: "world"}, &hello)
 }
+
+func TestReplaceExt(t *testing.T) {
+	filename := "hello.mp3"
+	got := ReplaceExt(filename, ".webm")
+	require.Equal(t, "hello.webm", got)
+}
