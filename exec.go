@@ -22,9 +22,8 @@ type Executor struct {
 	dir     string
 }
 
-func (exc *Executor) Shell() *Executor         { exc.shell = true; return exc }
-func (exc *Executor) NoShell() *Executor       { exc.shell = false; return exc }
-func (exc *Executor) Dir(dir string) *Executor { exc.dir = dir; return exc }
+func (exc *Executor) Shell(shell bool) *Executor { exc.shell = shell; return exc }
+func (exc *Executor) Dir(dir string) *Executor   { exc.dir = dir; return exc }
 
 func (exc *Executor) buildCmd(ctx context.Context) *exec.Cmd {
 	var name string

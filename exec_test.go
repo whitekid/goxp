@@ -29,7 +29,7 @@ func TestExec(t *testing.T) {
 			defer cancel()
 
 			exc := Exec(tt.args.command...)
-			IfThen(tt.args.shell, func() { exc = exc.Shell() }, func() { exc = exc.NoShell() })
+			exc = exc.Shell(tt.args.shell)
 
 			var err error
 			var output []byte
