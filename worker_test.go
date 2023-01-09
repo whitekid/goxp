@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDoWithWorker(t *testing.T) {
+func TestDoWithWorkerEx(t *testing.T) {
 	type args struct {
 		workers int
 		sumTo   int
@@ -35,11 +35,16 @@ func TestDoWithWorker(t *testing.T) {
 				}
 			}()
 
-			DoWithWorker(tt.args.workers, func(i int) {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
+			err := DoWithWorker(ctx, tt.args.workers, func(i int) error {
 				for x := range ch {
 					atomic.AddInt32(&sum, x)
 				}
+				return nil
 			})
+			require.NoError(t, err)
 
 			require.Equal(t, int32(tt.want), sum)
 		})
@@ -51,7 +56,7 @@ func TestDoWithWorkerCancel(t *testing.T) {
 	defer cancel()
 
 	t1 := time.Now()
-	DoWithWorker(0, func(i int) {
+	DoWithWorker(ctx, 0, func(i int) error {
 		after := time.NewTimer(time.Hour)
 		select {
 		case <-ctx.Done():
@@ -62,6 +67,8 @@ func TestDoWithWorkerCancel(t *testing.T) {
 		case <-after.C:
 			require.Fail(t, "must canceled by context")
 		}
+
+		return nil
 	})
 
 	require.Truef(t, time.Now().Before(t1.Add(time.Second)), "work should done in %s, it takes %s", time.Second, time.Since(t1))

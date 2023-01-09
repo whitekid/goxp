@@ -35,10 +35,11 @@ func FanIn[T any](ctx context.Context, chans ...chan T) <-chan T {
 	var wg sync.WaitGroup
 	wg.Add(len(chans))
 	for _, ch := range chans {
-		go func(ch <-chan T) {
+		ch := ch
+		go func() {
 			IterChan(ctx, ch, func(v T) { out <- v })
 			wg.Done()
-		}(ch)
+		}()
 	}
 
 	go func() {

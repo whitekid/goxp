@@ -57,11 +57,12 @@ func (s *Multi) Serve(ctx context.Context) error {
 
 	// run sub service
 	for _, service := range s.services {
-		go func(service Interface) {
+		service := service
+		go func() {
 			if err := service.Serve(ctx); err != nil {
 				errorC <- err
 			}
-		}(service)
+		}()
 	}
 
 	select {

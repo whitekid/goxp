@@ -36,11 +36,12 @@ func TestFadeIn(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		c := make(chan int)
 		chans = append(chans, c)
-		go func(c chan int, i int) {
+		i := i
+		go func() {
 			c <- i
 			c <- i
 			close(c)
-		}(c, i)
+		}()
 	}
 
 	ch := FanIn(ctx, chans...)
