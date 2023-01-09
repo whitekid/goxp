@@ -1,6 +1,8 @@
 package goxp
 
 import (
+	"encoding/json"
+	"encoding/xml"
 	"time"
 
 	"github.com/pkg/errors"
@@ -38,4 +40,143 @@ func StrToTime(s string) (time.Time, error) {
 	}
 
 	return time.Time{}, errors.Errorf("parse failed: %s", s)
+}
+
+type TimeWithLayout struct {
+	time.Time
+}
+
+func (t *TimeWithLayout) marshalJSONWithLayout(layout string) ([]byte, error) {
+	return json.Marshal(t.Format(layout))
+}
+
+func (t *TimeWithLayout) unmarshalJSONWithLayout(data []byte, layout string) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+
+	tm, err := time.Parse(layout, s)
+	if err != nil {
+		return err
+	}
+
+	t.Time = tm
+	return nil
+}
+
+func (t *TimeWithLayout) marshalXMLWithLayout(e *xml.Encoder, start xml.StartElement, layout string) error {
+	return e.EncodeElement(t.Format(layout), start)
+}
+
+func (t *TimeWithLayout) unmarshalXMLWithLayout(d *xml.Decoder, start xml.StartElement, layout string) error {
+	var s string
+	if err := d.DecodeElement(&s, &start); err != nil {
+		return err
+	}
+
+	tm, err := time.Parse(layout, s)
+	if err != nil {
+		return err
+	}
+
+	t.Time = tm
+	return nil
+}
+
+func (t *TimeWithLayout) marshalYAMLWithLayout(layout string) (interface{}, error) {
+	return t.Format(layout), nil
+}
+
+func (t *TimeWithLayout) unmarshalYAMLWithLayout(unmarshal func(interface{}) error, layout string) error {
+	var s string
+	if err := unmarshal(&s); err != nil {
+		return err
+	}
+
+	tm, err := time.Parse(layout, s)
+	if err != nil {
+		return err
+	}
+
+	t.Time = tm
+	return nil
+}
+
+type RFC1123ZTime struct {
+	TimeWithLayout
+}
+
+func NewRFC1123ZTime(t time.Time) RFC1123ZTime {
+	return RFC1123ZTime{
+		TimeWithLayout: TimeWithLayout{
+			Time: t,
+		},
+	}
+}
+
+func (t *RFC1123ZTime) Layout() string { return time.RFC1123Z }
+func (t *RFC1123ZTime) String() string { return t.Format(t.Layout()) }
+
+func (t *RFC1123ZTime) UnmarshalJSON(data []byte) error {
+	return t.unmarshalJSONWithLayout(data, t.Layout())
+}
+
+func (t *RFC1123ZTime) MarshalJSON() ([]byte, error) {
+	return t.marshalJSONWithLayout(t.Layout())
+}
+
+func (t *RFC1123ZTime) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	return t.unmarshalXMLWithLayout(d, start, t.Layout())
+}
+
+func (t *RFC1123ZTime) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	return t.marshalXMLWithLayout(e, start, t.Layout())
+}
+
+func (t *RFC1123ZTime) MarshalYAML() (interface{}, error) {
+	return t.marshalYAMLWithLayout(t.Layout())
+}
+
+func (t *RFC1123ZTime) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	return t.unmarshalYAMLWithLayout(unmarshal, t.Layout())
+}
+
+type RFC3339Time struct {
+	TimeWithLayout
+}
+
+func NewRFC3339Time(t time.Time) RFC3339Time {
+	return RFC3339Time{
+		TimeWithLayout: TimeWithLayout{
+			Time: t,
+		},
+	}
+}
+
+func (t *RFC3339Time) Layout() string { return time.RFC3339 }
+func (t *RFC3339Time) String() string { return t.Format(t.Layout()) }
+
+func (t *RFC3339Time) UnmarshalJSON(data []byte) error {
+	return t.unmarshalJSONWithLayout(data, t.Layout())
+}
+
+func (t *RFC3339Time) MarshalJSON() ([]byte, error) {
+	return t.marshalJSONWithLayout(t.Layout())
+}
+
+func (t *RFC3339Time) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	return t.unmarshalXMLWithLayout(d, start, t.Layout())
+}
+
+func (t *RFC3339Time) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	return t.marshalXMLWithLayout(e, start, t.Layout())
+}
+
+func (t *RFC3339Time) MarshalYAML() (interface{}, error) {
+	return t.marshalYAMLWithLayout(t.Layout())
+}
+
+func (t *RFC3339Time) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	return t.unmarshalYAMLWithLayout(unmarshal, t.Layout())
 }

@@ -27,13 +27,14 @@ func TestEnv(t *testing.T) {
 			for k, v := range tt.args.envs {
 				old, exists := os.LookupEnv(k)
 				os.Setenv(k, v)
-				defer func(k string) {
+				k := k
+				defer func() {
 					if exists {
 						os.Setenv(k, old)
 					} else {
 						os.Unsetenv(k)
 					}
-				}(k)
+				}()
 			}
 
 			_, level := newLogger()

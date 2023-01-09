@@ -22,7 +22,7 @@ func init() {
 			})
 
 			ctx := cmd.Context()
-			goxp.DoWithWorker(0, func(i int) {
+			goxp.DoWithWorker(cmd.Context(), 0, func(i int) error {
 				logger := loggers[i]
 
 				logger.Infof("go for work~ %d", i)
@@ -39,6 +39,8 @@ func init() {
 
 				case <-after.C:
 				}
+
+				return nil
 			})
 		},
 	}

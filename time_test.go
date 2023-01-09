@@ -1,10 +1,16 @@
 package goxp
 
 import (
+	"bytes"
+	"encoding/json"
+	"encoding/xml"
+	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v3"
 )
 
 func TestStrToTime(t *testing.T) {
@@ -47,4 +53,88 @@ func TestStrToTime(t *testing.T) {
 			require.Equal(t, tt.args.want, got, "want=%s, got=%s", tt.args.want, got)
 		})
 	}
+}
+
+type layter interface {
+	Layout() string
+}
+
+func TestRFC3339Time(t *testing.T) {
+	now := time.Now()
+	type args struct {
+		v any
+	}
+	tests := [...]struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{`valid`, args{&RFC1123ZTime{}}, false},
+		{`valid`, args{&RFC3339Time{}}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name+"-json", func(t *testing.T) {
+			want := fmt.Sprintf(`"%s"`, now.Format(tt.args.v.(layter).Layout()))
+			err := json.Unmarshal([]byte(want), tt.args.v)
+			require.NoError(t, err)
+
+			got, err := json.Marshal(tt.args.v)
+			if (err != nil) != tt.wantErr {
+				require.Failf(t, `json.Marshal() failed`, `error = %+v, wantErr = %v`, err, tt.wantErr)
+			}
+			require.Equal(t, want, string(got))
+		})
+
+		t.Run(tt.name+"-yaml", func(t *testing.T) {
+			want := fmt.Sprintf("%s\n", now.Format(tt.args.v.(layter).Layout()))
+			err := yaml.Unmarshal([]byte(want), tt.args.v)
+			require.NoError(t, err)
+
+			got, err := yaml.Marshal(tt.args.v)
+			if (err != nil) != tt.wantErr {
+				require.Failf(t, `yaml.Marshal() failed`, `error = %+v, wantErr = %v`, err, tt.wantErr)
+			}
+
+			if bytes.HasPrefix(got, []byte(`"`)) {
+				want = fmt.Sprintf("\"%s\"\n", now.Format(tt.args.v.(layter).Layout()))
+			}
+			require.Equal(t, want, string(got))
+		})
+
+		t.Run(tt.name+"-xml", func(t *testing.T) {
+			typName := reflect.TypeOf(tt.args.v).Elem().Name()
+			want := fmt.Sprintf(`<%s>%s</%s>`, typName, now.Format(tt.args.v.(layter).Layout()), typName)
+			err := xml.Unmarshal([]byte(want), tt.args.v)
+			require.NoError(t, err)
+
+			got, err := xml.Marshal(tt.args.v)
+			if (err != nil) != tt.wantErr {
+				require.Failf(t, `xml.Marshal() failed`, `error = %+v, wantErr = %v`, err, tt.wantErr)
+			}
+			require.Equal(t, want, string(got))
+		})
+	}
+}
+
+func TestMarshalYAML(t *testing.T) {
+	tm := RFC1123ZTime{}
+
+	got, err := yaml.Marshal(&tm)
+	require.NoError(t, err)
+	require.Equal(t, "Mon, 01 Jan 0001 00:00:00 +0000\n", string(got))
+}
+
+func TestMarshalXML(t *testing.T) {
+	type S struct {
+		Text string
+		T    RFC3339Time `xml:"time,attr"`
+	}
+
+	s := &S{
+		Text: "hello",
+	}
+
+	got, err := xml.Marshal(&s)
+	require.NoError(t, err)
+	require.Equal(t, `<S time="0001-01-01T00:00:00Z"><Text>hello</Text></S>`, string(got))
 }

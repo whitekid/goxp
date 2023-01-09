@@ -3,28 +3,26 @@ package goxp
 import (
 	"context"
 	"runtime"
-	"sync"
 	"time"
 
 	"github.com/whitekid/goxp/fx"
+	"golang.org/x/sync/errgroup"
 )
 
 // DoWithWorker iterate chan and run do() with n workers
 // if works <=0 then worker set to runtime.NumCPU()
-func DoWithWorker(workers int, do func(i int)) {
-	var wg sync.WaitGroup
+func DoWithWorker(ctx context.Context, workers int, do func(i int) error) error {
+	eg, _ := errgroup.WithContext(ctx)
 
 	workers = fx.Ternary(workers <= 0, runtime.NumCPU(), workers)
+	eg.SetLimit(workers)
 
 	for i := 0; i < workers; i++ {
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-			do(i)
-		}(i)
+		i := i
+		eg.Go(func() error { return do(i) })
 	}
 
-	wg.Wait()
+	return eg.Wait()
 }
 
 // Every execute fn() in every time interval
