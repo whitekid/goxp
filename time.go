@@ -46,6 +46,15 @@ type TimeWithLayout struct {
 	time.Time
 }
 
+func (t *TimeWithLayout) parseWithLayout(value, layout string) error {
+	tm, err := time.Parse(layout, value)
+	if err != nil {
+		return err
+	}
+	t.Time = tm
+	return nil
+}
+
 func (t *TimeWithLayout) marshalJSONWithLayout(layout string) ([]byte, error) {
 	return json.Marshal(t.Format(layout))
 }
@@ -115,8 +124,9 @@ func NewRFC1123ZTime(t time.Time) RFC1123ZTime {
 	}
 }
 
-func (t *RFC1123ZTime) Layout() string { return time.RFC1123Z }
-func (t *RFC1123ZTime) String() string { return t.Format(t.Layout()) }
+func (t *RFC1123ZTime) Layout() string       { return time.RFC1123Z }
+func (t *RFC1123ZTime) String() string       { return t.Format(t.Layout()) }
+func (t *RFC1123ZTime) Parse(s string) error { return t.parseWithLayout(s, t.Layout()) }
 
 func (t *RFC1123ZTime) UnmarshalJSON(data []byte) error {
 	return t.unmarshalJSONWithLayout(data, t.Layout())
@@ -154,8 +164,9 @@ func NewRFC3339Time(t time.Time) RFC3339Time {
 	}
 }
 
-func (t *RFC3339Time) Layout() string { return time.RFC3339 }
-func (t *RFC3339Time) String() string { return t.Format(t.Layout()) }
+func (t *RFC3339Time) Layout() string       { return time.RFC3339 }
+func (t *RFC3339Time) String() string       { return t.Format(t.Layout()) }
+func (t *RFC3339Time) Parse(s string) error { return t.parseWithLayout(s, t.Layout()) }
 
 func (t *RFC3339Time) UnmarshalJSON(data []byte) error {
 	return t.unmarshalJSONWithLayout(data, t.Layout())
