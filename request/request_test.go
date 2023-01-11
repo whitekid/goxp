@@ -120,6 +120,7 @@ func TestPapagoSMT(t *testing.T) {
 func TestGithubGet(t *testing.T) {
 	resp, err := Get("https://api.github.com").Do(context.Background())
 	require.NoError(t, err)
+	require.Truef(t, resp.Success(), "failed with status %d", resp.StatusCode)
 
 	r := make(map[string]string)
 	defer resp.Body.Close()

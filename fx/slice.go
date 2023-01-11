@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/whitekid/goxp/types"
 	"golang.org/x/exp/constraints"
 	"golang.org/x/exp/slices"
 )
@@ -100,15 +101,15 @@ func DropWhile[S ~[]T, T any](s S, f func(T) bool) S {
 	return Delete(s, 0, i)
 }
 
-// ForEach iteraterate slice and apply function
-func ForEach[S ~[]T, T any](s S, fx func(int, T)) {
+// Each iteraterate slice and apply function
+func Each[S ~[]T, T any](s S, fx func(int, T)) {
 	for i, e := range s {
 		fx(i, e)
 	}
 }
 
-// ForEachE stop foreach if error
-func ForEachE[S ~[]T, T any](s S, fx func(int, T) error) error {
+// EachE stop foreach if error
+func EachE[S ~[]T, T any](s S, fx func(int, T) error) error {
 	for i, e := range s {
 		if err := fx(i, e); err != nil {
 			return err
@@ -126,7 +127,7 @@ func Filter[S ~[]T, T any](s S, fx func(T) bool) S {
 	r := make(S, len(s))
 
 	j := 0
-	ForEach(s, func(i int, e T) {
+	Each(s, func(i int, e T) {
 		if !fx(e) {
 			return
 		}
@@ -197,17 +198,17 @@ func Map[S ~[]T1, T1 any, T2 any](s S, fx func(T1) T2) []T2 {
 	}
 
 	r := make([]T2, len(s))
-	ForEach(s, func(i int, e T1) { r[i] = fx(e) })
+	Each(s, func(i int, e T1) { r[i] = fx(e) })
 
 	return r
 }
 
-func Reduce[S ~[]T1, T1 any, T2 any](s S, fx func(r T2, e T1) T2, initVal T2) T2 {
+func Reduce[S ~[]T, T any](s S, fx func(T, T) T) (r T) {
 	for _, e := range s {
-		initVal = fx(initVal, e)
+		r = fx(r, e)
 	}
 
-	return initVal
+	return r
 }
 
 func Reject[S ~[]T, T any](s S, f func(T) bool) S {
@@ -218,7 +219,7 @@ func Reject[S ~[]T, T any](s S, f func(T) bool) S {
 	r := make(S, len(s))
 
 	j := 0
-	ForEach(s, func(i int, e T) {
+	Each(s, func(i int, e T) {
 		if f(e) {
 			return
 		}
@@ -286,7 +287,7 @@ func Distinct[S ~[]T, T comparable](s S) S {
 		return nil
 	}
 
-	set := NewSet(s)
+	set := types.NewSet(s)
 	return set.Slice()
 }
 func Uniq[S ~[]T, T comparable](s S) S { return Distinct(s) }
@@ -304,7 +305,7 @@ func Find[S ~[]T, T any](s S, fx func(T) bool) (T, bool) {
 
 // Every return true if y is subset x
 func Every[S ~[]T, T comparable](s1, s2 S) bool {
-	set := NewSet(s1)
+	set := types.NewSet(s1)
 
 	for _, e := range s2 {
 		if !set.Has(e) {
@@ -329,13 +330,13 @@ func Samples[S ~[]T, T any](s S, count int) S {
 func Zip[K comparable, V any](keys []K, values []V) (r map[K]V) {
 	r = make(map[K]V, len(keys))
 
-	ForEach(keys, func(i int, k K) { r[k] = values[i] })
+	Each(keys, func(i int, k K) { r[k] = values[i] })
 
 	return r
 }
 
-func Interset[S ~[]T, T comparable](s1, s2 S) S {
-	s := NewSet(s2)
+func Intersect[S ~[]T, T comparable](s1, s2 S) S {
+	s := types.NewSet(s2)
 
 	return Filter(s1, func(e T) bool {
 		if s.Has(e) {
@@ -347,7 +348,7 @@ func Interset[S ~[]T, T comparable](s1, s2 S) S {
 	})
 }
 
-func Flatten[S ~[]T, T any](cols ...S) S {
+func Concat[S ~[]T, T any](cols ...S) S {
 	length := 0
 
 	for i := range cols {
@@ -364,9 +365,9 @@ func Flatten[S ~[]T, T any](cols ...S) S {
 
 func Union[S ~[]T, T comparable](ss ...S) (r S) {
 	r = make(S, 0)
-	s := NewSet[T]()
+	s := types.NewSet[T]()
 
-	ForEach(Flatten(ss...), func(i int, e T) {
+	Each(Concat(ss...), func(i int, e T) {
 		if s.Has(e) {
 			return
 		}
@@ -397,26 +398,28 @@ func UniqBy[S ~[]T, T any, U comparable](s S, f func(T) U) []T {
 
 type Slice[S ~[]T, T any] []T
 
-func NewSlice[T any](ss ...[]T) Slice[[]T, T] { return Flatten(ss...) }
+func NewSlice[T any](ss ...[]T) Slice[[]T, T] { return Concat(ss...) }
+func Of[T any](ss ...T) Slice[[]T, T]         { return NewSlice(ss) }
 
 func (s Slice[S, T]) Clip() Slice[S, T]                         { return Clip(s) }
 func (s Slice[S, T]) Clone() Slice[S, T]                        { return Clone(s) }
 func (s Slice[S, T]) ContainsFunc(f func(T) bool) bool          { return ContainsFunc(s, f) }
 func (s Slice[S, T]) CompactFunc(f func(T, T) bool) Slice[S, T] { return CompactFunc(s, f) }
 func (s Slice[S, T]) Delete(i, j int) Slice[S, T]               { return Delete(s, i, j) }
-func (s Slice[S, T]) EqualFunc(s1 S, eq func(T, T) bool) bool   { return EqualFunc(s, s1, eq) }
-func (s Slice[S, T]) Filter(fx func(T) bool) Slice[S, T]        { return Filter(s, fx) }
-func (s Slice[S, T]) Find(fx func(T) bool) (T, bool)            { return Find(s, fx) }
-func (s Slice[S, T]) Flatten(ss ...[]T) Slice[S, T]             { return Flatten(ss...) }
-func (s Slice[S, T]) ForEach(fx func(int, T))                   { ForEach(s, fx) }
-func (s Slice[S, T]) ForEachE(fx func(int, T) error) error      { return ForEachE(s, fx) }
-func (s Slice[S, T]) Grow(n int) Slice[S, T]                    { return Grow(s, n) }
-func (s Slice[S, T]) IndexFunc(f func(T) bool) int              { return IndexFunc(s, f) }
-func (s Slice[S, T]) Insert(i int, v ...T) Slice[S, T]          { return Insert(s, i, v...) }
-func (s Slice[S, T]) MaxBy(cmp func(a T, b T) bool) T           { return MaxBy(s, cmp) }
-func (s Slice[S, T]) MinBy(cmp func(a T, b T) bool) T           { return MinBy(s, cmp) }
-func (s Slice[S, T]) Replace(i, j int, v ...T) Slice[S, T]      { return Replace(s, i, j, v...) }
 func (s Slice[S, T]) Sample() T                                 { return Sample(s) }
+func (s Slice[S, T]) Replace(i, j int, v ...T) Slice[S, T]      { return Replace(s, i, j, v...) }
+func (s Slice[S, T]) Reduce(fx func(T, T) T) T                  { return Reduce(s, fx) }
+func (s Slice[S, T]) MinBy(cmp func(a T, b T) bool) T           { return MinBy(s, cmp) }
+func (s Slice[S, T]) MaxBy(cmp func(a T, b T) bool) T           { return MaxBy(s, cmp) }
+func (s Slice[S, T]) Insert(i int, v ...T) Slice[S, T]          { return Insert(s, i, v...) }
+func (s Slice[S, T]) IndexFunc(f func(T) bool) int              { return IndexFunc(s, f) }
+func (s Slice[S, T]) Grow(n int) Slice[S, T]                    { return Grow(s, n) }
+func (s Slice[S, T]) Flatten(ss ...[]T) Slice[S, T]             { return Concat(ss...) }
+func (s Slice[S, T]) Find(fx func(T) bool) (T, bool)            { return Find(s, fx) }
+func (s Slice[S, T]) Filter(fx func(T) bool) Slice[S, T]        { return Filter(s, fx) }
+func (s Slice[S, T]) EqualFunc(s1 S, eq func(T, T) bool) bool   { return EqualFunc(s, s1, eq) }
+func (s Slice[S, T]) EachE(fx func(int, T) error) error         { return EachE(s, fx) }
+func (s Slice[S, T]) Each(fx func(int, T))                      { Each(s, fx) }
 func (s Slice[S, T]) Samples(count int) Slice[S, T]             { return Samples(s, count) }
 func (s Slice[S, T]) Shuffle() Slice[S, T]                      { return Shuffle(s) }
 func (s Slice[S, T]) Slice() S                                  { return S(s) }
@@ -438,16 +441,17 @@ func (s Slice[S, T]) SortStableFunc(less func(a, b T) bool) S {
 // SliceC Slice for comparable
 type SliceC[S ~[]T, T comparable] []T
 
-func NewSliceC[T comparable](ss ...[]T) SliceC[[]T, T] { return Flatten(ss...) }
+func NewSliceC[T comparable](ss ...[]T) SliceC[[]T, T] { return Concat(ss...) }
+func OfC[T comparable](ss ...T) SliceC[[]T, T]         { return NewSliceC(ss) }
 
-func (s SliceC[S, T]) Contains(e T) bool          { return Contains(s, e) }
-func (s SliceC[S, T]) Compact() SliceC[S, T]      { return Compact(s) }
-func (s SliceC[S, T]) Distinct() SliceC[S, T]     { return SliceC[S, T](Distinct(S(s))) }
-func (s SliceC[S, T]) Equal(s1 S) bool            { return Equal(s, s1) }
-func (s SliceC[S, T]) Every(sub S) bool           { return Every(S(s), sub) }
-func (s SliceC[S, T]) Index(e T) int              { return Index(s, e) }
-func (s SliceC[S, T]) Interset(s2 S) SliceC[S, T] { return SliceC[S, T](Interset(S(s), s2)) }
-func (s SliceC[S, T]) Slice() S                   { return S(s) }
+func (s SliceC[S, T]) Contains(e T) bool           { return Contains(s, e) }
+func (s SliceC[S, T]) Compact() SliceC[S, T]       { return Compact(s) }
+func (s SliceC[S, T]) Distinct() SliceC[S, T]      { return SliceC[S, T](Distinct(S(s))) }
+func (s SliceC[S, T]) Equal(s1 S) bool             { return Equal(s, s1) }
+func (s SliceC[S, T]) Every(sub S) bool            { return Every(S(s), sub) }
+func (s SliceC[S, T]) Index(e T) int               { return Index(s, e) }
+func (s SliceC[S, T]) Intersect(s2 S) SliceC[S, T] { return SliceC[S, T](Intersect(S(s), s2)) }
+func (s SliceC[S, T]) Slice() S                    { return S(s) }
 func (s SliceC[S, T]) Union(ss ...S) SliceC[S, T] {
 	return SliceC[S, T](Union(append([]S{S(s)}, ss...)...))
 }

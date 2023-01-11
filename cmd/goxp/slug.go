@@ -22,7 +22,7 @@ func init() {
 		Use:   "uuid",
 		Short: "encode uuid to URL friendly",
 		Run: func(cmd *cobra.Command, args []string) {
-			fx.ForEach(
+			fx.Each(
 				fx.Times(10, func(i int) uuid.UUID { return uuid.New() }),
 				func(i int, x uuid.UUID) {
 					sg := slug.NewUUID(nil)
@@ -44,7 +44,7 @@ func init() {
 
 			max, _ := rand.Int(rand.Reader, big.NewInt(math.MaxInt16))
 
-			fx.ForEach(
+			fx.Each(
 				fx.Times(10, func(i int) *big.Int { return big.NewInt(int64(i)) }),
 				func(i int, b *big.Int) {
 					n := max.Int64() + int64(i)
