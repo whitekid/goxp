@@ -1,71 +1,111 @@
 package goxp
 
 import (
-	"encoding/hex"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestRandomString(t *testing.T) {
-	s := RandomString(10)
-	require.Equal(t, 10, len(s))
-	require.NotEqual(t, "", s)
+	type args struct {
+		randomString func(size int, source []rune) string
+		source       []rune
+	}
+	tests := [...]struct {
+		name string
+		args args
+	}{
+		{`rand`, args{randomStringWithRand, randomChars}},
+		{`crypto`, args{randomStringWithCrypto, randomChars}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			testRandomString(t, tt.args.randomString, 1000, tt.args.source)
+		})
+	}
 }
 
-func TestRandomStringWithCrypto(t *testing.T) {
-	s := RandomStringWithCrypto(10)
-	require.Equal(t, 10, len(s))
-	require.NotEqual(t, "", s)
+func testRandomString(t *testing.T, randomString func(int, []rune) string, size int, source []rune) {
+	got := randomString(size, source)
+	for _, c := range got {
+		require.Contains(t, source, c)
+	}
+
+	require.NotEqual(t, got, randomString(size, source))
 }
 
 func BenchmarkRandomString(b *testing.B) {
-	type args struct {
-		fn func(int) string
-	}
 	tests := [...]struct {
-		name string
-		args args
+		name         string
+		randomString func(int, []rune) string
 	}{
-		{"rand", args{RandomString}},
-		{"crypto", args{RandomStringWithCrypto}},
+		{"rand", randomStringWithRand},
+		{"crypto", randomStringWithCrypto},
 	}
-	for _, tt := range tests {
-		b.Run(tt.name, func(b *testing.B) {
+	for _, bb := range tests {
+		b.Run(bb.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				tt.args.fn(100)
+				bb.randomString(100, randomChars)
 			}
 		})
 	}
 }
 
-func TestRandomStringWith(t *testing.T) {
-	s := RandomStringWith(10, []rune("abcdefg"))
-	require.Equal(t, 10, len(s))
-	require.NotEqual(t, "", s)
+func FuzzRandomString(f *testing.F) {
+	f.Add(100)
+	f.Fuzz(func(t *testing.T, size int) {
+		testRandomString(t, randomStringWithRand, size, randomChars)
+		testRandomString(t, randomStringWithCrypto, size, randomChars)
+	})
 }
 
 func TestRandomByte(t *testing.T) {
-	b := RandomByte(10)
-	require.Equal(t, 10, len(b))
-	require.NotEqual(t, "", hex.EncodeToString(b))
-}
-
-func BenchmarkRandomByte(b *testing.B) {
 	type args struct {
-		fn func(int) []byte
+		randomByte func(size int) []byte
 	}
 	tests := [...]struct {
 		name string
 		args args
 	}{
-		{"rand", args{RandomByte}},
+		{"rand", args{randomByteWithRand}},
+		{"crypto", args{randomByteWithCrypto}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			testRandomByte(t, tt.args.randomByte, 1000)
+		})
+	}
+}
+
+func testRandomByte(t *testing.T, randomByte func(size int) []byte, size int) {
+	got := randomByte(1000)
+	require.Equal(t, 1000, len(got))
+	for _, c := range got {
+		require.Contains(t, got, c)
+	}
+}
+
+func BenchmarkRandomByte(b *testing.B) {
+	tests := [...]struct {
+		name       string
+		randomByte func(int) []byte
+	}{
+		{"rand", randomByteWithRand},
+		{"crypto", randomByteWithCrypto},
 	}
 	for _, tt := range tests {
 		b.Run(tt.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				tt.args.fn(100)
+				tt.randomByte(100)
 			}
 		})
 	}
+}
+
+func FuzzRandomByte(f *testing.F) {
+	f.Add(100)
+	f.Fuzz(func(t *testing.T, size int) {
+		testRandomByte(t, randomByteWithRand, size)
+		testRandomByte(t, randomByteWithCrypto, size)
+	})
 }

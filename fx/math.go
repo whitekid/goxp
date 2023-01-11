@@ -1,11 +1,31 @@
 package fx
 
 import (
+	"math"
+
 	"golang.org/x/exp/constraints"
 )
 
+type RealNumber interface {
+	constraints.Integer | constraints.Float
+}
+
 type Number interface {
-	constraints.Integer | constraints.Float | constraints.Complex
+	RealNumber | constraints.Complex
+}
+
+func Abs[T RealNumber](n T) T { return absWithFloat(n) }
+
+func abs[T RealNumber](n T) T {
+	if n > 0 {
+		return n
+	}
+
+	return -n
+}
+
+func absWithFloat[T RealNumber](n T) T {
+	return T(math.Abs(float64(n)))
 }
 
 func Scale[S ~[]T, T Number](s S, f T) S {
