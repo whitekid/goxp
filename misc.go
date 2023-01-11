@@ -15,6 +15,17 @@ func Filename() string {
 	return filename
 }
 
+// FuncName return caller's function "name (sourcefile, line)"
+func FuncName() string {
+	pc, _, _, ok := runtime.Caller(1)
+	details := runtime.FuncForPC(pc)
+	if !ok || details == nil {
+		panic("fail to get CallerName()")
+	}
+
+	return details.Name() + "()"
+}
+
 func FileExists(name string) bool {
 	_, err := os.Stat(name)
 	return err == nil

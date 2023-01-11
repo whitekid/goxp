@@ -30,6 +30,9 @@ type Executor struct {
 func (exc *Executor) Shell(shell bool) *Executor { exc.shell = shell; return exc }
 func (exc *Executor) Dir(dir string) *Executor   { exc.dir = dir; return exc }
 
+func PipeIn(in io.Reader) func(io.Writer)   { return func(w io.Writer) { io.Copy(w, in) } }
+func PipeOut(out io.Writer) func(io.Reader) { return func(r io.Reader) { io.Copy(out, r) } }
+
 func (exc *Executor) Pipe(stdin func(io.Writer), stdout, stderr func(io.Reader)) *Executor {
 	exc.stdin = stdin
 	exc.stdout = stdout
