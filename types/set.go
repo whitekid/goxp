@@ -1,4 +1,6 @@
-package fx
+package types
+
+import "golang.org/x/exp/slices"
 
 type Set[T comparable] struct {
 	keys   map[T]struct{}
@@ -47,7 +49,7 @@ func (s *Set[T]) Remove(elements ...T) {
 		}
 
 		delete(s.keys, e)
-		i := Index(s.values, e)
+		i := slices.Index(s.values, e)
 		s.values = append(s.values[0:i], s.values[i+1:len(s.values)]...)
 	}
 }
@@ -57,4 +59,8 @@ func (s *Set[T]) Has(e T) (ok bool) {
 	return
 }
 
-func (s *Set[T]) ForEach(fx func(int, T)) { ForEach(s.values, fx) }
+func (s *Set[T]) Each(fx func(int, T)) {
+	for i, v := range s.values {
+		fx(i, v)
+	}
+}

@@ -51,12 +51,12 @@ func TestUnsetEnvs(t *testing.T) {
 	teardown := Chain(fx.Map(envs, func(k string) Teardown { return Env(k, k+"_value") })...)
 	defer teardown()
 
-	fx.ForEach(envs, func(_ int, k string) {
+	fx.Each(envs, func(_ int, k string) {
 		require.Equal(t, k+"_value", os.Getenv(k))
 	})
 
 	teardown() // clear env
-	fx.ForEach(envs, func(_ int, k string) {
+	fx.Each(envs, func(_ int, k string) {
 		require.False(t, goxp.EnvExists(k))
 	})
 }

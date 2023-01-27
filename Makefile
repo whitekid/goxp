@@ -39,10 +39,8 @@ test:
 dep:
 	@rm -f go.mod go.sum
 	@go mod init github.com/whitekid/goxp
-
-	@$(MAKE) tidy
-
 	@go mod edit -retract="[v0.0.1,v0.0.10]"
+
 	@$(MAKE) tidy
 
 tidy:

@@ -1,4 +1,4 @@
-package fx
+package types
 
 import (
 	"testing"

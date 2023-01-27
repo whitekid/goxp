@@ -9,51 +9,52 @@ import (
 )
 
 func TestSlice(t *testing.T) {
-	s := NewSlice([]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9})
-	s = s.Filter(func(x int) bool { return x%2 == 0 })
-	require.Equal(t, []int{0, 2, 4, 6, 8}, s.Slice())
+	got := Of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9).
+		Filter(func(x int) bool { return x%2 == 0 }).
+		Slice()
+	require.Equal(t, []int{0, 2, 4, 6, 8}, got)
 }
 
 func TestForEach(t *testing.T) {
-	r := []string{}
-	ForEach([]string{"a", "b", "c", "d"}, func(i int, v string) {
-		r = append(r, fmt.Sprintf("%d:%s", i, v))
+	got := []string{}
+	Of("a", "b", "c", "d").Each(func(i int, v string) {
+		got = append(got, fmt.Sprintf("%d:%s", i, v))
 	})
-	require.Equal(t, []string{"0:a", "1:b", "2:c", "3:d"}, r)
+	require.Equal(t, []string{"0:a", "1:b", "2:c", "3:d"}, got)
 }
 
 func TestForEachE(t *testing.T) {
-	r := []string{}
-	ForEachE([]string{"a", "b", "c", "d"}, func(i int, v string) error {
-		r = append(r, fmt.Sprintf("%d:%s", i, v))
+	got := []string{}
+	Of("a", "b", "c", "d").EachE(func(i int, v string) error {
+		got = append(got, fmt.Sprintf("%d:%s", i, v))
 		return nil
 	})
-	require.Equal(t, []string{"0:a", "1:b", "2:c", "3:d"}, r)
+	require.Equal(t, []string{"0:a", "1:b", "2:c", "3:d"}, got)
 }
 
 func TestFilter(t *testing.T) {
-	r := Filter([]int{1, 2, 3, 4}, func(v int) bool { return v%2 == 0 })
-	require.Equal(t, []int{2, 4}, r)
+	got := Of(1, 2, 3, 4).Filter(func(v int) bool { return v%2 == 0 }).Slice()
+	require.Equal(t, []int{2, 4}, got)
 }
 
 func TestMap(t *testing.T) {
-	r := Map([]int{1, 2, 3, 4}, func(v int) string { return strconv.FormatInt(int64(v), 10) })
-	require.Equal(t, []string{"1", "2", "3", "4"}, r)
+	got := Map(Of(1, 2, 3, 4), func(v int) string { return strconv.FormatInt(int64(v), 10) })
+	require.Equal(t, []string{"1", "2", "3", "4"}, got)
 }
 
 func TestReduce(t *testing.T) {
-	r := Reduce([]int{1, 2, 3, 4}, func(x, y int) int { return x + y }, 0)
-	require.Equal(t, 10, r)
+	got := Of(1, 2, 3, 4).Reduce(func(x, y int) int { return x + y })
+	require.Equal(t, 10, got)
 }
 
 func TestTimes(t *testing.T) {
-	r := Times(10, func(v int) int { return v })
-	require.Equal(t, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, r)
+	got := Times(10, func(v int) int { return v })
+	require.Equal(t, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, got)
 }
 
 func TestShuffle(t *testing.T) {
-	r := Shuffle([]int{1, 2, 3, 4, 5, 6, 7, 8, 9})
-	require.NotEqual(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9}, r)
+	got := Of(1, 2, 3, 4, 5, 6, 7, 8, 9).Shuffle().Slice()
+	require.NotEqual(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9}, got)
 }
 
 func TestDistinct(t *testing.T) {
@@ -86,7 +87,7 @@ func TestIndex(t *testing.T) {
 }
 
 func TestFind(t *testing.T) {
-	v, ok := Find([]int{1, 2, 3, 4, 5, 6, 7, 8, 9}, func(v int) bool { return v == 6 })
+	v, ok := Of(1, 2, 3, 4, 5, 6, 7, 8, 9).Find(func(v int) bool { return v == 6 })
 	require.True(t, ok)
 	require.Equal(t, 6, v)
 }
@@ -96,24 +97,24 @@ func TestEvery(t *testing.T) {
 }
 
 func TestSample(t *testing.T) {
-	s := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	require.Contains(t, s, Sample(s))
+	got := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	require.Contains(t, got, Sample(got))
 }
 
 func TestSamples(t *testing.T) {
 	s := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	for _, e := range Samples(s, 5) {
+	for _, e := range Of(s...).Samples(5).Slice() {
 		require.Contains(t, s, e)
 	}
 }
 
 func TestZip(t *testing.T) {
-	r := Zip([]int{1, 2, 3}, []string{"a", "b", "c"})
+	got := Zip([]int{1, 2, 3}, []string{"a", "b", "c"})
 	require.Equal(t, map[int]string{
 		1: "a",
 		2: "b",
 		3: "c",
-	}, r)
+	}, got)
 }
 
 func TestIntersect(t *testing.T) {
@@ -130,13 +131,13 @@ func TestIntersect(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := Interset(tt.args.cola, tt.args.colb)
-			require.Equal(t, tt.want, got, `Interset() failed: want=%v, got=%v`, tt.want, got)
+			got := Intersect(tt.args.cola, tt.args.colb)
+			require.Equal(t, tt.want, got, `Intersect() failed: want=%v, got=%v`, tt.want, got)
 		})
 	}
 }
 
-func TestFlatten(t *testing.T) {
+func TestConcat(t *testing.T) {
 	type args struct {
 		cola []int
 		colb []int
@@ -151,8 +152,8 @@ func TestFlatten(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := Flatten(tt.args.cola, tt.args.colb)
-			require.Equal(t, tt.want, got, `Flatten() failed: want=%v, got=%v`, tt.want, got)
+			got := Concat(tt.args.cola, tt.args.colb)
+			require.Equal(t, tt.want, got, `Concat() failed: want=%v, got=%v`, tt.want, got)
 		})
 	}
 }
@@ -226,8 +227,24 @@ func TestUniqBy(t *testing.T) {
 }
 
 func TestChunk(t *testing.T) {
-	got := Chunk([]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, 4)
-	require.Equal(t, [][]int{{0, 1, 2, 3}, {4, 5, 6, 7}, {8, 9}}, got)
+	type args struct {
+		s []int
+		n int
+	}
+	tests := [...]struct {
+		name string
+		args args
+		want [][]int
+	}{
+		{`valid`, args{[]int{1, 2, 3, 4, 5}, 2}, [][]int{{1, 2}, {3, 4}, {5}}},
+		{`valid`, args{[]int{1, 2, 3, 4}, 2}, [][]int{{1, 2}, {3, 4}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Chunk(tt.args.s, tt.args.n)
+			require.Equal(t, tt.want, got)
+		})
+	}
 }
 
 func TestInterleave(t *testing.T) {

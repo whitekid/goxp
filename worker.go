@@ -5,7 +5,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/whitekid/goxp/fx"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -14,7 +13,7 @@ import (
 func DoWithWorker(ctx context.Context, workers int, do func(i int) error) error {
 	eg, _ := errgroup.WithContext(ctx)
 
-	workers = fx.Ternary(workers <= 0, runtime.NumCPU(), workers)
+	workers = Ternary(workers <= 0, runtime.NumCPU(), workers)
 	eg.SetLimit(workers)
 
 	for i := 0; i < workers; i++ {

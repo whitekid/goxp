@@ -1,4 +1,4 @@
-package fx
+package goxp
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"github.com/whitekid/goxp/fx"
 )
 
 func TestIterChan(t *testing.T) {
@@ -49,8 +50,8 @@ func TestFadeIn(t *testing.T) {
 	for x := range ch {
 		r = append(r, x)
 	}
-	r = Sort(r)
-	r = Uniq(r)
+	r = fx.Sort(r)
+	r = fx.Uniq(r)
 
 	require.Equal(t, []int{0, 1, 2, 3, 4}, r)
 }

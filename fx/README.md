@@ -1,6 +1,6 @@
 # fx: functional & generics
 
-Experimental functional programmings & generics
+Experimental functional programmings
 
 ## Slice
 

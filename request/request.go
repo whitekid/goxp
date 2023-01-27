@@ -204,7 +204,7 @@ func (r *Request) makeRequest() (*http.Request, error) {
 	}
 
 	fx.ForEachMap(r.header, func(k string, headers []string) {
-		fx.ForEach(headers, func(i int, v string) { req.Header.Add(k, v) })
+		fx.Each(headers, func(i int, v string) { req.Header.Add(k, v) })
 	})
 
 	return req, nil

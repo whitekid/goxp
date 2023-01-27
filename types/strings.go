@@ -4,8 +4,6 @@ import (
 	"io"
 	"sort"
 	"strings"
-
-	"github.com/whitekid/goxp/fx"
 )
 
 // Strings represents string array
@@ -104,42 +102,18 @@ func (s Strings) ToInterface() (result []interface{}) {
 }
 
 // Reader returns new concat reader
-func (s Strings) Reader(sep string) io.Reader {
-	n := len(s)
-	switch n {
-	case 0:
-		return strings.NewReader("")
-	case 1:
-		return strings.NewReader(s[0])
-	}
-
-	if sep == "" {
-		rs := fx.Map(s, func(x string) io.Reader { return strings.NewReader(x) })
-		return io.MultiReader(rs...)
-	}
-
-	readers := make([]io.Reader, n*2-1)
-
-	readers[0] = strings.NewReader(s[0])
-	for i := 1; i < n; i++ {
-		readers[i*2-1] = strings.NewReader(sep)
-		readers[i*2] = strings.NewReader(s[i])
-	}
-
-	return io.MultiReader(readers...)
-}
+func (s Strings) Reader(sep string) io.Reader { return strings.NewReader(strings.Join(s, sep)) }
 
 // Join ...
-func (s Strings) Join(sep string) string {
-	return strings.Join(s.Slice(), sep)
-}
+func (s Strings) Join(sep string) string { return strings.Join(s, sep) }
 
 // Sort string array
-func (s Strings) Sort() {
-	sort.Strings(s)
-}
+func (s Strings) Sort() { sort.Strings(s) }
 
-func (s Strings) Map(f func(s string) string) Strings {
-	sl := Strings(fx.Map(s, func(e string) string { return f(e) }))
-	return sl
+func (s Strings) Map(mapper func(s string) string) Strings {
+	r := make([]string, 0, len(s))
+	for _, e := range s {
+		r = append(r, mapper(e))
+	}
+	return r
 }

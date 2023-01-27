@@ -6,15 +6,14 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/whitekid/goxp/validate"
 )
-
-var validate = validator.New()
 
 // NewEcho create new default echo handlers
 func NewEcho(middlewares ...echo.MiddlewareFunc) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
-	e.Validator = &Validator{validator: validate}
+	e.Validator = &Validator{}
 	e.Use(middleware.Logger())
 	e.Use(LogErrors())
 	e.Use(middlewares...)
@@ -90,11 +89,10 @@ func Bind(c echo.Context, val interface{}) error {
 }
 
 type Validator struct {
-	validator *validator.Validate
 }
 
 func (v *Validator) Validate(i interface{}) error {
-	if err := v.validator.Struct(i); err != nil {
+	if err := validate.Struct(i); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return nil
