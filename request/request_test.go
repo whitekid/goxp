@@ -84,6 +84,31 @@ func TestRequest(t *testing.T) {
 	}
 }
 
+func TestAuth(t *testing.T) {
+	type args struct {
+		auth func(r *Request) *Request
+	}
+	tests := [...]struct {
+		name       string
+		args       args
+		wantErr    bool
+		wantHeader http.Header
+	}{
+		{"bearer", args{func(r *Request) *Request { return r.AuthBearer("token") }},
+			false, http.Header{"Authorization": []string{"Bearer token"}}},
+		{"token", args{func(r *Request) *Request { return r.AuthToken("token") }},
+			false, http.Header{"Authorization": []string{"Token token"}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, err := tt.args.auth(Get("https://google.com")).makeRequest()
+			require.NoError(t, err)
+			require.Equal(t, tt.wantHeader, req.Header)
+		})
+	}
+
+}
+
 func TestPapagoSMT(t *testing.T) {
 	if _, ok := os.LookupEnv("NAVER_CLIENT_ID"); !ok {
 		t.Skip()
