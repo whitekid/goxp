@@ -28,6 +28,12 @@ func DoWithWorker(ctx context.Context, workers int, do func(i int) error) error 
 //
 // if you want run scheduled task like cron spec. please see github.com/robfig/cron
 func Every(ctx context.Context, interval time.Duration, fn func() error, errCh chan<- error) {
+	if err := fn(); err != nil {
+		if errCh != nil {
+			errCh <- err
+		}
+	}
+
 exit:
 	for {
 		after := time.NewTimer(interval)
