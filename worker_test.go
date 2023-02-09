@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDoWithWorkerEx(t *testing.T) {
+func TestDoWithWorker(t *testing.T) {
 	type args struct {
 		workers int
 		sumTo   int
@@ -72,4 +72,17 @@ func TestDoWithWorkerCancel(t *testing.T) {
 	})
 
 	require.Truef(t, time.Now().Before(t1.Add(time.Second)), "work should done in %s, it takes %s", time.Second, time.Since(t1))
+}
+
+func TestEvery(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	callCount := int32(0)
+	Every(ctx, 100*time.Second, func() error {
+		atomic.AddInt32(&callCount, 1)
+		callCount++
+		return nil
+	}, nil)
+	require.Greater(t, callCount, int32(0))
 }
