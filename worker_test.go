@@ -2,6 +2,7 @@ package goxp
 
 import (
 	"context"
+	"errors"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -85,4 +86,35 @@ func TestEvery(t *testing.T) {
 		return nil
 	}, nil)
 	require.Greater(t, callCount, int32(0))
+}
+
+func TestAfter(t *testing.T) {
+	type args struct {
+		ret error
+	}
+	tests := [...]struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"success", args{}, false},
+		{"err", args{errors.New("error")}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
+			err := After(ctx, 100*time.Millisecond, func() error { return tt.args.ret })
+			require.Truef(t, (err != nil) == tt.wantErr, `After() failed: error = %+v, wantErr = %v`, err, tt.wantErr)
+		})
+	}
+}
+
+func TestAfterContextDeadline(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	err := After(ctx, 200*time.Millisecond, func() error { return nil })
+	require.ErrorIs(t, err, context.DeadlineExceeded)
 }
