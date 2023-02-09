@@ -56,7 +56,7 @@ exit:
 }
 
 // After run func after duration
-func After(ctx context.Context, duration time.Duration, fn func()) {
+func After(ctx context.Context, duration time.Duration, fn func() error) error {
 	after := time.NewTimer(duration)
 
 	select {
@@ -64,8 +64,9 @@ func After(ctx context.Context, duration time.Duration, fn func()) {
 		if !after.Stop() {
 			go func() { <-after.C }()
 		}
+		return ctx.Err()
 
 	case <-after.C:
-		fn()
+		return fn()
 	}
 }
