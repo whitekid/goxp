@@ -5,10 +5,12 @@ import (
 	"time"
 )
 
-func TestTimer(t *testing.T) {
-	func() {
-		defer Timer("foo()")()
+func foo() {
+	defer Timer("foo()")()
 
-		time.Sleep(500 * time.Millisecond)
-	}()
+	time.Sleep(500 * time.Millisecond)
+}
+
+func TestTimer(t *testing.T) {
+	foo()
 }
