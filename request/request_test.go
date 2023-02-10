@@ -198,9 +198,11 @@ func TestRedirect(t *testing.T) {
 		args           args
 		wantErr        bool
 		wantStatusCode int
+		resolvedURL    string
 	}{
-		{"", args{"http://google.com", false}, false, http.StatusMovedPermanently},
-		{"", args{"http://google.com", true}, false, http.StatusOK},
+		{"", args{"http://google.com", false}, false, http.StatusMovedPermanently, ""},
+		{"", args{"http://google.com", true}, false, http.StatusOK, "http://www.google.com/"},
+		{"", args{"https://code.facebook.com/posts/rss", true}, false, http.StatusOK, "https://engineering.fb.com/feed/"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -209,6 +211,11 @@ func TestRedirect(t *testing.T) {
 				Do(context.Background())
 			require.NoError(t, err)
 			require.Equal(t, tt.wantStatusCode, resp.StatusCode)
+
+			if !tt.args.followRedirect {
+				return
+			}
+			require.Equal(t, tt.resolvedURL, resp.Request.URL.String())
 		})
 	}
 }

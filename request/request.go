@@ -43,7 +43,7 @@ type Request struct {
 	formValues        url.Values
 	jsonValues        []interface{}
 	body              io.Reader
-	followRedirect    bool
+	noFollowRedirect  bool
 	options           []option
 	client            *http.Client
 }
@@ -90,8 +90,9 @@ func newFuncOption(fn func()) option {
 func (r *Request) addOpt(opt option) *Request { r.options = append(r.options, opt); return r }
 func (r *Request) addOptF(fn func()) *Request { r.addOpt(newFuncOption(fn)); return r }
 
+// FollowRedirect default action will be follow redirect
 func (r *Request) FollowRedirect(follow bool) *Request {
-	return r.addOptF(func() { r.followRedirect = follow })
+	return r.addOptF(func() { r.noFollowRedirect = !follow })
 }
 
 func (r *Request) Header(key, value string) *Request {
@@ -99,7 +100,9 @@ func (r *Request) Header(key, value string) *Request {
 }
 
 func (r *Request) Headers(headers map[string]string) *Request {
-	fx.ForEachMap(headers, func(k string, v string) { r.addOptF(func() { r.header.Add(k, v) }) })
+	if headers != nil {
+		fx.ForEachMap(headers, func(k string, v string) { r.addOptF(func() { r.header.Add(k, v) }) })
+	}
 	return r
 }
 
@@ -230,7 +233,7 @@ func (r *Request) Do(ctx context.Context) (*Response, error) {
 		client = r.client
 	}
 
-	if !r.followRedirect {
+	if r.noFollowRedirect {
 		client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
 	}
 
