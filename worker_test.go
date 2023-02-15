@@ -80,9 +80,8 @@ func TestEvery(t *testing.T) {
 	defer cancel()
 
 	callCount := int32(0)
-	Every(ctx, 100*time.Second, func() error {
+	Every(ctx, 100*time.Second, true, func() error {
 		atomic.AddInt32(&callCount, 1)
-		callCount++
 		return nil
 	}, nil)
 	require.Greater(t, callCount, int32(0))

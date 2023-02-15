@@ -49,7 +49,7 @@ func init() {
 		Use: "every",
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := cmd.Context()
-			go goxp.Every(ctx, time.Second, func() error {
+			go goxp.Every(ctx, time.Second, false, func() error {
 				fmt.Printf("%s\n", time.Now().Format(time.RFC3339))
 				return nil
 			}, nil)

@@ -1,6 +1,6 @@
 module github.com/whitekid/goxp
 
-go 1.19
+go 1.20
 
 retract [v0.0.1, v0.0.10]
 
@@ -13,10 +13,10 @@ require (
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.1
 	github.com/whitekid/iter v0.0.0-20230127094834-f884532688a8
-	go.uber.org/goleak v1.2.0
+	go.uber.org/goleak v1.2.1
 	go.uber.org/zap v1.24.0
-	golang.org/x/exp v0.0.0-20230206171751-46f607a40771
-	golang.org/x/net v0.6.0
+	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb
+	golang.org/x/net v0.7.0
 	golang.org/x/sync v0.1.0
 	gopkg.in/yaml.v3 v3.0.1
 )
