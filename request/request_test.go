@@ -16,7 +16,7 @@ import (
 )
 
 func TestSimple(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
 	resp, err := Get("https://www.google.co.kr").
@@ -106,7 +106,6 @@ func TestAuth(t *testing.T) {
 			require.Equal(t, tt.wantHeader, req.Header)
 		})
 	}
-
 }
 
 func TestPapagoSMT(t *testing.T) {

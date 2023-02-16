@@ -27,15 +27,22 @@ func DoWithWorker(ctx context.Context, workers int, do func(i int) error) error 
 // Every execute fn() in every time interval
 //
 // if you want run scheduled task like cron spec. please see github.com/robfig/cron
-func Every(ctx context.Context, interval time.Duration, fn func() error, errCh chan<- error) {
-	if err := fn(); err != nil {
-		if errCh != nil {
-			errCh <- err
-		}
+func Every(ctx context.Context, interval time.Duration, initialRun bool, fn func() error, errCh chan<- error) {
+	firstInterval, origInterval := interval, interval
+	if initialRun {
+		firstInterval = 0
 	}
+	firstRun := true
 
 exit:
 	for {
+		if firstRun {
+			interval = firstInterval
+			firstRun = false
+		} else {
+			interval = origInterval
+		}
+
 		after := time.NewTimer(interval)
 
 		select {

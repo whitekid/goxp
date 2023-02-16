@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/whitekid/goxp/log"
-	"go.uber.org/zap"
 )
 
 var (
@@ -25,7 +24,7 @@ var (
 //	}
 func Timer(format string, args ...interface{}) func() {
 	logTimerOnce.Do(func() {
-		logTimer = log.New(zap.AddCallerSkip(1))
+		logTimer = log.New()
 	})
 
 	t := time.Now()

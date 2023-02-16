@@ -37,7 +37,7 @@ func newTimerService() service.Interface {
 }
 
 func (s *timerService) Serve(ctx context.Context) error {
-	go goxp.Every(ctx, time.Second, func() error {
+	go goxp.Every(ctx, time.Second, false, func() error {
 		if goxp.IsContextDone(ctx) {
 			return ctx.Err()
 		}
