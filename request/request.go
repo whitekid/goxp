@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
@@ -41,22 +42,22 @@ type Request struct {
 	basicAuthPassword string
 	query             url.Values
 	formValues        url.Values
-	jsonValues        []interface{}
+	jsonValues        []any
 	body              io.Reader
 	noFollowRedirect  bool
 	options           []option
 	client            *http.Client
 }
 
-func Post(url string, args ...interface{}) *Request   { return New(http.MethodPost, url, args...) }
-func Get(url string, args ...interface{}) *Request    { return New(http.MethodGet, url, args...) }
-func Delete(url string, args ...interface{}) *Request { return New(http.MethodDelete, url, args...) }
-func Put(url string, args ...interface{}) *Request    { return New(http.MethodPut, url, args...) }
-func Patch(url string, args ...interface{}) *Request  { return New(http.MethodPatch, url, args...) }
-func Head(url string, args ...interface{}) *Request   { return New(http.MethodHead, url, args...) }
+func Post(url string, args ...any) *Request   { return New(http.MethodPost, url, args...) }
+func Get(url string, args ...any) *Request    { return New(http.MethodGet, url, args...) }
+func Delete(url string, args ...any) *Request { return New(http.MethodDelete, url, args...) }
+func Put(url string, args ...any) *Request    { return New(http.MethodPut, url, args...) }
+func Patch(url string, args ...any) *Request  { return New(http.MethodPatch, url, args...) }
+func Head(url string, args ...any) *Request   { return New(http.MethodHead, url, args...) }
 
 // New create new request
-func New(method, URL string, args ...interface{}) *Request {
+func New(method, URL string, args ...any) *Request {
 	if len(args) > 0 {
 		URL = fmt.Sprintf(URL, args...)
 	}
@@ -67,7 +68,7 @@ func New(method, URL string, args ...interface{}) *Request {
 		header:     http.Header{},
 		query:      url.Values{},
 		formValues: url.Values{},
-		jsonValues: make([]interface{}, 0),
+		jsonValues: make([]any, 0),
 	}
 }
 
@@ -144,7 +145,7 @@ func (r *Request) Forms(values map[string]string) *Request {
 	return r
 }
 
-func (r *Request) JSON(value interface{}) *Request {
+func (r *Request) JSON(value any) *Request {
 	return r.addOptF(func() { r.jsonValues = append(r.jsonValues, value) })
 }
 
@@ -184,7 +185,7 @@ func (r *Request) makeRequest() (*http.Request, error) {
 		case len(r.jsonValues) > 0:
 			r.header.Set(HeaderContentType, MIMEApplicationJSON)
 
-			buffer := fx.Map(r.jsonValues, func(v interface{}) io.Reader {
+			buffer := fx.Map(r.jsonValues, func(v any) io.Reader {
 				buf := &bytes.Buffer{}
 				if err := json.NewEncoder(buf).Encode(v); err != nil {
 					log.Errorf("encode error: %v", err)
@@ -272,6 +273,14 @@ func (r *Response) String() string {
 
 // JSON decode response body to json
 // caller should close body
-func (r *Response) JSON(v interface{}) error {
+// Depreciated: please use goxp.ReadJSON()
+func (r *Response) JSON(v any) error {
 	return json.NewDecoder(r.Body).Decode(v)
+}
+
+// XML decode response body to xml
+// caller should close body
+// Depreciated: please use goxp.ReadXML()
+func (r *Response) XML(v any) error {
+	return xml.NewDecoder(r.Body).Decode(v)
 }
