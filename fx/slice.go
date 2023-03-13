@@ -475,11 +475,11 @@ func Equal[T comparable](s1, s2 []T) bool                  { return slices.Equal
 func EqualFunc[T1, T2 any](s1 []T1, s2 []T2, eq func(T1, T2) bool) bool {
 	return slices.EqualFunc(s1, s2, eq)
 }
-func Grow[S ~[]T, T any](s S, n int) S                 { return slices.Grow(s, n) }
-func Index[S ~[]T, T comparable](s S, e T) int         { return slices.Index(s, e) }
-func IndexFunc[S ~[]T, T any](s S, f func(T) bool) int { return slices.IndexFunc(s, f) }
-func Insert[S ~[]T, T any](s S, i int, v ...T) S       { return slices.Insert(s, i, v...) }
-func Replace[S ~[]T, T any](s S, i, j int, v ...T) S   { return slices.Replace(s, i, j, v...) }
+func Grow[T any](s []T, n int) []T               { return slices.Grow(s, n) }
+func Index[T comparable](s []T, e T) int         { return slices.Index(s, e) }
+func IndexFunc[T any](s []T, f func(T) bool) int { return slices.IndexFunc(s, f) }
+func Insert[T any](s []T, i int, v ...T) []T     { return slices.Insert(s, i, v...) }
+func Replace[T any](s []T, i, j int, v ...T) []T { return slices.Replace(s, i, j, v...) }
 
 // sort
 func BinarySearch[T Ordered](x []T, target T) (int, bool) { return slices.BinarySearch(x, target) }
