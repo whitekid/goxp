@@ -91,3 +91,9 @@ func Named(name string, opts ...Option) Interface {
 		level:         level,
 	}
 }
+
+// Zap returns zap.Logger
+func Zap(logger Interface) *zap.Logger {
+	zlogger := logger.(*zapLogger).SugaredLogger
+	return zlogger.Desugar()
+}
