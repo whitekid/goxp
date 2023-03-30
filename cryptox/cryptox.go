@@ -1,6 +1,7 @@
 package cryptox
 
 import (
+	"crypto/aes"
 	"encoding/base64"
 
 	"github.com/whitekid/goxp/log"
@@ -18,6 +19,8 @@ type Interface interface {
 	Encrypter
 	Decrypter
 }
+
+const BlockSize = aes.BlockSize
 
 func Encrypt(key, data string) (string, error) {
 	encrypted, err := NewAes([]byte(key)).Encrypt([]byte(data))
