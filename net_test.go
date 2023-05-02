@@ -14,7 +14,7 @@ func TestAvailablePort(t *testing.T) {
 	port := AvailablePort()
 
 	require.Greater(t, port, 1024)
-	ln, err := net.Listen("tcp", fmt.Sprintf("0:%d", port))
+	ln, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
 	require.NoError(t, err)
 	defer ln.Close()
 }
