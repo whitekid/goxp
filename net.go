@@ -8,25 +8,54 @@ import (
 )
 
 // AvailablePort return any available TCP ports
-func AvailablePort() int {
-	ln, err := net.Listen("tcp", ":")
+func AvailablePort() (int, error) {
+	r, err := AvailablePorts(1)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
-	defer ln.Close()
 
-	return ln.Addr().(*net.TCPAddr).Port
+	return r[0], nil
+}
+
+// AvailablePorts return any available TCP ports
+func AvailablePorts(count int) ([]int, error) {
+	ports := make([]int, count)
+	for i := 0; i < len(ports); i++ {
+		ln, err := net.Listen("tcp", ":")
+		if err != nil {
+			return nil, err
+		}
+		defer ln.Close()
+
+		ports[i] = ln.Addr().(*net.TCPAddr).Port
+	}
+
+	return ports, nil
 }
 
 // AvailableUdpPort return any available UDP ports
-func AvailableUdpPort() int {
-	ln, err := net.ListenUDP("udp", &net.UDPAddr{Port: 0, IP: net.ParseIP("0.0.0.0")})
+func AvailableUdpPort() (int, error) {
+	r, err := AvailableUdpPorts(1)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
-	defer ln.Close()
 
-	return ln.LocalAddr().(*net.UDPAddr).Port
+	return r[0], nil
+}
+
+// AvailableUdpPorts return any available UDP ports
+func AvailableUdpPorts(count int) ([]int, error) {
+	ports := make([]int, count)
+	for i := 0; i < len(ports); i++ {
+		ln, err := net.ListenUDP("udp", &net.UDPAddr{Port: 0, IP: net.ParseIP(":")})
+		if err != nil {
+			return nil, err
+		}
+		defer ln.Close()
+		ports[i] = ln.LocalAddr().(*net.UDPAddr).Port
+	}
+
+	return ports, nil
 }
 
 // URLToListenAddr parse URL and return correspend listen address
@@ -52,7 +81,11 @@ func URLToListenAddr(addr string) (string, string, string, error) {
 			return "", "", "", fmt.Errorf("unsupported scheme: %s", u.Scheme)
 		}
 	case "0":
-		port = strconv.Itoa(AvailablePort())
+		p, err := AvailablePort()
+		if err != nil {
+			return "", "", "", err
+		}
+		port = strconv.Itoa(p)
 	}
 
 	u.Host = hostname + ":" + port
