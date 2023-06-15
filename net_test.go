@@ -11,7 +11,8 @@ import (
 )
 
 func TestAvailablePort(t *testing.T) {
-	port := AvailablePort()
+	port, err := AvailablePort()
+	require.NoError(t, err)
 
 	require.Greater(t, port, 1024)
 	ln, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
@@ -20,7 +21,8 @@ func TestAvailablePort(t *testing.T) {
 }
 
 func TestAvailableUdpPort(t *testing.T) {
-	port := AvailableUdpPort()
+	port, err := AvailableUdpPort()
+	require.NoError(t, err)
 
 	require.Greater(t, port, 1024)
 	ln, err := net.ListenUDP("udp", &net.UDPAddr{Port: port, IP: net.ParseIP("0.0.0.0")})
