@@ -8,14 +8,14 @@ import (
 )
 
 // IterChan iter chan and run fx(), until context is done
-func IterChan[T any](ctx context.Context, ch <-chan T, fx func(T)) {
+func IterChan[T any](ctx context.Context, ch <-chan T, fn func(T)) {
 	it := iter.C(ch)
 	for v, ok := it.Next(); ok; v, ok = it.Next() {
 		if IsContextDone(ctx) {
 			break
 		}
 
-		fx(v)
+		fn(v)
 	}
 }
 
@@ -86,15 +86,21 @@ func FadeOut[T any](ctx context.Context, ch <-chan T, size int) []<-chan T {
 }
 
 // Async run func and returns with channel
-func Async[T any](f func() T) <-chan T {
+func Async[T any](fn func() T) <-chan T {
 	ch := make(chan T)
-	go func() { ch <- f(); close(ch) }()
+	go func() {
+		ch <- fn()
+		close(ch)
+	}()
 	return ch
 }
 
 // Async2 run func and returns with channel
-func Async2[U1, U2 any](f func() (U1, U2)) <-chan Tuple2[U1, U2] {
-	ch := make(chan Tuple2[U1, U2])
-	go func() { ch <- T2(f()); close(ch) }()
+func Async2[U1, U2 any](fn func() (U1, U2)) <-chan *Tuple2[U1, U2] {
+	ch := make(chan *Tuple2[U1, U2])
+	go func() {
+		ch <- T2(fn())
+		close(ch)
+	}()
 	return ch
 }
