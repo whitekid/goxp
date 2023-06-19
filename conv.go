@@ -3,6 +3,7 @@ package goxp
 import (
 	"strconv"
 
+	"github.com/whitekid/goxp/fx"
 	"golang.org/x/exp/constraints"
 )
 
@@ -21,4 +22,13 @@ func ParseBoolDef(s string, def bool) bool {
 		return def
 	}
 	return v
+}
+
+func ParseIntDef[T constraints.Integer](s string, defaultValue, minValue, maxValue T) T {
+	value, err := strconv.ParseInt(s, 10, 0)
+	if err != nil {
+		return defaultValue
+	}
+
+	return fx.Min(fx.Of(fx.Max(fx.Of(T(value), minValue)), maxValue))
 }

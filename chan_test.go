@@ -102,7 +102,7 @@ func testFadeOut[T constraints.Ordered](t *testing.T, items []T) {
 func FuzzFadeOut(f *testing.F) {
 	f.Add(1, 2, 3, 4, 5, 6, 7, 8, 9)
 	f.Fuzz(func(t *testing.T, v1, v2, v3, v4, v5, v6, v7, v8, v9 int) {
-		testFadeOut(t, []int{v1, v2, v3, v4, v5, v6, v7, v8, v9})
+		testFadeOut(t, fx.Of(v1, v2, v3, v4, v5, v6, v7, v8, v9))
 	})
 }
 
