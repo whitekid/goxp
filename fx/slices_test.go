@@ -2,6 +2,7 @@ package fx
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"testing"
 
@@ -76,14 +77,6 @@ func TestDistinct(t *testing.T) {
 			require.Equal(t, tt.want, got)
 		})
 	}
-}
-
-func TestContains(t *testing.T) {
-	require.True(t, Contains([]int{1, 2, 3, 4, 5, 6, 7, 8, 9}, 9))
-}
-
-func TestIndex(t *testing.T) {
-	require.Equal(t, 5, Index([]int{1, 2, 3, 4, 5, 6, 7, 8, 9}, 6))
 }
 
 func TestFind(t *testing.T) {
@@ -193,12 +186,12 @@ func TestSort(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require.False(t, IsSorted(tt.args.s))
+			require.False(t, slices.IsSorted(tt.args.s))
 
-			got := Clone(tt.args.s)
+			got := slices.Clone(tt.args.s)
 			got = Sort(got)
 			require.Equal(t, tt.want, got)
-			require.True(t, IsSorted(got))
+			require.True(t, slices.IsSorted(got))
 		})
 	}
 }

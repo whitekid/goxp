@@ -1,15 +1,15 @@
-package types
+package sets
 
-import "golang.org/x/exp/slices" // depreciated at 1.21, use standard slices module
+import "slices"
 
-type Set[T comparable] struct {
-	keys   map[T]struct{}
-	values []T
+type Set[S ~[]E, E comparable] struct {
+	keys   map[E]struct{}
+	values S
 }
 
-func NewSet[T comparable](lists ...[]T) *Set[T] {
-	s := &Set[T]{
-		keys: make(map[T]struct{}),
+func New[E comparable](lists ...[]E) *Set[[]E, E] {
+	s := &Set[[]E, E]{
+		keys: make(map[E]struct{}),
 	}
 
 	for i := range lists {
@@ -21,17 +21,17 @@ func NewSet[T comparable](lists ...[]T) *Set[T] {
 	return s
 }
 
-func (s *Set[T]) Slice() (r []T) {
-	r = make([]T, len(s.values))
+func (s *Set[S, E]) Slice() (r S) {
+	r = make(S, len(s.values))
 	copy(r, s.values)
 	return r
 }
 
-func (s *Set[T]) Len() int {
+func (s *Set[S, E]) Len() int {
 	return len(s.values)
 }
 
-func (s *Set[T]) Append(elements ...T) {
+func (s *Set[S, E]) Append(elements ...E) {
 	for _, e := range elements {
 		if _, ok := s.keys[e]; ok {
 			continue
@@ -42,7 +42,7 @@ func (s *Set[T]) Append(elements ...T) {
 	}
 }
 
-func (s *Set[T]) Remove(elements ...T) {
+func (s *Set[S, E]) Remove(elements ...E) {
 	for _, e := range elements {
 		if _, ok := s.keys[e]; !ok {
 			continue
@@ -54,12 +54,12 @@ func (s *Set[T]) Remove(elements ...T) {
 	}
 }
 
-func (s *Set[T]) Has(e T) (ok bool) {
+func (s *Set[S, E]) Has(e E) (ok bool) {
 	_, ok = s.keys[e]
 	return
 }
 
-func (s *Set[T]) Each(fx func(int, T)) {
+func (s *Set[S, E]) Each(fx func(int, E)) {
 	for i, v := range s.values {
 		fx(i, v)
 	}

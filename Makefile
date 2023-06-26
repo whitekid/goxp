@@ -28,20 +28,20 @@ $(TARGET): $(SRC)
 	${GO} build -o bin/ ${BUILD_FLAGS} ./cmd/...
 
 install:
-	@go install -v ${BUILD_FLAGS} ./...
+	${GO} install -v ${BUILD_FLAGS} ./...
 
 clean:
 	rm -rf bin/
 
 test:
-	@go test -v ./...
+	${GO} test -v ./...
 
 dep:
 	@rm -f go.mod go.sum
-	@go mod init github.com/whitekid/goxp
-	@go mod edit -retract="[v0.0.1,v0.0.10]"
+	${GO} mod init github.com/whitekid/goxp
+	${GO} mod edit -retract="[v0.0.1,v0.0.10]"
 
 	@$(MAKE) tidy
 
 tidy:
-	@go mod tidy -v
+	${GO} mod tidy -v
