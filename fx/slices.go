@@ -6,7 +6,7 @@ import (
 
 	"github.com/whitekid/goxp/types"
 	"golang.org/x/exp/constraints"
-	"golang.org/x/exp/slices"
+	"golang.org/x/exp/slices" // depreciated at 1.21, use standard slices module
 )
 
 var rnd *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))

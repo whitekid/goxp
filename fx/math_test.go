@@ -100,7 +100,7 @@ func TestMin(t *testing.T) {
 }
 
 func testMin[S ~[]T, T Ordered](t *testing.T, items S, want T) {
-	require.Equal(t, want, Min(items))
+	require.Equal(t, want, Min(items...))
 }
 
 func FuzzMin(f *testing.F) {
@@ -108,7 +108,7 @@ func FuzzMin(f *testing.F) {
 
 	f.Fuzz(func(t *testing.T, n1, n2, n3, n4 int) {
 		args := []int{n1, n2, n3}
-		m1 := Min(args)
+		m1 := Min(args...)
 
 		for i := 0; i < n4; i++ {
 			args = append(args, n1, n2, n3)
@@ -148,7 +148,7 @@ func TestMax(t *testing.T) {
 }
 
 func testMax[S ~[]T, T Ordered](t *testing.T, items S, want T) {
-	require.Equal(t, want, Max(items))
+	require.Equal(t, want, Max(items...))
 }
 
 func FuzzMax(f *testing.F) {
@@ -156,7 +156,7 @@ func FuzzMax(f *testing.F) {
 
 	f.Fuzz(func(t *testing.T, n1, n2, n3, n4 int) {
 		args := []int{n1, n2, n3}
-		want := Max(args)
+		want := Max(args...)
 
 		for i := 0; i < n4; i++ {
 			args = append(args, n1, n2, n3)

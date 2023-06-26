@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/whitekid/goxp/fx"
 	"golang.org/x/exp/constraints"
-	"golang.org/x/exp/slices"
+	"golang.org/x/exp/slices" // depreciated at 1.21, use standard slices module
 	"golang.org/x/sync/errgroup"
 )
 

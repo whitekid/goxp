@@ -30,5 +30,5 @@ func ParseIntDef[T constraints.Integer](s string, defaultValue, minValue, maxVal
 		return defaultValue
 	}
 
-	return fx.Min(fx.Of(fx.Max(fx.Of(T(value), minValue)), maxValue))
+	return fx.Min(fx.Of(fx.Max(fx.Of(T(value), minValue)...), maxValue)...)
 }

@@ -46,64 +46,70 @@ func SumBy[S ~[]T1, T1 any, T2 Number](s S, f func(T1) T2) (r T2) {
 	return r
 }
 
-func Max[S ~[]T, T Ordered](col S) (r T) {
-	if len(col) == 0 {
+// Max
+// depreciated: buintil min() in version 1.21
+// see https://tip.golang.org/ref/spec#Min_and_max
+func Max[T Ordered](value ...T) (r T) {
+	if len(value) == 0 {
 		return
 	}
 
-	r = col[0]
+	r = value[0]
 
-	for i := 1; i < len(col); i++ {
-		if col[i] > r {
-			r = col[i]
+	for i := 1; i < len(value); i++ {
+		if value[i] > r {
+			r = value[i]
 		}
 	}
 
 	return
 }
 
-func MaxBy[S ~[]T, T any](col S, cmp func(a T, b T) bool) (r T) {
-	if len(col) == 0 {
+func MaxBy[S ~[]T, T any](value S, cmp func(a T, b T) bool) (r T) {
+	if len(value) == 0 {
 		return
 	}
 
-	r = col[0]
+	r = value[0]
 
-	for i := 1; i < len(col); i++ {
-		if cmp(col[i], r) {
-			r = col[i]
+	for i := 1; i < len(value); i++ {
+		if cmp(value[i], r) {
+			r = value[i]
 		}
 	}
 
 	return
 }
 
-func Min[S ~[]T, T Ordered](col S) (r T) {
-	if len(col) == 0 {
+// Min
+// depreciated: buintil min() in version 1.21
+// see https://tip.golang.org/ref/spec#Min_and_max
+func Min[T Ordered](value ...T) (r T) {
+	if len(value) == 0 {
 		return
 	}
 
-	r = col[0]
+	r = value[0]
 
-	for i := 1; i < len(col); i++ {
-		if col[i] < r {
-			r = col[i]
+	for i := 1; i < len(value); i++ {
+		if value[i] < r {
+			r = value[i]
 		}
 	}
 
 	return
 }
 
-func MinBy[S ~[]T, T any](col S, cmp func(a T, b T) bool) (r T) {
-	if len(col) == 0 {
+func MinBy[S ~[]T, T any](value S, cmp func(a T, b T) bool) (r T) {
+	if len(value) == 0 {
 		return
 	}
 
-	r = col[0]
+	r = value[0]
 
-	for i := 1; i < len(col); i++ {
-		if cmp(col[i], r) {
-			r = col[i]
+	for i := 1; i < len(value); i++ {
+		if cmp(value[i], r) {
+			r = value[i]
 		}
 	}
 

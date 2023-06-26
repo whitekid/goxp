@@ -1,6 +1,6 @@
 package types
 
-import "golang.org/x/exp/slices"
+import "golang.org/x/exp/slices" // depreciated at 1.21, use standard slices module
 
 type Set[T comparable] struct {
 	keys   map[T]struct{}

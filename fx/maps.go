@@ -3,7 +3,7 @@ package fx
 import (
 	"math/rand"
 
-	"golang.org/x/exp/maps"
+	"golang.org/x/exp/maps" // depreciated at 1.21, use standard maps module
 )
 
 // Keys returns key slice
@@ -17,6 +17,8 @@ func EqualMapFunc[M1 ~map[K]V1, M2 ~map[K]V2, K comparable, V1, V2 any](m1 M1, m
 	return maps.EqualFunc(m1, m2, eq)
 }
 
+// depreciated: buintil min() in version 1.21
+// https://tip.golang.org/ref/spec#Clear
 func ClearMap[M ~map[K]V, K comparable, V any](m M)                         { maps.Clear(m) }
 func CloneMap[M ~map[K]V, K comparable, V any](m M) M                       { return maps.Clone(m) }
 func CopyMap[M1 ~map[K]V, M2 ~map[K]V, K comparable, V any](dst M1, src M2) { maps.Copy(dst, src) }
