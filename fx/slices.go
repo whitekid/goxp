@@ -424,14 +424,14 @@ func (s Slice[S, T]) Samples(count int) Slice[S, T]             { return Samples
 func (s Slice[S, T]) Shuffle() Slice[S, T]                      { return Shuffle(s) }
 func (s Slice[S, T]) Slice() S                                  { return S(s) }
 
-func (s Slice[S, T]) SortFunc(less func(a, b T) bool) Slice[S, T] {
+func (s Slice[S, T]) SortFunc(less func(a, b T) int) Slice[S, T] {
 	r := make(S, len(s))
 	copy(r, s)
 	SortFunc(r, less)
 	return Slice[S, T](r)
 }
 
-func (s Slice[S, T]) SortStableFunc(less func(a, b T) bool) S {
+func (s Slice[S, T]) SortStableFunc(less func(a, b T) int) S {
 	r := make(S, len(s))
 	copy(r, s)
 	SortStableFunc(s, less)
@@ -486,8 +486,8 @@ func BinarySearch[T Ordered](x []T, target T) (int, bool) { return slices.Binary
 func BinarySearchFunc[T any](x []T, target T, cmp func(T, T) int) (int, bool) {
 	return slices.BinarySearchFunc(x, target, cmp)
 }
-func IsSorted[T Ordered](s []T) bool                         { return slices.IsSorted(s) }
-func IsSortedFunc[T any](s []T, less func(a, b T) bool) bool { return slices.IsSortedFunc(s, less) }
+func IsSorted[T Ordered](s []T) bool                        { return slices.IsSorted(s) }
+func IsSortedFunc[T any](s []T, less func(a, b T) int) bool { return slices.IsSortedFunc(s, less) }
 
 func Sort[S ~[]T, T Ordered](s S) S {
 	r := make(S, len(s))
@@ -496,14 +496,14 @@ func Sort[S ~[]T, T Ordered](s S) S {
 	return r
 }
 
-func SortFunc[S ~[]T, T any](s S, less func(a, b T) bool) S {
+func SortFunc[S ~[]T, T any](s S, less func(a, b T) int) S {
 	r := make(S, len(s))
 	copy(r, s)
 	slices.SortFunc(r, less)
 	return r
 }
 
-func SortStableFunc[S ~[]T, T any](s S, less func(a, b T) bool) S {
+func SortStableFunc[S ~[]T, T any](s S, less func(a, b T) int) S {
 	r := make(S, len(s))
 	copy(r, s)
 	slices.SortStableFunc(r, less)
