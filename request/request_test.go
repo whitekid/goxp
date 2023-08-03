@@ -71,7 +71,7 @@ func TestRequest(t *testing.T) {
 	{
 		resp, err := Get(ts.URL).Do(ctx)
 		require.NoError(t, err)
-		require.Truef(t, resp.Success(), "status=%d", resp.StatusCode)
+		require.NoError(t, resp.Success(), "status=%d", resp.StatusCode)
 	}
 
 	{
@@ -80,7 +80,7 @@ func TestRequest(t *testing.T) {
 		}
 		resp, err := Post(ts.URL).JSON(&param).JSON(&param).Do(ctx)
 		require.NoError(t, err)
-		require.True(t, resp.Success())
+		require.NoError(t, resp.Success())
 	}
 }
 
@@ -144,7 +144,7 @@ func TestPapagoSMT(t *testing.T) {
 func TestGithubGet(t *testing.T) {
 	resp, err := Get("https://api.github.com").Do(context.Background())
 	require.NoError(t, err)
-	require.Truef(t, resp.Success(), "failed with status %d", resp.StatusCode)
+	require.NoError(t, resp.Success(), "failed with status %d", resp.StatusCode)
 
 	r := make(map[string]string)
 	defer resp.Body.Close()
@@ -231,6 +231,6 @@ func TestResponseBody(t *testing.T) {
 		Body(strings.NewReader(message)).
 		Do(context.Background())
 	require.NoError(t, err)
-	require.True(t, resp.Success())
+	require.NoError(t, resp.Success())
 	require.Equal(t, want, resp.String())
 }
