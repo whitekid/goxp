@@ -2,38 +2,10 @@ package fx
 
 import (
 	"fmt"
-	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
-
-func TestKeys(t *testing.T) {
-	type args struct {
-		m map[int]string
-	}
-	tests := [...]struct {
-		name string
-		args args
-		want interface{}
-	}{
-		{`valid`, args{map[int]string{1: "a", 2: "b", 3: "c"}}, []int{1, 2, 3}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := Keys(tt.args.m)
-			sort.Ints(got)
-			require.Equalf(t, tt.want, got, `Keys() failed: got = %+v, want = %v`, got, tt.want)
-		})
-	}
-}
-
-func TestValues(t *testing.T) {
-	m := map[int]string{1: "a", 2: "b", 3: "c"}
-	v := Values(m)
-	sort.Strings(v)
-	require.Equal(t, []string{"a", "b", "c"}, v)
-}
 
 func TestFilterMap(t *testing.T) {
 	r := FilterMap(map[int]string{1: "a", 2: "b", 3: "c"}, func(k int, v string) bool { return k%2 == 0 })

@@ -46,25 +46,6 @@ func SumBy[S ~[]T1, T1 any, T2 Number](s S, f func(T1) T2) (r T2) {
 	return r
 }
 
-// Max
-// depreciated: buintil min() in version 1.21
-// see https://tip.golang.org/ref/spec#Min_and_max
-func Max[T Ordered](value ...T) (r T) {
-	if len(value) == 0 {
-		return
-	}
-
-	r = value[0]
-
-	for i := 1; i < len(value); i++ {
-		if value[i] > r {
-			r = value[i]
-		}
-	}
-
-	return
-}
-
 func MaxBy[S ~[]T, T any](value S, cmp func(a T, b T) bool) (r T) {
 	if len(value) == 0 {
 		return
@@ -74,25 +55,6 @@ func MaxBy[S ~[]T, T any](value S, cmp func(a T, b T) bool) (r T) {
 
 	for i := 1; i < len(value); i++ {
 		if cmp(value[i], r) {
-			r = value[i]
-		}
-	}
-
-	return
-}
-
-// Min
-// depreciated: buintil min() in version 1.21
-// see https://tip.golang.org/ref/spec#Min_and_max
-func Min[T Ordered](value ...T) (r T) {
-	if len(value) == 0 {
-		return
-	}
-
-	r = value[0]
-
-	for i := 1; i < len(value); i++ {
-		if value[i] < r {
 			r = value[i]
 		}
 	}

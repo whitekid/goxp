@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/whitekid/goxp/fx"
+	"golang.org/x/exp/maps"
 )
 
 // Env environment fixture
@@ -33,7 +34,7 @@ func Envs(envs map[string]string) Teardown {
 		return Env(k, v)
 	})
 
-	return Chain(fx.Values(teardowns)...)
+	return Chain(maps.Values(teardowns)...)
 }
 
 // JSONEnv json environment fixture
