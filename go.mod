@@ -15,7 +15,7 @@ require (
 	github.com/whitekid/iter v0.0.0-20230727022917-a28e6cf0ed40
 	go.uber.org/goleak v1.2.1
 	go.uber.org/zap v1.25.0
-	golang.org/x/exp v0.0.0-20230809094429-853ea248256d
+	golang.org/x/exp v0.0.0-20230810033253-352e893a4cad
 	golang.org/x/net v0.14.0
 	golang.org/x/sync v0.3.0
 	gopkg.in/yaml.v3 v3.0.1

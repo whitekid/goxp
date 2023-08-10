@@ -1,6 +1,7 @@
 package goxp
 
 import (
+	"cmp"
 	"context"
 	"slices"
 	"sync"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/whitekid/goxp/fx"
-	"golang.org/x/exp/constraints"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -64,7 +64,7 @@ func TestFadeOut(t *testing.T) {
 	testFadeOut(t, []int{1, 2, 3, 4, 5, 6, 7, 8})
 }
 
-func testFadeOut[T constraints.Ordered](t *testing.T, items []T) {
+func testFadeOut[T cmp.Ordered](t *testing.T, items []T) {
 	ch := make(chan T)
 	go func() {
 		defer close(ch)
