@@ -44,4 +44,4 @@ dep:
 	@$(MAKE) tidy
 
 tidy:
-	${GO} mod tidy -v
+	${GO} mod download && ${GO} mod verify && ${GO} mod tidy -v
