@@ -40,15 +40,9 @@ func init() {
 		},
 	}
 
-	configs := map[string][]flags.Flag{
-		"request": {
-			{"user-agent", "A", "goxp request example " + GitTag, "user agent"},
-			{"verbose", "v", false, "verbose"},
-		},
-	}
-
-	flags.InitDefaults(v, configs)
-	flags.InitFlagSet(v, configs, "request", cmd.Flags())
+	fs := cmd.PersistentFlags()
+	flags.String(fs, "user-agent", "user-agent", "A", "goxp requests agent "+GitTag, "use agent")
+	flags.Bool(fs, "verbose", "verbose", "A", false, "verbose")
 
 	rootCmd.AddCommand(cmd)
 }
