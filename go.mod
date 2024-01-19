@@ -1,11 +1,11 @@
 module github.com/whitekid/goxp
 
-go 1.21.5
+go 1.21.6
 
 retract [v0.0.1, v0.0.10]
 
 require (
-	github.com/go-playground/validator/v10 v10.16.0
+	github.com/go-playground/validator/v10 v10.17.0
 	github.com/google/uuid v1.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.8.0
@@ -15,9 +15,9 @@ require (
 	github.com/whitekid/iter v0.0.0-20230727022917-a28e6cf0ed40
 	go.uber.org/goleak v1.3.0
 	go.uber.org/zap v1.26.0
-	golang.org/x/exp v0.0.0-20231214170342-aacd6d4b4611
-	golang.org/x/net v0.19.0
-	golang.org/x/sync v0.5.0
+	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a
+	golang.org/x/net v0.20.0
+	golang.org/x/sync v0.6.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -41,8 +41,8 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/crypto v0.18.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
