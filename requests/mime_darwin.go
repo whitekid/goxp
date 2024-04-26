@@ -1,6 +1,6 @@
 //go:build darwin
 
-package request
+package requests
 
 func init() {
 	setMimeTypes(map[string]string{
