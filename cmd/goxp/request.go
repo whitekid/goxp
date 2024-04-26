@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/whitekid/goxp/flags"
-	"github.com/whitekid/goxp/request"
+	"github.com/whitekid/goxp/requests"
 )
 
 func init() {
@@ -19,8 +19,8 @@ func init() {
 		Short: "request package example",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := request.Get(args[0]).
-				Header(request.HeaderUserAgent, v.GetString("user-agent")).
+			resp, err := requests.Get(args[0]).
+				Header(requests.HeaderUserAgent, v.GetString("user-agent")).
 				Do(cmd.Context())
 			if err != nil {
 				return err
