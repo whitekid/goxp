@@ -3,19 +3,17 @@ package goxp
 import (
 	"context"
 	"sync"
-
-	"github.com/whitekid/iter"
 )
 
 // IterChan iter chan and run fx(), until context is done
 func IterChan[T any](ctx context.Context, ch <-chan T, fn func(T)) {
-	it := iter.C(ch)
-	for v, ok := it.Next(); ok; v, ok = it.Next() {
-		if IsContextDone(ctx) {
-			break
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case v := <-ch:
+			fn(v)
 		}
-
-		fn(v)
 	}
 }
 

@@ -54,3 +54,6 @@ func EnvExists(k string) bool {
 	_, exists := os.LookupEnv(k)
 	return exists
 }
+
+// P return pointer
+func P[T any](v T) *T { return &v }

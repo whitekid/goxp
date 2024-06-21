@@ -29,7 +29,7 @@ func newLogger() (*zap.Logger, zap.AtomicLevel) {
 
 	return zap.New(zapcore.NewCore(
 		encorder,
-		zapcore.Lock(os.Stdout),
+		zapcore.Lock(os.Stderr),
 		atomic,
 	),
 		zap.AddCaller(),
