@@ -22,7 +22,7 @@ var (
 // .   .      bla.... bla...
 //
 //	}
-func Timer(format string, args ...interface{}) func() {
+func Timer(format string, args ...any) func() {
 	logTimerOnce.Do(func() {
 		logTimer = log.New()
 	})

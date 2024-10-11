@@ -2,31 +2,19 @@ package fx
 
 import (
 	"cmp"
+	"iter"
 	"math/rand"
 	"slices"
 	"time"
 
 	"github.com/whitekid/goxp/sets"
+	"github.com/whitekid/goxp/slicex"
 )
 
 var rnd *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-func Chunk[S ~[]E, E any](s S, size int) []S {
-	num := len(s) / size
-	if len(s)%size != 0 {
-		num++
-	}
-
-	r := make([]S, 0, num)
-	for i := 0; i < num; i++ {
-		last := (i + 1) * size
-		if last > len(s) {
-			last = len(s)
-		}
-
-		r = append(r, s[i*size:last])
-	}
-	return r
+func Chunk[S ~[]E, E any](s S, size int) iter.Seq[S] {
+	return slices.Chunk(s, size)
 }
 
 func Count[S ~[]E, E comparable](s S, v E) (r int) {
@@ -248,15 +236,7 @@ func Reverse[S ~[]E, E any](s S) S {
 }
 
 // Times repeat count times
-func Times[T any](count int, f func(int) T) []T {
-	r := make([]T, count)
-
-	for i := range r {
-		r[i] = f(i)
-	}
-
-	return r
-}
+func Times[T any](count int, f func(int) T) []T { return slicex.Times(count, f).Slice() }
 
 func ToMap[S ~[]E, E any, K comparable, V any](s S, f func(E) (K, V)) map[K]V {
 	r := make(map[K]V)
@@ -348,20 +328,7 @@ func Intersect[S ~[]E, E comparable](s1, s2 S) S {
 	})
 }
 
-func Concat[S ~[]E, E any](cols ...S) S {
-	length := 0
-
-	for i := range cols {
-		length += len(cols[i])
-	}
-
-	r := make(S, 0, length)
-	for i := range cols {
-		r = append(r, cols[i]...)
-	}
-
-	return r
-}
+func Concat[S ~[]E, E any](cols ...S) S { return slices.Concat(cols...) }
 
 func Union[S ~[]E, E comparable](ss ...S) (r S) {
 	r = make(S, 0)

@@ -2,12 +2,13 @@ package fixtures
 
 import (
 	"encoding/base64"
+	"maps"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 
 	"github.com/whitekid/goxp/fx"
-	"golang.org/x/exp/maps"
 )
 
 // Env environment fixture
@@ -34,7 +35,7 @@ func Envs(envs map[string]string) Teardown {
 		return Env(k, v)
 	})
 
-	return Chain(maps.Values(teardowns)...)
+	return Chain(slices.Collect(maps.Values(teardowns))...)
 }
 
 // JSONEnv json environment fixture

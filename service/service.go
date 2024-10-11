@@ -33,23 +33,22 @@ func (s *Helper) Done(ctx context.Context) bool {
 	}
 }
 
-// Multi 여러 sub service들을 돌릴 수 있는 서비스
-type Multi struct {
+// multiServiceImpl 여러 sub service들을 돌릴 수 있는 서비스
+type multiServiceImpl struct {
 	services []Interface
-	ctx      context.Context
 }
 
 // NewMulti create Multi
-func NewMulti(services ...Interface) *Multi {
-	return &Multi{
+func NewMulti(services ...Interface) Interface {
+	return &multiServiceImpl{
 		services: services,
 	}
 }
 
 // Serve runs sub services
-func (s *Multi) Serve(ctx context.Context) error {
+func (s *multiServiceImpl) Serve(ctx context.Context) error {
 	if len(s.services) == 0 {
-		return errors.New("No registered services")
+		return errors.New("no registered services")
 	}
 
 	errorC := make(chan error)

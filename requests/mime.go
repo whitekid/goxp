@@ -5,7 +5,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/whitekid/goxp"
+	"github.com/whitekid/goxp/mapx"
 )
 
 var mimeTypes = map[string]string{}
@@ -20,7 +20,7 @@ func mimeByExt(ext string) string {
 
 	if strings.HasPrefix(mimeType, "application/json") {
 		mimeType, param, _ := mime.ParseMediaType(mimeType)
-		goxp.SetNX(param, "charset", "utf-8")
+		mapx.SetNX(param, "charset", "utf-8")
 
 		return mime.FormatMediaType(mimeType, param)
 	}
