@@ -5,14 +5,21 @@ import (
 	"sync"
 )
 
-// IterChan iter chan and run fx(), until context is done
-func IterChan[T any](ctx context.Context, ch <-chan T, fn func(T)) {
+// IterChan iter chan and run fx(), until context is done or fn returns error
+func IterChan[T any](ctx context.Context, ch <-chan T, fn func(T) error) error {
 	for {
 		select {
 		case <-ctx.Done():
-			return
-		case v := <-ch:
-			fn(v)
+			return nil
+
+		case v, ok := <-ch:
+			if !ok {
+				return nil
+			}
+
+			if err := fn(v); err != nil {
+				return err
+			}
 		}
 	}
 }

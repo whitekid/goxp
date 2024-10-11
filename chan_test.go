@@ -10,26 +10,34 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/whitekid/goxp/fx"
+	"github.com/whitekid/goxp/log"
 	"golang.org/x/sync/errgroup"
 )
 
 func TestIterChan(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
 	ch := make(chan int)
 
 	want := []int{}
 	go func() {
 		for i := 0; i < 10; i++ {
+			i := i
+			log.Debugf("@@@@@@@@ <- %v", i)
 			ch <- i
 			want = append(want, i)
 		}
+		log.Debugf("@@@@ close")
 		close(ch)
 	}()
 
 	got := []int{}
-	IterChan(context.Background(), ch, func(i int) {
+	err := IterChan(ctx, ch, func(i int) error {
 		got = append(got, i)
+		return nil
 	})
-
+	require.NoError(t, err)
 	require.Equal(t, want, got)
 }
 
@@ -54,7 +62,7 @@ func TestFadeIn(t *testing.T) {
 	for x := range ch {
 		r = append(r, x)
 	}
-	r = fx.Sort(r)
+	r = slices.Sorted(fx.Iter(r...))
 	r = fx.Uniq(r)
 
 	require.Equal(t, []int{0, 1, 2, 3, 4}, r)
@@ -102,7 +110,7 @@ func testFadeOut[T cmp.Ordered](t *testing.T, items []T) {
 func FuzzFadeOut(f *testing.F) {
 	f.Add(1, 2, 3, 4, 5, 6, 7, 8, 9)
 	f.Fuzz(func(t *testing.T, v1, v2, v3, v4, v5, v6, v7, v8, v9 int) {
-		testFadeOut(t, fx.Of(v1, v2, v3, v4, v5, v6, v7, v8, v9))
+		testFadeOut(t, []int{v1, v2, v3, v4, v5, v6, v7, v8, v9})
 	})
 }
 
