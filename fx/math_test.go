@@ -1,8 +1,10 @@
 package fx
 
 import (
+	"iter"
 	"math"
 	"math/rand"
+	"slices"
 	"strconv"
 	"testing"
 
@@ -86,9 +88,9 @@ func TestSum(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			switch want := tt.want.(type) {
 			case int:
-				testSum(t, To[int](tt.args.items), want)
+				testSum(t, To[int](Iter(tt.args.items...)), want)
 			case float64:
-				testSum(t, To[float64](tt.args.items), want)
+				testSum(t, To[float64](Iter(tt.args.items...)), want)
 			default:
 				require.Fail(t, "unsupported type", "%v (%T)", want, want)
 			}
@@ -96,14 +98,14 @@ func TestSum(t *testing.T) {
 	}
 }
 
-func testSum[S ~[]T1, T1 Number](t *testing.T, items S, want T1) {
-	require.Equal(t, want, Sum(items))
+func testSum[T1 Number](t *testing.T, s iter.Seq[T1], want T1) {
+	require.Equal(t, want, Sum(s))
 }
 
 func FuzzSum(f *testing.F) {
 	f.Add(1, 2, 3, 4, 5)
 	f.Fuzz(func(t *testing.T, n1, n2, n3, n4, n5 int) {
-		testSum(t, []int{n1, n2, n3, n4, n5}, n1+n2+n3+n4+n5)
+		testSum(t, Iter(n1, n2, n3, n4, n5), n1+n2+n3+n4+n5)
 	})
 }
 
@@ -139,7 +141,7 @@ func TestSumBy(t *testing.T) {
 }
 
 func testSumBy[S ~[]T1, T1 any, T2 Number](t *testing.T, items S, want T2, sumByWrap func(T1) T2) {
-	require.Equal(t, want, SumBy(items, sumByWrap))
+	require.Equal(t, want, SumBy(Iter(items...), sumByWrap))
 }
 
 func FuzzSumBy(f *testing.F) {
@@ -176,9 +178,9 @@ func TestScale(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			switch v := tt.args.scale.(type) {
 			case int:
-				testScale(t, To[int](tt.args.items), v)
+				testScale(t, slices.Collect(To[int](Iter(tt.args.items...))), v)
 			case float64:
-				testScale(t, To[float64](tt.args.items), v)
+				testScale(t, slices.Collect(To[float64](Iter(tt.args.items...))), v)
 			default:
 				require.Fail(t, "unsupported type", "%v (%T)", v, v)
 			}
@@ -186,8 +188,8 @@ func TestScale(t *testing.T) {
 	}
 }
 
-func testScale[S ~[]R, R Number](t *testing.T, args S, scale R) {
-	got := Scale(args, scale)
+func testScale[R Number](t *testing.T, args []R, scale R) {
+	got := slices.Collect(Scale(Iter(args...), scale))
 
 	for i := 0; i < len(got); i++ {
 		require.Equal(t, args[i]*scale, got[i])

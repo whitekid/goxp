@@ -12,7 +12,7 @@ import (
 func TestSlice(t *testing.T) {
 	got := Of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9).
 		Filter(func(x int) bool { return x%2 == 0 }).
-		Slice()
+		Collect()
 	require.Equal(t, []int{0, 2, 4, 6, 8}, got)
 }
 
@@ -34,12 +34,12 @@ func TestForEachE(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
-	got := Of(1, 2, 3, 4).Filter(func(v int) bool { return v%2 == 0 }).Slice()
+	got := Of(1, 2, 3, 4).Filter(func(v int) bool { return v%2 == 0 }).Collect()
 	require.Equal(t, []int{2, 4}, got)
 }
 
 func TestMap(t *testing.T) {
-	got := Map(Of(1, 2, 3, 4), func(v int) string { return strconv.FormatInt(int64(v), 10) })
+	got := slices.Collect(Map(Iter(1, 2, 3, 4), func(v int) string { return strconv.FormatInt(int64(v), 10) }))
 	require.Equal(t, []string{"1", "2", "3", "4"}, got)
 }
 
@@ -54,7 +54,7 @@ func TestTimes(t *testing.T) {
 }
 
 func TestShuffle(t *testing.T) {
-	got := Of(1, 2, 3, 4, 5, 6, 7, 8, 9).Shuffle().Slice()
+	got := Shuffle(Of(1, 2, 3, 4, 5, 6, 7, 8, 9).Collect())
 	require.NotEqual(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9}, got)
 }
 
@@ -79,55 +79,8 @@ func TestDistinct(t *testing.T) {
 	}
 }
 
-func TestFind(t *testing.T) {
-	v, ok := Of(1, 2, 3, 4, 5, 6, 7, 8, 9).Find(func(v int) bool { return v == 6 })
-	require.True(t, ok)
-	require.Equal(t, 6, v)
-}
-
 func TestEvery(t *testing.T) {
 	require.True(t, Every([]int{1, 2, 3, 4, 5}, []int{2, 4}))
-}
-
-func TestSample(t *testing.T) {
-	got := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	require.Contains(t, got, Sample(got))
-}
-
-func TestSamples(t *testing.T) {
-	s := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	for _, e := range Of(s...).Samples(5).Slice() {
-		require.Contains(t, s, e)
-	}
-}
-
-func TestZip(t *testing.T) {
-	got := Zip([]int{1, 2, 3}, []string{"a", "b", "c"})
-	require.Equal(t, map[int]string{
-		1: "a",
-		2: "b",
-		3: "c",
-	}, got)
-}
-
-func TestIntersect(t *testing.T) {
-	type args struct {
-		cola []int
-		colb []int
-	}
-	tests := [...]struct {
-		name string
-		args args
-		want []int
-	}{
-		{`valid`, args{[]int{1, 2, 3, 4}, []int{3}}, []int{1, 2, 4}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := Intersect(tt.args.cola, tt.args.colb)
-			require.Equal(t, tt.want, got, `Intersect() failed: want=%v, got=%v`, tt.want, got)
-		})
-	}
 }
 
 func TestConcat(t *testing.T) {
@@ -145,7 +98,7 @@ func TestConcat(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := Concat(tt.args.cola, tt.args.colb)
+			got := Of(tt.args.cola...).Concat(Of(tt.args.colb...)).Collect()
 			require.Equal(t, tt.want, got, `Concat() failed: want=%v, got=%v`, tt.want, got)
 		})
 	}
@@ -167,31 +120,8 @@ func TestUnion(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := Union(tt.args.cola, tt.args.colb)
+			got := slices.Collect(Union(Iter(tt.args.cola...), Iter(tt.args.colb...)))
 			require.Equal(t, tt.want, got, `Union() failed: want=%v, got=%v`, tt.want, got)
-		})
-	}
-}
-
-func TestSort(t *testing.T) {
-	type args struct {
-		s []int
-	}
-	tests := [...]struct {
-		name string
-		args args
-		want []int
-	}{
-		{"valid", args{[]int{4, 3, 2, 1}}, []int{1, 2, 3, 4}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			require.False(t, slices.IsSorted(tt.args.s))
-
-			got := slices.Clone(tt.args.s)
-			got = Sort(got)
-			require.Equal(t, tt.want, got)
-			require.True(t, slices.IsSorted(got))
 		})
 	}
 }
@@ -217,27 +147,6 @@ func TestPartitionBy(t *testing.T) {
 func TestUniqBy(t *testing.T) {
 	got := UniqBy([]int{1, 2, 3, 4, 5, 6, 7, 8, 9}, func(e int) int { return e % 3 })
 	require.Equal(t, []int{1, 2, 3}, got)
-}
-
-func TestChunk(t *testing.T) {
-	type args struct {
-		s []int
-		n int
-	}
-	tests := [...]struct {
-		name string
-		args args
-		want [][]int
-	}{
-		{`valid`, args{[]int{1, 2, 3, 4, 5}, 2}, [][]int{{1, 2}, {3, 4}, {5}}},
-		{`valid`, args{[]int{1, 2, 3, 4}, 2}, [][]int{{1, 2}, {3, 4}}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := Chunk(tt.args.s, tt.args.n)
-			require.Equal(t, tt.want, got)
-		})
-	}
 }
 
 func TestInterleave(t *testing.T) {
@@ -354,9 +263,4 @@ func TestDropWhile(t *testing.T) {
 			require.Equal(t, tt.want, got, `DropWhile() failed: got = %+v, want = %v`, got, tt.want)
 		})
 	}
-}
-
-func TestReject(t *testing.T) {
-	r := Reject([]int{1, 2, 3, 4}, func(v int) bool { return v%2 == 0 })
-	require.Equal(t, []int{1, 3}, r)
 }

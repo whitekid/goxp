@@ -1,6 +1,7 @@
 package fx
 
 import (
+	"iter"
 	"math"
 
 	"golang.org/x/exp/constraints"
@@ -28,50 +29,36 @@ func absWithFloat[T RealNumber](n T) T {
 	return T(math.Abs(float64(n)))
 }
 
-func Scale[S ~[]T, T Number](s S, f T) S {
-	return Map(s, func(v T) T { return v * f })
-}
+func Scale[T Number](s iter.Seq[T], f T) iter.Seq[T] { return Map(s, func(v T) T { return v * f }) }
 
-func Sum[S ~[]T, T Number](s S) (r T) {
-	for _, v := range s {
+func Sum[T Number](s iter.Seq[T]) (r T) {
+	for v := range s {
 		r += v
 	}
 	return r
 }
 
-func SumBy[S ~[]T1, T1 any, T2 Number](s S, f func(T1) T2) (r T2) {
-	for _, v := range s {
+func SumBy[T1 any, T2 Number](s iter.Seq[T1], f func(T1) T2) (r T2) {
+	for v := range s {
 		r += f(v)
 	}
 	return r
 }
 
-func MaxBy[S ~[]T, T any](value S, cmp func(a T, b T) bool) (r T) {
-	if len(value) == 0 {
-		return
-	}
-
-	r = value[0]
-
-	for i := 1; i < len(value); i++ {
-		if cmp(value[i], r) {
-			r = value[i]
+func MaxBy[T any](s iter.Seq[T], cmp func(T, T) bool) (r T) {
+	for e := range s {
+		if cmp(e, r) {
+			r = e
 		}
 	}
 
 	return
 }
 
-func MinBy[S ~[]T, T any](value S, cmp func(a T, b T) bool) (r T) {
-	if len(value) == 0 {
-		return
-	}
-
-	r = value[0]
-
-	for i := 1; i < len(value); i++ {
-		if cmp(value[i], r) {
-			r = value[i]
+func MinBy[T any](value iter.Seq[T], cmp func(T, T) bool) (r T) {
+	for e := range value {
+		if !cmp(e, r) {
+			r = e
 		}
 	}
 
