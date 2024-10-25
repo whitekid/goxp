@@ -234,7 +234,7 @@ func TestChunk(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := Chunk(tt.args.s, tt.args.n)
+			got := slices.Collect(Chunk(tt.args.s, tt.args.n))
 			require.Equal(t, tt.want, got)
 		})
 	}

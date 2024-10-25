@@ -37,14 +37,13 @@ func newTimerService() service.Interface {
 }
 
 func (s *timerService) Serve(ctx context.Context) error {
-	go goxp.Every(ctx, time.Second, false, func() error {
+	go goxp.Every(ctx, time.Second, false, func() {
 		if goxp.IsContextDone(ctx) {
-			return ctx.Err()
+			return
 		}
 
 		fmt.Printf("%s\n", time.Now().UTC().Format(time.RFC3339))
-		return nil
-	}, nil)
+	})
 
 	<-ctx.Done()
 	return ctx.Err()

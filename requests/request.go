@@ -10,8 +10,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
+	"github.com/whitekid/goxp/mapx"
+	"github.com/whitekid/goxp/slicex"
 )
 
 const (
@@ -100,9 +101,10 @@ func (r *Request) Header(key, value string) *Request {
 }
 
 func (r *Request) Headers(headers map[string]string) *Request {
-	if headers != nil {
-		fx.ForEachMap(headers, func(k string, v string) { r.addOptF(func() { r.header.Add(k, v) }) })
+	for k, v := range headers {
+		r.addOptF(func() { r.header.Add(k, v) })
 	}
+
 	return r
 }
 
@@ -131,7 +133,10 @@ func (r *Request) Query(key, value string) *Request {
 }
 
 func (r *Request) Queries(params map[string]string) *Request {
-	fx.ForEachMap(params, func(k string, v string) { r.addOptF(func() { r.query.Add(k, v) }) })
+	for k, v := range params {
+		r.addOptF(func() { r.query.Add(k, v) })
+	}
+
 	return r
 }
 
@@ -140,7 +145,9 @@ func (r *Request) Form(key, value string) *Request {
 }
 
 func (r *Request) Forms(values map[string]string) *Request {
-	fx.ForEachMap(values, func(k string, v string) { r.addOptF(func() { r.formValues.Add(k, v) }) })
+	for k, v := range values {
+		r.addOptF(func() { r.formValues.Add(k, v) })
+	}
 	return r
 }
 
@@ -169,7 +176,7 @@ func (r *Request) makeRequest() (*http.Request, error) {
 			return nil, err
 		}
 
-		URL.RawQuery = url.Values(fx.MergeMap(URL.Query(), r.query)).Encode()
+		URL.RawQuery = url.Values(mapx.Merge(URL.Query(), r.query)).Encode()
 		u = URL.String()
 	}
 
@@ -184,7 +191,7 @@ func (r *Request) makeRequest() (*http.Request, error) {
 		case len(r.jsonValues) > 0:
 			r.header.Set(HeaderContentType, MIMEApplicationJSON)
 
-			buffer := fx.Map(r.jsonValues, func(v any) io.Reader {
+			buffer := slicex.Map(r.jsonValues, func(v any) io.Reader {
 				buf := &bytes.Buffer{}
 				if err := json.NewEncoder(buf).Encode(v); err != nil {
 					log.Errorf("encode error: %v", err)
@@ -207,9 +214,11 @@ func (r *Request) makeRequest() (*http.Request, error) {
 		req.SetBasicAuth(r.basicAuthUser, r.basicAuthPassword)
 	}
 
-	fx.ForEachMap(r.header, func(k string, headers []string) {
-		fx.Each(headers, func(i int, v string) { req.Header.Add(k, v) })
-	})
+	for k, vv := range r.header {
+		for _, v := range vv {
+			req.Header.Add(k, v)
+		}
+	}
 
 	return req, nil
 }

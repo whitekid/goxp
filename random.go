@@ -1,10 +1,8 @@
 package goxp
 
 import (
-	crand "crypto/rand"
+	"crypto/rand"
 	"math/big"
-	"math/rand"
-	"time"
 
 	"github.com/whitekid/goxp/fx"
 )
@@ -18,18 +16,27 @@ var (
 	randomChars  = append(append(letters, digits...), specialChars...)
 )
 
-var (
-	rnd *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
-)
+var ()
 
 // RandomString generate random string
 func RandomString(size int) string                    { return RandomStringWith(size, randomChars) }
 func RandomStringWith(size int, source []rune) string { return randomStringWithRand(size, source) }
 
 func randomStringWithRand(size int, source []rune) string {
-	l := len(source)
+	l := int64(len(source))
+	r := make([]rune, size)
 
-	return string(fx.Times(fx.Abs(size), func(i int) rune { return source[rnd.Intn(l)] }))
+	max := big.NewInt(l)
+	for i := 0; i < size; i++ {
+		v, err := rand.Int(rand.Reader, max)
+		if err != nil {
+			panic(err)
+		}
+
+		r[i] = source[v.Int64()%l]
+	}
+
+	return string(r)
 }
 
 // randomStringWithCrypto generate random string securly but much slower than RandomString()
@@ -38,7 +45,7 @@ func randomStringWithCrypto(size int, source []rune) string {
 	l := big.NewInt(int64(len(source)))
 
 	for i := 0; i < size; i++ {
-		n, _ := crand.Int(crand.Reader, l)
+		n, _ := rand.Int(rand.Reader, l)
 		b[i] = source[int(n.Int64())]
 	}
 	return string(b)
@@ -54,6 +61,6 @@ func randomByteWithRand(size int) []byte {
 
 func randomByteWithCrypto(size int) []byte {
 	r := make([]byte, fx.Abs(size))
-	crand.Read(r)
+	rand.Read(r)
 	return r
 }
