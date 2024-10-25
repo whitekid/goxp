@@ -13,9 +13,7 @@ import (
 
 var rnd *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-func Chunk[S ~[]E, E any](s S, size int) iter.Seq[S] {
-	return slices.Chunk(s, size)
-}
+func Chunk[S ~[]E, E any](s S, size int) iter.Seq[S] { return slices.Chunk(s, size) }
 
 func Count[S ~[]E, E comparable](s S, v E) (r int) {
 	for _, e := range s {

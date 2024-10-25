@@ -3,6 +3,7 @@ package goxp
 import (
 	"context"
 	"errors"
+	"iter"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -80,10 +81,9 @@ func TestEvery(t *testing.T) {
 	defer cancel()
 
 	callCount := int32(0)
-	Every(ctx, 100*time.Second, true, func() error {
+	Every(ctx, 100*time.Second, true, func() {
 		atomic.AddInt32(&callCount, 1)
-		return nil
-	}, nil)
+	})
 	require.Greater(t, callCount, int32(0))
 }
 
@@ -116,4 +116,31 @@ func TestAfterContextDeadline(t *testing.T) {
 
 	err := After(ctx, 200*time.Millisecond, func() error { return nil })
 	require.ErrorIs(t, err, context.DeadlineExceeded)
+}
+
+func TestAsync(t *testing.T) {
+	it := Async(func() int {
+		time.Sleep(time.Second)
+		return 7
+	})
+	next, stop := iter.Pull(it)
+	defer stop()
+
+	got, ok := next()
+	require.True(t, ok)
+	require.Equal(t, 7, got)
+}
+
+func TestAsync2(t *testing.T) {
+	it := Async2(func() (int, time.Time) {
+		time.Sleep(time.Second)
+		return 7, time.Now()
+	})
+	next, stop := iter.Pull2(it)
+	defer stop()
+	v1, v2, ok := next()
+	require.True(t, ok)
+
+	require.Equal(t, 7, v1)
+	require.True(t, v2.Before(time.Now()))
 }

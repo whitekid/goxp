@@ -78,8 +78,8 @@ func TestRandomByte(t *testing.T) {
 }
 
 func testRandomByte(t *testing.T, randomByte func(size int) []byte, size int) {
-	got := randomByte(1000)
-	require.Equal(t, 1000, len(got))
+	got := randomByte(size)
+	require.Equal(t, size, len(got))
 	for _, c := range got {
 		require.Contains(t, got, c)
 	}

@@ -49,10 +49,9 @@ func init() {
 		Use: "every",
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := cmd.Context()
-			go goxp.Every(ctx, time.Second, false, func() error {
+			go goxp.Every(ctx, time.Second, false, func() {
 				fmt.Printf("%s\n", time.Now().Format(time.RFC3339))
-				return nil
-			}, nil)
+			})
 			<-ctx.Done()
 		},
 	})

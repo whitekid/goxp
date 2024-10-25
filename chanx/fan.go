@@ -1,34 +1,9 @@
-package goxp
+package chanx
 
 import (
 	"context"
 	"sync"
 )
-
-// IterChan iter chan and run fx(), until context is done or fn returns error
-func IterChan[T any](ctx context.Context, ch <-chan T, fn func(T) error) error {
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-
-		case v, ok := <-ch:
-			if !ok {
-				return nil
-			}
-
-			if err := fn(v); err != nil {
-				return err
-			}
-		}
-	}
-}
-
-// CloseChan close chan when context is done
-func CloseChan[T any](ctx context.Context, ch chan T) {
-	<-ctx.Done()
-	close(ch)
-}
 
 // FadeIn collect chan to single chan
 func FanIn[T any](ctx context.Context, chans ...<-chan T) <-chan T {
@@ -88,24 +63,4 @@ func FadeOut[T any](ctx context.Context, ch <-chan T, size int) []<-chan T {
 
 	return r
 
-}
-
-// Async run func and returns with channel
-func Async[T any](fn func() T) <-chan T {
-	ch := make(chan T)
-	go func() {
-		ch <- fn()
-		close(ch)
-	}()
-	return ch
-}
-
-// Async2 run func and returns with channel
-func Async2[U1, U2 any](fn func() (U1, U2)) <-chan *Tuple2[U1, U2] {
-	ch := make(chan *Tuple2[U1, U2])
-	go func() {
-		ch <- T2(fn())
-		close(ch)
-	}()
-	return ch
 }

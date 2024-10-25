@@ -13,7 +13,12 @@ func TestIter(t *testing.T) {
 	for e := range it {
 		_ = e
 	}
+}
 
+func TestAll(t *testing.T) {
+	for i, e := range Of(0, 1, 2, 3, 4).All() {
+		require.Equal(t, i, e)
+	}
 }
 
 func TestAppend(t *testing.T) {

@@ -14,10 +14,11 @@ import (
 // if signals is not given, default signals are os.Interrupt, os.Kill
 //
 // Special signals:
-//   os.Interrupt: if get one more os.Interrupt, call os.Exit(1)
-//   os.Kill: call os.Exit(1)
+//
+//	os.Interrupt: if get one more os.Interrupt, call os.Exit(1)
+//	os.Kill: call os.Exit(1)
 func SetupSignal(ctx context.Context, signals ...os.Signal) context.Context {
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 10)
 	if len(signals) == 0 {
 		signals = []os.Signal{os.Interrupt, os.Kill}
 	}

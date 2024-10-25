@@ -1,4 +1,4 @@
-package goxp
+package chanx
 
 import (
 	"cmp"
@@ -33,7 +33,7 @@ func TestIterChan(t *testing.T) {
 	}()
 
 	got := []int{}
-	err := IterChan(ctx, ch, func(i int) error {
+	err := Iter(ctx, ch, func(i int) error {
 		got = append(got, i)
 		return nil
 	})
@@ -62,7 +62,7 @@ func TestFadeIn(t *testing.T) {
 	for x := range ch {
 		r = append(r, x)
 	}
-	r = slices.Sorted(fx.Iter(r...))
+	r = slices.Sorted(slices.Values(r))
 	r = fx.Uniq(r)
 
 	require.Equal(t, []int{0, 1, 2, 3, 4}, r)
@@ -112,23 +112,4 @@ func FuzzFadeOut(f *testing.F) {
 	f.Fuzz(func(t *testing.T, v1, v2, v3, v4, v5, v6, v7, v8, v9 int) {
 		testFadeOut(t, []int{v1, v2, v3, v4, v5, v6, v7, v8, v9})
 	})
-}
-
-func TestAsync(t *testing.T) {
-	ch := Async(func() int {
-		time.Sleep(time.Second)
-		return 7
-	})
-	require.Equal(t, 7, <-ch)
-}
-
-func TestAsync2(t *testing.T) {
-	ch := Async2(func() (int, time.Time) {
-		time.Sleep(time.Second)
-		return 7, time.Now()
-	})
-	v := <-ch
-	n, tm := v.Unpack()
-	require.Equal(t, 7, n)
-	require.True(t, tm.Before(time.Now()))
 }

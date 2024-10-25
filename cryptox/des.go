@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/des"
 	"crypto/rand"
+	"fmt"
 	"io"
 
 	"github.com/pkg/errors"
@@ -29,7 +30,7 @@ func (c *desCipher) newCipher(key []byte) (cipher.Block, error) {
 func (c *desCipher) Encrypt(data []byte) ([]byte, error) {
 	block, err := c.newCipher(c.key)
 	if err != nil {
-		return nil, errors.Wrap(err, "encrypt failed")
+		return nil, fmt.Errorf("encrypt failed: %w", err)
 	}
 
 	if mod := len(data) % block.BlockSize(); mod != 0 {
@@ -40,7 +41,7 @@ func (c *desCipher) Encrypt(data []byte) ([]byte, error) {
 	ciphertext := make([]byte, block.BlockSize()+len(data))
 	iv := ciphertext[:block.BlockSize()]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return nil, errors.Wrapf(err, "random read failed")
+		return nil, fmt.Errorf("random read failed: %w", err)
 	}
 
 	mode := cipher.NewCBCEncrypter(block, iv)
@@ -52,7 +53,7 @@ func (c *desCipher) Encrypt(data []byte) ([]byte, error) {
 func (c *desCipher) Decrypt(data []byte) ([]byte, error) {
 	block, err := c.newCipher(c.key)
 	if err != nil {
-		return nil, errors.Wrap(err, "decrypt failed")
+		return nil, fmt.Errorf("decrypt failed: %w", err)
 	}
 
 	if len(data)%block.BlockSize() != 0 {
