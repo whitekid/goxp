@@ -8,7 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/whitekid/goxp/fx"
+	"github.com/whitekid/goxp/mapx"
+	"github.com/whitekid/goxp/slicex"
 )
 
 // Env environment fixture
@@ -31,7 +32,7 @@ func Env(key, value string) Teardown {
 
 // Envs multiple environments fixture
 func Envs(envs map[string]string) Teardown {
-	teardowns := fx.MapValues(envs, func(k, v string) Teardown {
+	teardowns := mapx.MapValue(envs, func(k, v string) Teardown {
 		return Env(k, v)
 	})
 
@@ -66,7 +67,7 @@ func UnsetEnv(key string) Teardown {
 
 // UnsetEnvs multiple environments fixture
 func UnsetEnvs(envs []string) Teardown {
-	return Chain(fx.Map(envs, func(k string) Teardown {
+	return Chain(slicex.Map(envs, func(k string) Teardown {
 		return UnsetEnv(k)
 	})...)
 }

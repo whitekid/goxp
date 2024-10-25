@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
-	"github.com/whitekid/goxp/fx"
+	"github.com/whitekid/goxp/slicex"
 	"github.com/whitekid/goxp/slug"
 )
 
@@ -22,8 +22,8 @@ func init() {
 		Use:   "uuid",
 		Short: "encode uuid to URL friendly",
 		Run: func(cmd *cobra.Command, args []string) {
-			fx.Each(
-				fx.Times(10, func(i int) uuid.UUID { return uuid.New() }),
+			slicex.Each(
+				slicex.Times(10, func(i int) uuid.UUID { return uuid.New() }),
 				func(i int, x uuid.UUID) {
 					sg := slug.NewUUID(nil)
 					slug := sg.Encode(x)
@@ -38,14 +38,14 @@ func init() {
 		Use:   "short",
 		Short: "encode int to URL friendly.",
 		Run: func(cmd *cobra.Command, args []string) {
-			encoding := string(fx.Shuffle([]byte(slug.EncodeURL)))
+			encoding := string(slicex.Shuffle([]byte(slug.EncodeURL)))
 			shortner := slug.NewShortner(encoding)
 			fmt.Printf("encoding: %s\n\n", encoding)
 
 			max, _ := rand.Int(rand.Reader, big.NewInt(math.MaxInt16))
 
-			fx.Each(
-				fx.Times(10, func(i int) *big.Int { return big.NewInt(int64(i)) }),
+			slicex.Each(
+				slicex.Times(10, func(i int) *big.Int { return big.NewInt(int64(i)) }),
 				func(i int, b *big.Int) {
 					n := max.Int64() + int64(i)
 					code := shortner.Encode(n)
@@ -59,7 +59,7 @@ func init() {
 		Use:   "new",
 		Short: "generate new random encoding",
 		Run: func(cmd *cobra.Command, args []string) {
-			enc := fx.Shuffle([]rune(slug.EncodeURL))
+			enc := slicex.Shuffle([]rune(slug.EncodeURL))
 			fmt.Printf("%s\n", string(enc))
 		},
 	})

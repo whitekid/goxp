@@ -20,7 +20,7 @@ func mimeByExt(ext string) string {
 
 	if strings.HasPrefix(mimeType, "application/json") {
 		mimeType, param, _ := mime.ParseMediaType(mimeType)
-		mapx.SetNX(param, "charset", "utf-8")
+		mapx.SetNX[map[string]string](param, "charset", "utf-8")
 
 		return mime.FormatMediaType(mimeType, param)
 	}

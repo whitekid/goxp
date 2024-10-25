@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
 	"golang.org/x/sync/errgroup"
 )
@@ -49,9 +48,7 @@ func TestFadeIn(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		c := make(chan int)
 		chans = append(chans, c)
-		i := i
 		go func() {
-			c <- i
 			c <- i
 			close(c)
 		}()
@@ -62,8 +59,8 @@ func TestFadeIn(t *testing.T) {
 	for x := range ch {
 		r = append(r, x)
 	}
+
 	r = slices.Sorted(slices.Values(r))
-	r = fx.Uniq(r)
 
 	require.Equal(t, []int{0, 1, 2, 3, 4}, r)
 }
