@@ -5,10 +5,9 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"io"
-
-	"github.com/pkg/errors"
 )
 
 type aesCipher struct {
@@ -57,7 +56,7 @@ func (c *aesCipher) Decrypt(data []byte) ([]byte, error) {
 	}
 
 	if len(data)%block.BlockSize() != 0 {
-		return nil, errors.Errorf("data size mismatch")
+		return nil, errors.New("data size mismatch")
 	}
 
 	iv := data[:block.BlockSize()]
