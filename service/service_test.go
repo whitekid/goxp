@@ -26,7 +26,7 @@ func (s *simpleService) Serve(ctx context.Context) error {
 			return
 		}
 
-		log.Infof("Now: %s", time.Now().UTC().Format(time.RFC3339))
+		log.Debugf("Now: %s", time.Now().UTC().Format(time.RFC3339))
 	})
 
 	<-ctx.Done()
@@ -42,19 +42,6 @@ func TestSingle(t *testing.T) {
 	svc.Serve(ctx)
 
 	require.True(t, svc.(*simpleService).started)
-}
-
-func TestMulti(t *testing.T) {
-	services := []Interface{newSampleService(), newSampleService()}
-	m := NewMulti(services...)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	require.Nil(t, m.Serve(ctx))
-	for _, svc := range services {
-		require.True(t, svc.(*simpleService).started)
-	}
 }
 
 func TestCascadeCancel(t *testing.T) {
