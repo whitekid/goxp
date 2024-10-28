@@ -9,15 +9,15 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/whitekid/goxp"
-	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
+	"github.com/whitekid/goxp/slicex"
 )
 
 func init() {
 	cmd := &cobra.Command{
 		Use: "worker",
 		Run: func(cmd *cobra.Command, args []string) {
-			loggers := fx.Times(runtime.NumCPU(), func(i int) log.Interface {
+			loggers := slicex.Times(runtime.NumCPU(), func(i int) log.Interface {
 				return log.Named(fmt.Sprintf("worker %d", i))
 			})
 

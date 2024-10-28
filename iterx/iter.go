@@ -20,13 +20,15 @@ func Of[T any](s ...T) Seq[T] {
 
 func (s Seq[E]) Iter() iter.Seq[E] { return iter.Seq[E](s) }
 
-func (s Seq[E]) All() iter.Seq2[int, E] {
+func (s Seq[E]) All() iter.Seq2[int, E] { return All(s.Iter()) }
+func All[E any](s iter.Seq[E]) iter.Seq2[int, E] {
 	return func(yield func(int, E) bool) {
 		i := 0
 		for v := range s {
 			if !yield(i, v) {
 				return
 			}
+			
 			i++
 		}
 	}

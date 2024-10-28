@@ -6,7 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/whitekid/goxp"
-	"github.com/whitekid/goxp/fx"
+	"github.com/whitekid/goxp/mapx"
+	"github.com/whitekid/goxp/slicex"
 )
 
 func TestEnv(t *testing.T) {
@@ -29,7 +30,7 @@ func TestEnvs(t *testing.T) {
 	teardown := Envs(vars)
 	defer teardown()
 
-	fx.ForEachMap(vars, func(k, v string) {
+	mapx.Each(vars, func(k, v string) {
 		require.Equal(t, v, os.Getenv(k))
 	})
 }
@@ -48,15 +49,15 @@ func TestUnsetEnv(t *testing.T) {
 
 func TestUnsetEnvs(t *testing.T) {
 	envs := []string{"HELLO", "SEOUL"}
-	teardown := Chain(fx.Map(envs, func(k string) Teardown { return Env(k, k+"_value") })...)
+	teardown := Chain(slicex.Map(envs, func(k string) Teardown { return Env(k, k+"_value") })...)
 	defer teardown()
 
-	fx.Each(envs, func(_ int, k string) {
+	slicex.Each(envs, func(_ int, k string) {
 		require.Equal(t, k+"_value", os.Getenv(k))
 	})
 
 	teardown() // clear env
-	fx.Each(envs, func(_ int, k string) {
+	slicex.Each(envs, func(_ int, k string) {
 		require.False(t, goxp.EnvExists(k))
 	})
 }

@@ -4,11 +4,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/goxp/fx"
+	"github.com/whitekid/goxp/slicex"
 )
 
 func TestShortner(t *testing.T) {
-	encoding := fx.Shuffle([]byte(EncodeURL))
+	encoding := slicex.Shuffle([]byte(EncodeURL))
 	shortner := NewShortner(string(encoding))
 
 	for i := 1; i < 100000; i++ {

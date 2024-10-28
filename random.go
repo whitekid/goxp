@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"math/big"
 
-	"github.com/whitekid/goxp/fx"
+	"github.com/whitekid/goxp/slicex"
 )
 
 var (
@@ -41,7 +41,7 @@ func randomStringWithRand(size int, source []rune) string {
 
 // randomStringWithCrypto generate random string securly but much slower than RandomString()
 func randomStringWithCrypto(size int, source []rune) string {
-	b := make([]rune, fx.Abs(size))
+	b := make([]rune, slicex.Abs(size))
 	l := big.NewInt(int64(len(source)))
 
 	for i := 0; i < size; i++ {
@@ -54,13 +54,13 @@ func randomStringWithCrypto(size int, source []rune) string {
 func RandomByte(size int) []byte { return randomByteWithRand(size) }
 
 func randomByteWithRand(size int) []byte {
-	r := make([]byte, fx.Abs(size))
+	r := make([]byte, slicex.Abs(size))
 	rand.Read(r)
 	return r
 }
 
 func randomByteWithCrypto(size int) []byte {
-	r := make([]byte, fx.Abs(size))
+	r := make([]byte, slicex.Abs(size))
 	rand.Read(r)
 	return r
 }
