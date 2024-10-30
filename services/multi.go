@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/whitekid/goxp/log"
+	"golang.org/x/sync/errgroup"
 )
 
 type MultiService interface {
@@ -35,24 +35,12 @@ func (s *multiServiceImpl) Serve(ctx context.Context) error {
 		return errors.New("no registered services")
 	}
 
-	errorC := make(chan error)
-	defer close(errorC)
+	eg, ctx := errgroup.WithContext(ctx)
 
 	// run sub service
 	for _, service := range s.services {
-		service := service
-		go func() {
-			if err := service.Serve(ctx); err != nil {
-				errorC <- err
-			}
-		}()
+		eg.Go(func() error { return service.Serve(ctx) })
 	}
 
-	select {
-	case <-ctx.Done():
-		return nil
-	case err := <-errorC:
-		log.Errorf("Error %s", err)
-		return err
-	}
+	return eg.Wait()
 }

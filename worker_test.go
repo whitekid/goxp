@@ -40,7 +40,7 @@ func TestDoWithWorker(t *testing.T) {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
-			err := DoWithWorker(ctx, tt.args.workers, func(i int) error {
+			err := DoWithWorker(ctx, tt.args.workers, func(ctx context.Context, i int) error {
 				for x := range ch {
 					atomic.AddInt32(&sum, x)
 				}
@@ -58,13 +58,11 @@ func TestDoWithWorkerCancel(t *testing.T) {
 	defer cancel()
 
 	t1 := time.Now()
-	DoWithWorker(ctx, 0, func(i int) error {
+	DoWithWorker(ctx, 0, func(ctx context.Context, i int) error {
 		after := time.NewTimer(time.Hour)
+
 		select {
 		case <-ctx.Done():
-			if !after.Stop() {
-				go func() { <-after.C }()
-			}
 			break
 		case <-after.C:
 			require.Fail(t, "must canceled by context")

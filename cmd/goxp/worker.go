@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"fmt"
 	"math/big"
@@ -21,8 +22,7 @@ func init() {
 				return log.Named(fmt.Sprintf("worker %d", i))
 			})
 
-			ctx := cmd.Context()
-			goxp.DoWithWorker(cmd.Context(), 0, func(i int) error {
+			goxp.DoWithWorker(cmd.Context(), 0, func(ctx context.Context, i int) error {
 				logger := loggers[i]
 
 				logger.Infof("go for work~ %d", i)
@@ -33,14 +33,11 @@ func init() {
 				after := time.NewTimer(time.Duration(sleepMSec.Int64()) * time.Second)
 				select {
 				case <-ctx.Done():
-					if !after.Stop() {
-						go func() { <-after.C }()
-					}
+					return ctx.Err()
 
 				case <-after.C:
+					return nil
 				}
-
-				return nil
 			})
 		},
 	}

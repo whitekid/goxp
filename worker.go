@@ -11,15 +11,14 @@ import (
 
 // DoWithWorker iterate chan and run do() with n workers
 // if works <=0 then worker set to runtime.NumCPU()
-func DoWithWorker(ctx context.Context, workers int, do func(i int) error) error {
+func DoWithWorker(ctx context.Context, workers int, do func(ctx context.Context, i int) error) error {
 	eg, _ := errgroup.WithContext(ctx)
 
 	workers = Ternary(workers <= 0, runtime.NumCPU(), workers)
 	eg.SetLimit(workers)
 
 	for i := 0; i < workers; i++ {
-		i := i
-		eg.Go(func() error { return do(i) })
+		eg.Go(func() error { return do(ctx, i) })
 	}
 
 	return eg.Wait()
