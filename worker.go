@@ -58,7 +58,7 @@ func After(ctx context.Context, duration time.Duration, fn func() error) error {
 	}
 }
 
-// Async run func and returns with channel
+// Async run func in background and returns with iter.Seq
 func Async[T any](fn func() T) iter.Seq[T] {
 	ch := make(chan T)
 	go func() {
@@ -75,7 +75,7 @@ func Async[T any](fn func() T) iter.Seq[T] {
 	}
 }
 
-// Async2 run func and returns with channel
+// Async2 run func in background and returns with iter.Seq
 func Async2[U1, U2 any](fn func() (U1, U2)) iter.Seq2[U1, U2] {
 	ch := make(chan *Tuple2[U1, U2])
 	go func() {

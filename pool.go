@@ -7,10 +7,12 @@ type Pool[T any] struct {
 }
 
 func NewPool[T any](New func() T) *Pool[T] {
-	pool := &Pool[T]{}
-	if New != nil {
-		pool.New = func() any { return New() }
+	pool := &Pool[T]{
+		Pool: sync.Pool{
+			New: func() any { return New() },
+		},
 	}
+
 	return pool
 }
 
