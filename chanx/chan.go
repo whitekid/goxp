@@ -2,7 +2,7 @@ package chanx
 
 import "context"
 
-// Iter iter chan and run fx(), until context is done or fn returns error
+// Iter iter chan and run fx(), until context is done or chan closed or fn returns error
 func Iter[T any](ctx context.Context, ch <-chan T, fn func(T) error) error {
 	for {
 		select {
