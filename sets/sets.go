@@ -1,6 +1,9 @@
 package sets
 
-import "slices"
+import (
+	"iter"
+	"slices"
+)
 
 type Set[S ~[]E, E comparable] struct {
 	keys   map[E]struct{}
@@ -64,3 +67,6 @@ func (s *Set[S, E]) Each(fx func(int, E)) {
 		fx(i, v)
 	}
 }
+
+func (s *Set[S, E]) All() iter.Seq2[int, E] { return slices.All(s.values) }
+func (s *Set[S, E]) Values() iter.Seq[E]    { return slices.Values(s.values) }
