@@ -3,8 +3,6 @@ package goxp
 import (
 	"crypto/rand"
 	"math/big"
-
-	"github.com/whitekid/goxp/slicex"
 )
 
 var (
@@ -16,13 +14,14 @@ var (
 	randomChars  = append(append(letters, digits...), specialChars...)
 )
 
-var ()
-
 // RandomString generate random string
-func RandomString(size int) string                    { return RandomStringWith(size, randomChars) }
-func RandomStringWith(size int, source []rune) string { return randomStringWithRand(size, source) }
+func RandomString(size int) string { return RandomStringWith(size, randomChars) }
 
-func randomStringWithRand(size int, source []rune) string {
+func RandomStringWith(size int, source []rune) string {
+	if size < 0 {
+		panic("size must be greater than 0")
+	}
+
 	l := int64(len(source))
 	r := make([]rune, size)
 
@@ -39,28 +38,12 @@ func randomStringWithRand(size int, source []rune) string {
 	return string(r)
 }
 
-// randomStringWithCrypto generate random string securly but much slower than RandomString()
-func randomStringWithCrypto(size int, source []rune) string {
-	b := make([]rune, slicex.Abs(size))
-	l := big.NewInt(int64(len(source)))
-
-	for i := 0; i < size; i++ {
-		n, _ := rand.Int(rand.Reader, l)
-		b[i] = source[int(n.Int64())]
+func RandomByte(size int) []byte {
+	if size < 0 {
+		panic("size must be greater than 0")
 	}
-	return string(b)
-}
 
-func RandomByte(size int) []byte { return randomByteWithRand(size) }
-
-func randomByteWithRand(size int) []byte {
-	r := make([]byte, slicex.Abs(size))
-	rand.Read(r)
-	return r
-}
-
-func randomByteWithCrypto(size int) []byte {
-	r := make([]byte, slicex.Abs(size))
+	r := make([]byte, size)
 	rand.Read(r)
 	return r
 }

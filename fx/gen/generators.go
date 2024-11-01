@@ -27,7 +27,7 @@ func IntN[T constraints.Integer](max T) Generator[T] {
 		if i >= max {
 			return 0, false
 		}
-		
+
 		defer func() { i++ }()
 		return i, true
 	}

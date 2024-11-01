@@ -15,8 +15,7 @@ func TestRandomString(t *testing.T) {
 		name string
 		args args
 	}{
-		{`rand`, args{randomStringWithRand, randomChars}},
-		{`crypto`, args{randomStringWithCrypto, randomChars}},
+		{``, args{RandomStringWith, randomChars}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -39,8 +38,7 @@ func BenchmarkRandomString(b *testing.B) {
 		name         string
 		randomString func(int, []rune) string
 	}{
-		{"rand", randomStringWithRand},
-		{"crypto", randomStringWithCrypto},
+		{"", RandomStringWith},
 	}
 	for _, bb := range tests {
 		b.Run(bb.name, func(b *testing.B) {
@@ -54,8 +52,7 @@ func BenchmarkRandomString(b *testing.B) {
 func FuzzRandomString(f *testing.F) {
 	f.Add(100)
 	f.Fuzz(func(t *testing.T, size int) {
-		testRandomString(t, randomStringWithRand, size, randomChars)
-		testRandomString(t, randomStringWithCrypto, size, randomChars)
+		testRandomString(t, RandomStringWith, size, randomChars)
 	})
 }
 
@@ -67,8 +64,7 @@ func TestRandomByte(t *testing.T) {
 		name string
 		args args
 	}{
-		{"rand", args{randomByteWithRand}},
-		{"crypto", args{randomByteWithCrypto}},
+		{"", args{RandomByte}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -90,8 +86,7 @@ func BenchmarkRandomByte(b *testing.B) {
 		name       string
 		randomByte func(int) []byte
 	}{
-		{"rand", randomByteWithRand},
-		{"crypto", randomByteWithCrypto},
+		{"", RandomByte},
 	}
 	for _, tt := range tests {
 		b.Run(tt.name, func(b *testing.B) {
@@ -105,7 +100,6 @@ func BenchmarkRandomByte(b *testing.B) {
 func FuzzRandomByte(f *testing.F) {
 	f.Add(100)
 	f.Fuzz(func(t *testing.T, size int) {
-		testRandomByte(t, randomByteWithRand, size)
-		testRandomByte(t, randomByteWithCrypto, size)
+		testRandomByte(t, RandomByte, size)
 	})
 }
