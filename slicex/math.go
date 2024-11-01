@@ -1,8 +1,6 @@
 package slicex
 
 import (
-	"math"
-
 	"golang.org/x/exp/constraints"
 )
 
@@ -14,23 +12,7 @@ type Number interface {
 	RealNumber | constraints.Complex
 }
 
-func Abs[T RealNumber](n T) T { return absWithFloat(n) }
-
-func abs[T RealNumber](n T) T {
-	if n > 0 {
-		return n
-	}
-
-	return -n
-}
-
-func absWithFloat[T RealNumber](n T) T {
-	return T(math.Abs(float64(n)))
-}
-
-func Scale[S ~[]T, T Number](s S, f T) S {
-	return Map(s, func(v T) T { return v * f })
-}
+func Scale[S ~[]T, T Number](s S, f T) S { return Map(s, func(v T) T { return v * f }) }
 
 func Sum[S ~[]T, T Number](s S) (r T) {
 	for _, v := range s {
