@@ -28,3 +28,8 @@ func TestIntersect(t *testing.T) {
 
 	require.Equal(t, []int{4, 5}, Intersect(s1, s2))
 }
+
+func TestUniq(t *testing.T) {
+	s := []int{1, 2, 3, 4, 5, 6, 6, 3, 4, 5, 3, 2, 1}
+	require.Equal(t, []int{1, 2, 3, 4, 5, 6}, Uniq(s))
+}
