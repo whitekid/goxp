@@ -132,7 +132,7 @@ func Shuffle[S ~[]E, E any](s S) S {
 
 func Uniq[S ~[]E, E comparable](s S) S {
 	seen := map[E]struct{}{}
-	r := make([]E, len(s))
+	r := make([]E, 0, len(s))
 
 	for _, e := range s {
 		if _, ok := seen[e]; ok {
