@@ -2,28 +2,27 @@ package chanx
 
 import (
 	"context"
-	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 // FadeIn collect chan to single chan
 func FanIn[T any](ctx context.Context, chans ...<-chan T) <-chan T {
 	out := make(chan T)
 
-	var wg sync.WaitGroup
-	wg.Add(len(chans))
+	eg, ctx := errgroup.WithContext(ctx)
 	for _, ch := range chans {
-		ch := ch
-		go func() {
-			defer wg.Done()
-			for v := range ch {
+		eg.Go(func() error {
+			return Iter(ctx, ch, func(v T) error {
 				out <- v
-			}
-		}()
+				return nil
+			})
+		})
 	}
 
 	go func() {
-		wg.Wait()
-		close(out)
+		defer close(out)
+		eg.Wait()
 	}()
 
 	return out
@@ -62,5 +61,4 @@ func FadeOut[T any](ctx context.Context, ch <-chan T, size int) []<-chan T {
 	}
 
 	return r
-
 }

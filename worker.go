@@ -11,15 +11,14 @@ import (
 
 // DoWithWorker iterate chan and run do() with n workers
 // if works <=0 then worker set to runtime.NumCPU()
-func DoWithWorker(ctx context.Context, workers int, do func(i int) error) error {
+func DoWithWorker(ctx context.Context, workers int, do func(ctx context.Context, i int) error) error {
 	eg, _ := errgroup.WithContext(ctx)
 
 	workers = Ternary(workers <= 0, runtime.NumCPU(), workers)
 	eg.SetLimit(workers)
 
 	for i := 0; i < workers; i++ {
-		i := i
-		eg.Go(func() error { return do(i) })
+		eg.Go(func() error { return do(ctx, i) })
 	}
 
 	return eg.Wait()
@@ -59,7 +58,7 @@ func After(ctx context.Context, duration time.Duration, fn func() error) error {
 	}
 }
 
-// Async run func and returns with channel
+// Async run func in background and returns with iter.Seq
 func Async[T any](fn func() T) iter.Seq[T] {
 	ch := make(chan T)
 	go func() {
@@ -76,7 +75,7 @@ func Async[T any](fn func() T) iter.Seq[T] {
 	}
 }
 
-// Async2 run func and returns with channel
+// Async2 run func in background and returns with iter.Seq
 func Async2[U1, U2 any](fn func() (U1, U2)) iter.Seq2[U1, U2] {
 	ch := make(chan *Tuple2[U1, U2])
 	go func() {

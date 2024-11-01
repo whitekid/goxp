@@ -19,13 +19,13 @@ func TestOrderedMap(t *testing.T) {
 
 	require.Equal(t, 3, m.Len())
 
-	for i, k := range m.Keys() {
+	for k := range m.Keys() {
 		v, _ := m.Get(k)
-		log.Infof("%d %d %s", i, k, v)
+		log.Infof("%d %s", k, v)
 	}
 
 	log.Infof("====")
-	m.ForEach(func(i int, k int, v string) bool {
+	m.Each(func(i int, k int, v string) bool {
 		log.Infof("%d %d %s", i, k, v)
 		return true
 	})

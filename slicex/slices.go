@@ -9,6 +9,7 @@ import (
 	"slices"
 
 	"github.com/whitekid/goxp/fx/gen"
+	"github.com/whitekid/goxp/sets"
 )
 
 type Slice[S ~[]E, E any] []E
@@ -97,18 +98,16 @@ func Filter[S ~[]E, E any](s S, fx func(E) bool) S {
 		return nil
 	}
 
-	r := make(S, len(s))
+	r := make(S, 0, len(s))
 
-	j := 0
 	Each(s, func(i int, e E) {
 		if !fx(e) {
 			return
 		}
-		r[j] = e
-		j++
+		r = append(r, e)
 	})
 
-	return r[:j]
+	return slices.Clip(r)
 }
 
 func (s Slice[S, E]) Reduce(fn func(E, E) E) E { return Reduce(s, fn) }
@@ -150,4 +149,17 @@ func Uniq[S ~[]E, E comparable](s S) S {
 func (s Slice[S, E]) SortedFunc(cmp func(E, E) int) iter.Seq[E] { return SortedFunc(s.Values(), cmp) }
 func SortedFunc[E any](seq iter.Seq[E], cmp func(E, E) int) iter.Seq[E] {
 	return slices.Values(slices.SortedFunc(seq, cmp))
+}
+
+func Intersect[S ~[]E, E comparable](s1, s2 S) S {
+	s := sets.New(s2)
+
+	return Filter(s1, func(e E) bool {
+		if s.Contains(e) {
+			return false
+		}
+
+		s.Set(e)
+		return true
+	})
 }

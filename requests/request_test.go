@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"github.com/whitekid/goxp"
 	"github.com/whitekid/goxp/log"
 )
 
@@ -125,7 +126,7 @@ func TestPapagoSMT(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
-	var r struct {
+	type Response struct {
 		Message struct {
 			Type    string `json:"@type"`
 			Service string `json:"@service"`
@@ -137,7 +138,8 @@ func TestPapagoSMT(t *testing.T) {
 		} `json:"message"`
 	}
 	defer resp.Body.Close()
-	require.NoError(t, resp.JSON(&r))
+	r, err := goxp.ReadJSON[Response](resp.Body)
+	require.NoError(t, err)
 	require.Equal(t, "Good to meet you.", r.Message.Result.TranslatedText)
 }
 
@@ -146,10 +148,10 @@ func TestGithubGet(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, resp.Success(), "failed with status %d", resp.StatusCode)
 
-	r := make(map[string]string)
 	defer resp.Body.Close()
-	require.NoError(t, resp.JSON(&r))
-	require.Equal(t, "https://api.github.com/hub", r["hub_url"])
+	r, err := goxp.ReadJSON[map[string]string](resp.Body)
+	require.NoError(t, err)
+	require.Equal(t, "https://api.github.com/hub", (*r)["hub_url"])
 }
 
 func TestGoogleCustomSearch(t *testing.T) {
@@ -168,7 +170,7 @@ func TestGoogleCustomSearch(t *testing.T) {
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
 	// https://developers.google.com/custom-search/json-api/v1/reference/cse/list#response
-	var response struct {
+	type Response struct {
 		Kind string `json:"kind"`
 		URL  struct {
 			Type     string `json:"type"`
@@ -181,9 +183,10 @@ func TestGoogleCustomSearch(t *testing.T) {
 		} `json:"items"`
 	}
 	defer resp.Body.Close()
-	require.NoError(t, resp.JSON(&response))
-	require.True(t, len(response.Items) > 0)
-	log.Infof("link: %s", response.Items[0].Link)
+	r, err := goxp.ReadJSON[Response](resp.Body)
+	require.NoError(t, err)
+	require.True(t, len(r.Items) > 0)
+	log.Infof("link: %s", r.Items[0].Link)
 }
 
 func TestRedirect(t *testing.T) {

@@ -108,12 +108,12 @@ doSomething()
 - [cryptox](cryptox) - encrypt/ decrypt functions
 - [fixtures](fixtures) - useful fixture functions for test
 - [flags](flags) - cobra & viper make easy
-- [fx](fx) - experimental: some functional functions
+- [fx](fx) - experimental: some functional functions by `iter.Seq`
 - [httptest](httptest) - test http sever make easy
 - [log](log) - simple log powered by zap
-- [request](request) - simple http client
+- [requests](requests) - simple http client
 - [retry](retry) - retrier with backoff
-- [service](service) - simple service framework
+- [services](services) - simple service framework
 - [slug](slug) - uuid to slug
 - [types](types) - Some useful types
 - [validator](validator) - validator make easy

@@ -1,23 +1,28 @@
 package types
 
-type OrderedMap[K comparable, V any] struct {
+import (
+	"iter"
+	"slices"
+)
+
+type OrderedMap[Map ~map[K]V, K comparable, V any] struct {
 	store map[K]V
 	keys  []K
 }
 
-func NewOrderedMap[K comparable, V any]() *OrderedMap[K, V] {
-	return &OrderedMap[K, V]{
+func NewOrderedMap[K comparable, V any]() *OrderedMap[map[K]V, K, V] {
+	return &OrderedMap[map[K]V, K, V]{
 		store: map[K]V{},
 		keys:  []K{},
 	}
 }
 
-func (o *OrderedMap[K, V]) Get(key K) (V, bool) {
+func (o *OrderedMap[Map, K, V]) Get(key K) (V, bool) {
 	value, exists := o.store[key]
 	return value, exists
 }
 
-func (o *OrderedMap[K, V]) Set(key K, value V) {
+func (o *OrderedMap[Map, K, V]) Set(key K, value V) {
 	if _, exists := o.store[key]; !exists {
 		o.keys = append(o.keys, key)
 	}
@@ -25,27 +30,38 @@ func (o *OrderedMap[K, V]) Set(key K, value V) {
 	o.store[key] = value
 }
 
-func (o *OrderedMap[K, V]) Delete(key K) {
+func (o *OrderedMap[Map, K, V]) Delete(key K) {
 	delete(o.store, key)
 
-	idx := -1
-
-	for i, val := range o.keys {
-		if val == key {
-			idx = i
-			break
-		}
-	}
-
+	idx := slices.Index(o.keys, key)
 	if idx != -1 {
-		o.keys = append(o.keys[:idx], o.keys[idx+1:]...)
+		o.keys = slices.Delete(o.keys, idx, idx+1)
 	}
 }
 
-func (o *OrderedMap[K, V]) Len() int  { return len(o.keys) }
-func (o *OrderedMap[K, V]) Keys() []K { return o.keys }
+func (o *OrderedMap[Map, K, V]) Len() int          { return len(o.keys) }
+func (o *OrderedMap[Map, K, V]) Keys() iter.Seq[K] { return slices.Values(o.keys) }
+func (o *OrderedMap[Map, K, V]) Values() iter.Seq[V] {
+	return func(yield func(V) bool) {
+		for _, k := range o.keys {
+			if !yield(o.store[k]) {
+				return
+			}
+		}
+	}
+}
 
-func (o *OrderedMap[K, V]) ForEach(each func(int, K, V) bool) {
+func (o *OrderedMap[Map, K, V]) All() iter.Seq2[K, V] {
+	return func(yield func(K, V) bool) {
+		for _, k := range o.keys {
+			if !yield(k, o.store[k]) {
+				return
+			}
+		}
+	}
+}
+
+func (o *OrderedMap[Map, K, V]) Each(each func(int, K, V) bool) {
 	for i, k := range o.keys {
 		if !each(i, k, o.store[k]) {
 			break

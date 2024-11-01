@@ -23,7 +23,7 @@ func newLogger() (*zap.Logger, zap.AtomicLevel) {
 	}
 
 	atomic := zap.NewAtomicLevel()
-	if strings.ToLower(os.Getenv("LOG_LEVEL")) == "debug" {
+	if level == "debug" {
 		atomic.SetLevel(zap.DebugLevel)
 	}
 

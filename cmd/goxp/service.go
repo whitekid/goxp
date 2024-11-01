@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/whitekid/goxp"
-	"github.com/whitekid/goxp/service"
+	"github.com/whitekid/goxp/services"
 )
 
 func init() {
@@ -30,9 +30,9 @@ func init() {
 
 type timerService struct{}
 
-var _ service.Interface = (*timerService)(nil)
+var _ services.Interface = (*timerService)(nil)
 
-func newTimerService() service.Interface {
+func newTimerService() services.Interface {
 	return &timerService{}
 }
 

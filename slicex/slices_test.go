@@ -21,3 +21,10 @@ func TestToPtr(t *testing.T) {
 		require.Equal(t, &s[i], p[i])
 	}
 }
+
+func TestIntersect(t *testing.T) {
+	s1 := []int{1, 2, 3, 4, 5}
+	s2 := []int{1, 2, 3}
+
+	require.Equal(t, []int{4, 5}, Intersect(s1, s2))
+}
