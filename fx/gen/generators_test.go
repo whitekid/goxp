@@ -17,3 +17,10 @@ func TestIntN(t *testing.T) {
 	require.False(t, ok)
 	require.Equal(t, 0, v)
 }
+
+func TestCycle(t *testing.T) {
+	gen := Cycle([]int{})
+	v, ok := gen()
+	require.False(t, ok)
+	require.Equal(t, 0, v)
+}
