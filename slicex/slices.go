@@ -163,3 +163,13 @@ func Intersect[S ~[]E, E comparable](s1, s2 S) S {
 		return true
 	})
 }
+
+func Flatten[T any](s [][]T) []T {
+	r := []T{}
+
+	for _, e := range s {
+		r = append(r, e...)
+	}
+
+	return r
+}

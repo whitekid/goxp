@@ -13,9 +13,10 @@ func Serial() Generator[int] {
 	i := 0
 
 	return func() (int, bool) {
-		defer func() { i++ }()
+		current := i
+		i++
 
-		return i, true
+		return current, true
 	}
 }
 
@@ -28,8 +29,9 @@ func IntN[T constraints.Integer](max T) Generator[T] {
 			return 0, false
 		}
 
-		defer func() { i++ }()
-		return i, true
+		current := i
+		i++
+		return current, true
 	}
 }
 
@@ -48,6 +50,10 @@ func RandInt(max ...int) Generator[int] {
 
 // Byte generate readom buffer
 func Byte(size int) Generator[[]byte] {
+	if size <= 0 {
+		return func() ([]byte, bool) { return nil, false }
+	}
+
 	return func() ([]byte, bool) {
 		buf := make([]byte, size)
 
@@ -60,14 +66,15 @@ func Byte(size int) Generator[[]byte] {
 }
 
 func Cycle[T any](seed []T) Generator[T] {
+	if len(seed) == 0 {
+		return func() (T, bool) { return *new(T), false }
+	}
+
 	i := 0
 
 	return func() (T, bool) {
-		defer func() {
-			i++
-			i = i % len(seed)
-		}()
-
-		return seed[i], true
+		j := i % len(seed)
+		i++
+		return seed[j], true
 	}
 }
