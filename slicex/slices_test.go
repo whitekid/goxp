@@ -33,3 +33,8 @@ func TestUniq(t *testing.T) {
 	s := []int{1, 2, 3, 4, 5, 6, 6, 3, 4, 5, 3, 2, 1}
 	require.Equal(t, []int{1, 2, 3, 4, 5, 6}, Uniq(s))
 }
+
+func TestFlatten(t *testing.T) {
+	s := [][]int{{1, 2, 3}, {4, 5, 6}}
+	require.Equal(t, []int{1, 2, 3, 4, 5, 6}, Flatten(s))
+}
