@@ -41,7 +41,7 @@ func (s Seq[T]) All() iter.Seq2[int, T] {
 	}
 }
 
-func (s Seq[T]) Append(s1 Seq[T]) Seq[T] {
+func (s Seq[T]) Chain(seq ...Seq[T]) Seq[T] {
 	return func(yield func(T) bool) {
 		for v := range s {
 			if !yield(v) {
@@ -49,9 +49,11 @@ func (s Seq[T]) Append(s1 Seq[T]) Seq[T] {
 			}
 		}
 
-		for v := range s1 {
-			if !yield(v) {
-				return
+		for _, s := range seq {
+			for v := range s {
+				if !yield(v) {
+					return
+				}
 			}
 		}
 	}
@@ -79,9 +81,9 @@ func (s Seq[T]) Filter(fn func(T) bool) Seq[T] {
 	}
 }
 
-func (s Seq[T]) Iter() iter.Seq[T]       { return iter.Seq[T](s) }
-func (s Seq[T]) Map(fn func(T) T) Seq[T] { return Map(s, fn) }
+func (s Seq[T]) Iter() iter.Seq[T] { return iter.Seq[T](s) }
 
+func (s Seq[T]) Map(fn func(T) T) Seq[T] { return Map(s, fn) }
 func Map[T1, T2 any](s Seq[T1], fn func(T1) T2) Seq[T2] {
 	return func(yield func(T2) bool) {
 		for e := range s {

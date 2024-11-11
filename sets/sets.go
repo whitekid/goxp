@@ -10,8 +10,8 @@ type Set[S ~[]E, E comparable] struct {
 	values S
 }
 
-func New[S ~[]E, E comparable](e ...E) *Set[S, E] {
-	s := &Set[S, E]{
+func New[E comparable](e ...E) *Set[[]E, E] {
+	s := &Set[[]E, E]{
 		keys: make(map[E]struct{}),
 	}
 

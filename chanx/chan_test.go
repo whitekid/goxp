@@ -32,7 +32,7 @@ func TestIterChan(t *testing.T) {
 	}()
 
 	got := []int{}
-	err := Iter(ctx, ch, func(i int) error {
+	err := Iter(ctx, ch, func(ctx context.Context, i int) error {
 		got = append(got, i)
 		return nil
 	})

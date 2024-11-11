@@ -35,7 +35,8 @@ func All[E any](s iter.Seq[E]) iter.Seq2[int, E] {
 	}
 }
 
-func (s Seq[E]) Append(seq Seq[E]) Seq[E] {
+func (s Seq[E]) Chain(seq ...Seq[E]) Seq[E] { return Chain(s, seq...) }
+func Chain[E any](s Seq[E], seq ...Seq[E]) Seq[E] {
 	return func(yield func(E) bool) {
 		for e := range s {
 			if !yield(e) {
@@ -43,9 +44,11 @@ func (s Seq[E]) Append(seq Seq[E]) Seq[E] {
 			}
 		}
 
-		for e := range seq {
-			if !yield(e) {
-				return
+		for _, s := range seq {
+			for e := range s {
+				if !yield(e) {
+					return
+				}
 			}
 		}
 	}
@@ -66,7 +69,6 @@ func Count[T comparable](s iter.Seq[T], v T) int {
 }
 
 func (s Seq[E]) Chunk(n int) iter.Seq[iter.Seq[E]] { return Chunk(s.Iter(), n) }
-
 func Chunk[E any](s iter.Seq[E], n int) iter.Seq[iter.Seq[E]] {
 	return func(yield func(iter.Seq[E]) bool) {
 		next, stop := iter.Pull(s)

@@ -13,7 +13,7 @@ func FanIn[T any](ctx context.Context, chans ...<-chan T) <-chan T {
 	eg, ctx := errgroup.WithContext(ctx)
 	for _, ch := range chans {
 		eg.Go(func() error {
-			return Iter(ctx, ch, func(v T) error {
+			return Iter(ctx, ch, func(ctx context.Context, v T) error {
 				out <- v
 				return nil
 			})
