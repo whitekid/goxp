@@ -28,7 +28,7 @@ func All[E any](s iter.Seq[E]) iter.Seq2[int, E] {
 			if !yield(i, v) {
 				return
 			}
-			
+
 			i++
 		}
 	}
