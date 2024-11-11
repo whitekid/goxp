@@ -24,7 +24,7 @@ func TestSet(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	s := New(0, 1, 2, 3)
+	s := New[int](0, 1, 2, 3)
 	s.Remove(2)
 
 	require.Equal(t, []int{0, 1, 3}, slices.Collect(s.Values()))

@@ -153,7 +153,7 @@ func SortedFunc[E any](seq iter.Seq[E], cmp func(E, E) int) iter.Seq[E] {
 }
 
 func Intersect[S ~[]E, E comparable](s1, s2 S) S {
-	s := sets.New[[]E](s2...)
+	s := sets.New[E](s2...)
 
 	return Filter(s1, func(e E) bool {
 		if s.Contains(e) {

@@ -3,7 +3,7 @@ package chanx
 import "context"
 
 // Iter iter chan and run fx(), until context is done or chan closed or fn returns error
-func Iter[T any](ctx context.Context, ch <-chan T, fn func(T) error) error {
+func Iter[T any](ctx context.Context, ch <-chan T, fn func(context.Context, T) error) error {
 	for {
 		select {
 		case <-ctx.Done():
@@ -14,7 +14,7 @@ func Iter[T any](ctx context.Context, ch <-chan T, fn func(T) error) error {
 				return nil
 			}
 
-			if err := fn(v); err != nil {
+			if err := fn(ctx, v); err != nil {
 				return err
 			}
 		}
