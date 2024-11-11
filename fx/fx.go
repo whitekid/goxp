@@ -14,7 +14,7 @@ type Seq[T any] iter.Seq[T]
 func Of[T any](v ...T) Seq[T] { return Seq[T](slices.Values(v)) }
 
 // Gen return seq from Generator
-func Gen[T any](next gen.Generator[T]) Seq[T] {
+func Gen[T any](next gen.Gen[T]) Seq[T] {
 	return func(yield func(T) bool) {
 		for {
 			v, ok := next()

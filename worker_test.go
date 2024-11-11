@@ -79,7 +79,7 @@ func TestEvery(t *testing.T) {
 	defer cancel()
 
 	callCount := int32(0)
-	Every(ctx, 100*time.Second, true, func() {
+	Every(ctx, 100*time.Second, true, func(ctx context.Context) {
 		atomic.AddInt32(&callCount, 1)
 	})
 	require.Greater(t, callCount, int32(0))
@@ -102,7 +102,7 @@ func TestAfter(t *testing.T) {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
-			err := After(ctx, 100*time.Millisecond, func() error { return tt.args.ret })
+			err := After(ctx, 100*time.Millisecond, func(ctx context.Context) error { return tt.args.ret })
 			require.Truef(t, (err != nil) == tt.wantErr, `After() failed: error = %+v, wantErr = %v`, err, tt.wantErr)
 		})
 	}
@@ -112,12 +112,15 @@ func TestAfterContextDeadline(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 	defer cancel()
 
-	err := After(ctx, 200*time.Millisecond, func() error { return nil })
+	err := After(ctx, 200*time.Millisecond, func(ctx context.Context) error { return nil })
 	require.ErrorIs(t, err, context.DeadlineExceeded)
 }
 
 func TestAsync(t *testing.T) {
-	it := Async(func() int {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	it := Async(ctx, func(ctx context.Context) int {
 		time.Sleep(time.Second)
 		return 7
 	})

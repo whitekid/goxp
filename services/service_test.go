@@ -21,7 +21,7 @@ func newSampleService() Interface {
 func (s *simpleService) Serve(ctx context.Context) error {
 	s.started = true
 
-	go goxp.Every(ctx, time.Second, false, func() {
+	go goxp.Every(ctx, time.Second, false, func(ctx context.Context) {
 		if goxp.IsContextDone(ctx) {
 			return
 		}

@@ -44,7 +44,7 @@ func TestRetry(t *testing.T) {
 
 			tries := 0
 			err := New().Limit(tt.args.limit).Backoff(tt.args.initial, tt.args.ratio).
-				Do(ctx, func() error {
+				Do(ctx, func(ctx context.Context) error {
 					tries++
 					return tt.args.fn()
 				})

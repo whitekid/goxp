@@ -24,12 +24,16 @@ func DoWithWorker(ctx context.Context, workers int, do func(ctx context.Context,
 	return eg.Wait()
 }
 
-// Every execute fn() in every time interval
+// Every execute fn() in every time interval, return when context is done.
 //
 // if you want run scheduled task like cron spec. please see github.com/robfig/cron
-func Every(ctx context.Context, interval time.Duration, initialRun bool, fn func()) error {
+func Every(ctx context.Context, interval time.Duration, initialRun bool, fn func(ctx context.Context)) error {
 	if initialRun {
-		fn()
+		fn(ctx)
+
+		if IsContextDone(ctx) {
+			return ctx.Err()
+		}
 	}
 
 	for {
@@ -40,13 +44,13 @@ func Every(ctx context.Context, interval time.Duration, initialRun bool, fn func
 			return ctx.Err()
 
 		case <-after.C:
-			fn()
+			fn(ctx)
 		}
 	}
 }
 
 // After run func after duration
-func After(ctx context.Context, duration time.Duration, fn func() error) error {
+func After(ctx context.Context, duration time.Duration, fn func(ctx context.Context) error) error {
 	after := time.NewTimer(duration)
 
 	select {
@@ -54,15 +58,15 @@ func After(ctx context.Context, duration time.Duration, fn func() error) error {
 		return ctx.Err()
 
 	case <-after.C:
-		return fn()
+		return fn(ctx)
 	}
 }
 
 // Async run func in background and returns with iter.Seq
-func Async[T any](fn func() T) iter.Seq[T] {
+func Async[T any](ctx context.Context, fn func(ctx context.Context) T) iter.Seq[T] {
 	ch := make(chan T)
 	go func() {
-		ch <- fn()
+		ch <- fn(ctx)
 		close(ch)
 	}()
 

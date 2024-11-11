@@ -22,15 +22,16 @@ func TestSlice(t *testing.T) {
 }
 
 func TestNext(t *testing.T) {
-	genTo10 := func() func() (int, bool) {
+	to10 := Next(func() func() (int, bool) {
 		i := 0
 		return func() (int, bool) {
-			defer func() { i++ }()
-			return i, i < 10
+			current := i
+			i++
+			return current, current < 10
 		}
-	}
+	})
 
-	for i, v := range iterx.All(Next(genTo10).Seq()) {
+	for i, v := range iterx.All(to10.Seq()) {
 		require.Equal(t, i, v)
 	}
 }

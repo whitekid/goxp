@@ -25,7 +25,7 @@ const (
 )
 
 // Do shortcut with default retrier
-func Do(ctx context.Context, fn func() error) error { return New().Do(ctx, fn) }
+func Do(ctx context.Context, fn func(ctx context.Context) error) error { return New().Do(ctx, fn) }
 
 // Interface is retrier interface
 type Interface interface {
@@ -37,7 +37,7 @@ type Interface interface {
 
 	// run the func with retry
 	// exit when ctx is done or returns ErrRetryStop
-	Do(ctx context.Context, fn func() error) error
+	Do(ctx context.Context, fn func(context.Context) error) error
 }
 
 var ErrStop = errors.New("stop retry")
@@ -61,7 +61,7 @@ func (r *retrierImpl) Backoff(initial time.Duration, ratio float64) Interface {
 	return r
 }
 
-func (r *retrierImpl) Do(ctx context.Context, fn func() error) (err error) {
+func (r *retrierImpl) Do(ctx context.Context, fn func(ctx context.Context) error) (err error) {
 	backoff := newRatioBackoff(ctx, r.initialBackoff, 0, r.backoffRatio)
 
 	for i := 0; i < r.limit; i++ {
@@ -69,7 +69,7 @@ func (r *retrierImpl) Do(ctx context.Context, fn func() error) (err error) {
 			return ctx.Err()
 		}
 
-		if err = fn(); err == nil {
+		if err = fn(ctx); err == nil {
 			return nil
 		}
 
