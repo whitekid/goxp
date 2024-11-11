@@ -7,6 +7,7 @@ import (
 )
 
 type Seq[E any] iter.Seq[E]
+type Seq2[E1, E2 any] iter.Seq2[E1, E2]
 
 func Of[T any](s ...T) Seq[T] {
 	return func(yield func(T) bool) {
@@ -174,6 +175,16 @@ func Map[T1, T2 any](s Seq[T1], fx func(T1) T2) Seq[T2] {
 	return func(yield func(T2) bool) {
 		for e := range s {
 			if !yield(fx(e)) {
+				return
+			}
+		}
+	}
+}
+
+func Map2[T1, T2, T3, T4 any](s Seq2[T1, T2], fx func(T1, T2) (T3, T4)) Seq2[T3, T4] {
+	return func(yield func(T3, T4) bool) {
+		for e1, e2 := range s {
+			if !yield(fx(e1, e2)) {
 				return
 			}
 		}

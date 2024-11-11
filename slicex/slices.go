@@ -174,18 +174,16 @@ func Flatten[T any](s [][]T) []T {
 	return r
 }
 
-func GroupBy[S ~[]E, E comparable](s S, key func(E) any) []S {
-	keys := map[any]int{}
-	r := make([]S, 0)
+func GroupBy[S ~[]E, E any, K comparable](s S, key func(E) K) map[K]S {
+	r := make(map[K]S, 0)
 
 	for _, e := range s {
 		k := key(e)
-		if i, ok := keys[k]; ok {
-			r[i] = append(r[i], e)
-		} else {
-			r = append(r, []E{e})
-			keys[k] = len(r) - 1
+		if _, ok := r[k]; !ok {
+			r[k] = []E{}
 		}
+
+		r[k] = append(r[k], e)
 	}
 
 	return r
