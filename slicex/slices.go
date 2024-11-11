@@ -47,6 +47,7 @@ func Repeat[S ~[]E, E any](x S, count int) Slice[S, E] {
 	return Slice[S, E](slices.Repeat(x, count))
 }
 
+func (s Slice[S, E]) Map(fx func(E) E) S { return Map(s, fx) }
 func Map[S ~[]T1, T1 any, T2 any](s S, fx func(T1) T2) []T2 {
 	if s == nil {
 		return nil
@@ -152,7 +153,7 @@ func SortedFunc[E any](seq iter.Seq[E], cmp func(E, E) int) iter.Seq[E] {
 }
 
 func Intersect[S ~[]E, E comparable](s1, s2 S) S {
-	s := sets.New(s2)
+	s := sets.New[[]E](s2...)
 
 	return Filter(s1, func(e E) bool {
 		if s.Contains(e) {

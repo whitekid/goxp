@@ -9,16 +9,7 @@ import (
 )
 
 // Serial int generator
-func Serial() Generator[int] {
-	i := 0
-
-	return func() (int, bool) {
-		current := i
-		i++
-
-		return current, true
-	}
-}
+func Serial() Generator[uint64] { return IntN[uint64](math.MaxUint64) }
 
 // IntN generate int to max
 func IntN[T constraints.Integer](max T) Generator[T] {
@@ -67,7 +58,8 @@ func Byte(size int) Generator[[]byte] {
 
 func Cycle[T any](seed []T) Generator[T] {
 	if len(seed) == 0 {
-		return func() (T, bool) { return *new(T), false }
+		var x T
+		return func() (T, bool) { return x, false }
 	}
 
 	i := 0

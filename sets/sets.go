@@ -10,16 +10,12 @@ type Set[S ~[]E, E comparable] struct {
 	values S
 }
 
-func New[E comparable](lists ...[]E) *Set[[]E, E] {
-	s := &Set[[]E, E]{
+func New[S ~[]E, E comparable](e ...E) *Set[S, E] {
+	s := &Set[S, E]{
 		keys: make(map[E]struct{}),
 	}
 
-	for i := range lists {
-		for j := range lists[i] {
-			s.Set(lists[i][j])
-		}
-	}
+	s.Set(e...)
 
 	return s
 }
@@ -53,13 +49,13 @@ func (s *Set[S, E]) Remove(elements ...E) {
 
 		delete(s.keys, e)
 		i := slices.Index(s.values, e)
-		s.values = append(s.values[0:i], s.values[i+1:len(s.values)]...)
+		s.values = slices.Delete(s.values, i, i+1)
 	}
 }
 
-func (s *Set[S, E]) Contains(e E) (ok bool) {
-	_, ok = s.keys[e]
-	return
+func (s *Set[S, E]) Contains(e E) bool {
+	_, ok := s.keys[e]
+	return ok
 }
 
 func (s *Set[S, E]) Each(fx func(int, E)) {

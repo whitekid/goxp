@@ -1,6 +1,7 @@
 package sets
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -20,4 +21,11 @@ func TestSet(t *testing.T) {
 	require.Equal(t, len(slice)-1, set.Len())
 	require.Equal(t, len(slice)-1, len(set.keys))
 	require.False(t, set.Contains(slice[0]))
+}
+
+func TestRemove(t *testing.T) {
+	s := New(0, 1, 2, 3)
+	s.Remove(2)
+
+	require.Equal(t, []int{0, 1, 3}, slices.Collect(s.Values()))
 }
