@@ -38,3 +38,9 @@ func TestFlatten(t *testing.T) {
 	s := [][]int{{1, 2, 3}, {4, 5, 6}}
 	require.Equal(t, []int{1, 2, 3, 4, 5, 6}, Flatten(s))
 }
+
+func TestGroupBy(t *testing.T) {
+	s := []int{0, 1, 2, 3, 4, 5, 6}
+	r := GroupBy(s, func(e int) any { return e % 2 })
+	require.Equal(t, [][]int{{0, 2, 4, 6}, {1, 3, 5}}, r)
+}
