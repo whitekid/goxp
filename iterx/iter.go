@@ -171,6 +171,7 @@ func (s Seq[E]) Filter(fx func(E) bool) Seq[E] {
 	}
 }
 
+func (s Seq[E]) Map(fx func(E) E) Seq[E] { return Map(s, fx) }
 func Map[T1, T2 any](s Seq[T1], fx func(T1) T2) Seq[T2] {
 	return func(yield func(T2) bool) {
 		for e := range s {
@@ -181,6 +182,7 @@ func Map[T1, T2 any](s Seq[T1], fx func(T1) T2) Seq[T2] {
 	}
 }
 
+func (s Seq2[T1, T2]) Map(fx func(T1, T2) (T1, T2)) Seq2[T1, T2] { return Map2(s, fx) }
 func Map2[T1, T2, T3, T4 any](s Seq2[T1, T2], fx func(T1, T2) (T3, T4)) Seq2[T3, T4] {
 	return func(yield func(T3, T4) bool) {
 		for e1, e2 := range s {

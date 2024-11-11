@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/goxp/fx/gen"
 )
 
 func TestFx(t *testing.T) {
@@ -12,11 +11,12 @@ func TestFx(t *testing.T) {
 	for i, v := range s.All() {
 		require.Equal(t, i, v)
 	}
-}
 
-func TestGen(t *testing.T) {
-	require.Equal(t, []int{0, 1, 2, 3, 4},
-		Gen[int](gen.IntN(5)).Collect())
+	i := 0
+	for v := range s {
+		require.Equal(t, i, v)
+		i++
+	}
 }
 
 func TestFilter(t *testing.T) {
