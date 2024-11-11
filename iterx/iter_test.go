@@ -25,7 +25,7 @@ func TestAppend(t *testing.T) {
 	it1 := Of(0, 1, 2, 3, 4)
 	it2 := Of(5, 6, 7, 8, 9)
 
-	require.Equal(t, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, it1.Append(it2).Collect())
+	require.Equal(t, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, it1.Chain(it2).Collect())
 }
 
 func TestChunk(t *testing.T) {
