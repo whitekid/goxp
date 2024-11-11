@@ -1,4 +1,4 @@
-package types
+package mapx
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestOrderedMap(t *testing.T) {
-	m := NewOrderedMap[int, string]()
+	m := NewOrdered[int, string]()
 
 	m.Set(1, "string1")
 	m.Set(2, "string2")

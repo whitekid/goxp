@@ -2,6 +2,7 @@ package goxp
 
 import "sync"
 
+// Pool sync.Pool with generics
 type Pool[T any] struct {
 	sync.Pool
 }

@@ -17,7 +17,7 @@ type Slice[S ~[]E, E any] []E
 func (s Slice[S, E]) Slice() []E { return S(s) }
 
 func Of[S ~[]E, E any](e ...E) Slice[S, E] { return e }
-func Gen[S ~[]E, E any](next gen.Generator[E]) Slice[S, E] {
+func Gen[S ~[]E, E any](next gen.Gen[E]) Slice[S, E] {
 	s := []E{}
 	for v, ok := next(); ok; v, ok = next() {
 		s = append(s, v)

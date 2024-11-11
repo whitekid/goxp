@@ -19,8 +19,17 @@ func TestIntN(t *testing.T) {
 }
 
 func TestCycle(t *testing.T) {
-	gen := Cycle([]int{})
-	v, ok := gen()
+	next := Cycle([]int{})
+	v, ok := next()
 	require.False(t, ok)
 	require.Equal(t, 0, v)
+}
+
+func TestSample(t *testing.T) {
+	next := Sample([]int{0, 1, 2, 3, 4, 5})
+	for range 100000 {
+		v, ok := next()
+		require.True(t, ok)
+		require.LessOrEqual(t, v, 5)
+	}
 }

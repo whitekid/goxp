@@ -9,10 +9,10 @@ import (
 )
 
 // Serial int generator
-func Serial() Generator[uint64] { return IntN[uint64](math.MaxUint64) }
+func Serial() Gen[uint64] { return IntN[uint64](math.MaxUint64) }
 
 // IntN generate int to max
-func IntN[T constraints.Integer](max T) Generator[T] {
+func IntN[T constraints.Integer](max T) Gen[T] {
 	var i T
 
 	return func() (T, bool) {
@@ -27,20 +27,20 @@ func IntN[T constraints.Integer](max T) Generator[T] {
 }
 
 // RandInt generate random int
-func RandInt(max ...int) Generator[int] {
-	genMax := big.NewInt(math.MaxInt)
+func RandInt(max ...int) Gen[int] {
+	_max := big.NewInt(math.MaxInt)
 	if len(max) > 0 {
-		genMax = big.NewInt(int64(max[0]))
+		_max = big.NewInt(int64(max[0]))
 	}
 
 	return func() (int, bool) {
-		v, err := rand.Int(rand.Reader, genMax)
+		v, err := rand.Int(rand.Reader, _max)
 		return int(v.Int64()), err != nil
 	}
 }
 
 // Byte generate readom buffer
-func Byte(size int) Generator[[]byte] {
+func Byte(size int) Gen[[]byte] {
 	if size <= 0 {
 		return func() ([]byte, bool) { return nil, false }
 	}
@@ -56,10 +56,9 @@ func Byte(size int) Generator[[]byte] {
 	}
 }
 
-func Cycle[T any](seed []T) Generator[T] {
+func Cycle[T any](seed []T) Gen[T] {
 	if len(seed) == 0 {
-		var x T
-		return func() (T, bool) { return x, false }
+		return stop[T]()
 	}
 
 	i := 0
@@ -68,5 +67,24 @@ func Cycle[T any](seed []T) Generator[T] {
 		j := i % len(seed)
 		i++
 		return seed[j], true
+	}
+}
+
+func stop[T any]() func() (T, bool) {
+	return func() (T, bool) {
+		var v T
+		return v, false
+	}
+}
+
+func Sample[T any](s []T) Gen[T] {
+	if len(s) == 0 {
+		return stop[T]()
+	}
+
+	next := IntN(len(s))
+	return func() (T, bool) {
+		i, _ := next()
+		return s[i], true
 	}
 }
