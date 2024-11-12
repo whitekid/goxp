@@ -5,6 +5,7 @@ import (
 	"slices"
 )
 
+// Ordered
 type Ordered[Map ~map[K]V, K comparable, V any] struct {
 	store map[K]V
 	keys  []K
