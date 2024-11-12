@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -46,6 +47,7 @@ func ParseDateTime(s string) (time.Time, error) {
 	return time.Time{}, fmt.Errorf("parse failed: %s", s)
 }
 
+// TimeWithLayout time type for struct encoding/decodings
 type TimeWithLayout struct {
 	time.Time
 }
@@ -120,8 +122,8 @@ type RFC1123ZTime struct {
 	TimeWithLayout
 }
 
-func NewRFC1123ZTime(t time.Time) RFC1123ZTime {
-	return RFC1123ZTime{
+func NewRFC1123ZTime(t time.Time) *RFC1123ZTime {
+	return &RFC1123ZTime{
 		TimeWithLayout: TimeWithLayout{
 			Time: t,
 		},
@@ -160,8 +162,8 @@ type RFC3339Time struct {
 	TimeWithLayout
 }
 
-func NewRFC3339Time(t time.Time) RFC3339Time {
-	return RFC3339Time{
+func NewRFC3339Time(t time.Time) *RFC3339Time {
+	return &RFC3339Time{
 		TimeWithLayout: TimeWithLayout{
 			Time: t,
 		},
@@ -195,3 +197,67 @@ func (t *RFC3339Time) MarshalYAML() (interface{}, error) {
 func (t *RFC3339Time) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return t.unmarshalYAMLWithLayout(unmarshal, t.Layout())
 }
+
+type UnixTimestamp struct {
+	TimeWithLayout
+}
+
+func NewUnixtimestamp(t int64) *UnixTimestamp {
+	return &UnixTimestamp{
+		TimeWithLayout: TimeWithLayout{
+			Time: time.Unix(t, 0),
+		},
+	}
+}
+
+func (t *UnixTimestamp) Layout() string { return "" }
+func (t *UnixTimestamp) String() string { return strconv.FormatInt(t.Unix(), 10) }
+
+func (t *UnixTimestamp) Parse(s string) error {
+	v, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return err
+	}
+	t.Time = time.Unix(v, 0)
+	return nil
+}
+
+func (t *UnixTimestamp) UnmarshalJSON(data []byte) error {
+	var v int64
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	t.Time = time.Unix(v, 0)
+	return nil
+}
+
+func (t *UnixTimestamp) MarshalJSON() ([]byte, error) { return json.Marshal(t.Unix()) }
+
+func (t *UnixTimestamp) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var v int64
+
+	if err := d.DecodeElement(&v, &start); err != nil {
+		return err
+	}
+
+	t.Time = time.Unix(v, 0)
+
+	return nil
+}
+
+func (t *UnixTimestamp) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	return e.EncodeElement(t.Unix(), start)
+}
+
+func (t *UnixTimestamp) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var v int64
+
+	if err := unmarshal(&v); err != nil {
+		return err
+	}
+
+	t.Time = time.Unix(v, 0)
+	return nil
+}
+
+func (t *UnixTimestamp) MarshalYAML() (interface{}, error) { return t.Unix(), nil }
