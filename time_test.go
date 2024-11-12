@@ -116,7 +116,7 @@ func TestTimeWithLayout(t *testing.T) {
 	}
 }
 
-func TestTimeWithTimestampLayout(t *testing.T) {
+func TestUnixTimestamp(t *testing.T) {
 	now := time.Now()
 	type args struct {
 		v any

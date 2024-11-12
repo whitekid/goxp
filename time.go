@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	"gopkg.in/yaml.v3"
 )
 
 var wellKnownDateTimeLayouts = [...]string{
@@ -103,13 +105,8 @@ func (t *TimeWithLayout) marshalYAMLWithLayout(layout string) (interface{}, erro
 	return t.Format(layout), nil
 }
 
-func (t *TimeWithLayout) unmarshalYAMLWithLayout(unmarshal func(interface{}) error, layout string) error {
-	var s string
-	if err := unmarshal(&s); err != nil {
-		return err
-	}
-
-	tm, err := time.Parse(layout, s)
+func (t *TimeWithLayout) unmarshalYAMLWithLayout(value *yaml.Node, layout string) error {
+	tm, err := time.Parse(layout, value.Value)
 	if err != nil {
 		return err
 	}
@@ -121,6 +118,15 @@ func (t *TimeWithLayout) unmarshalYAMLWithLayout(unmarshal func(interface{}) err
 type RFC1123ZTime struct {
 	TimeWithLayout
 }
+
+var (
+	_ json.Marshaler   = (*RFC1123ZTime)(nil)
+	_ json.Unmarshaler = (*RFC1123ZTime)(nil)
+	_ yaml.Marshaler   = (*RFC1123ZTime)(nil)
+	_ yaml.Unmarshaler = (*RFC1123ZTime)(nil)
+	_ xml.Marshaler    = (*RFC1123ZTime)(nil)
+	_ xml.Unmarshaler  = (*RFC1123ZTime)(nil)
+)
 
 func NewRFC1123ZTime(t time.Time) *RFC1123ZTime {
 	return &RFC1123ZTime{
@@ -154,13 +160,22 @@ func (t *RFC1123ZTime) MarshalYAML() (interface{}, error) {
 	return t.marshalYAMLWithLayout(t.Layout())
 }
 
-func (t *RFC1123ZTime) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	return t.unmarshalYAMLWithLayout(unmarshal, t.Layout())
+func (t *RFC1123ZTime) UnmarshalYAML(value *yaml.Node) error {
+	return t.unmarshalYAMLWithLayout(value, t.Layout())
 }
 
 type RFC3339Time struct {
 	TimeWithLayout
 }
+
+var (
+	_ json.Marshaler   = (*RFC3339Time)(nil)
+	_ json.Unmarshaler = (*RFC3339Time)(nil)
+	_ yaml.Marshaler   = (*RFC3339Time)(nil)
+	_ yaml.Unmarshaler = (*RFC3339Time)(nil)
+	_ xml.Marshaler    = (*RFC3339Time)(nil)
+	_ xml.Unmarshaler  = (*RFC3339Time)(nil)
+)
 
 func NewRFC3339Time(t time.Time) *RFC3339Time {
 	return &RFC3339Time{
@@ -194,23 +209,29 @@ func (t *RFC3339Time) MarshalYAML() (interface{}, error) {
 	return t.marshalYAMLWithLayout(t.Layout())
 }
 
-func (t *RFC3339Time) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	return t.unmarshalYAMLWithLayout(unmarshal, t.Layout())
+func (t *RFC3339Time) UnmarshalYAML(value *yaml.Node) error {
+	return t.unmarshalYAMLWithLayout(value, t.Layout())
 }
 
 type UnixTimestamp struct {
-	TimeWithLayout
+	time.Time
 }
+
+var (
+	_ json.Marshaler   = (*UnixTimestamp)(nil)
+	_ json.Unmarshaler = (*UnixTimestamp)(nil)
+	_ yaml.Marshaler   = (*UnixTimestamp)(nil)
+	_ yaml.Unmarshaler = (*UnixTimestamp)(nil)
+	_ xml.Marshaler    = (*UnixTimestamp)(nil)
+	_ xml.Unmarshaler  = (*UnixTimestamp)(nil)
+)
 
 func NewUnixtimestamp(t int64) *UnixTimestamp {
 	return &UnixTimestamp{
-		TimeWithLayout: TimeWithLayout{
-			Time: time.Unix(t, 0),
-		},
+		Time: time.Unix(t, 0),
 	}
 }
 
-func (t *UnixTimestamp) Layout() string { return "" }
 func (t *UnixTimestamp) String() string { return strconv.FormatInt(t.Unix(), 10) }
 
 func (t *UnixTimestamp) Parse(s string) error {
@@ -249,10 +270,9 @@ func (t *UnixTimestamp) MarshalXML(e *xml.Encoder, start xml.StartElement) error
 	return e.EncodeElement(t.Unix(), start)
 }
 
-func (t *UnixTimestamp) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	var v int64
-
-	if err := unmarshal(&v); err != nil {
+func (t *UnixTimestamp) UnmarshalYAML(value *yaml.Node) error {
+	v, err := strconv.ParseInt(value.Value, 10, 64)
+	if err != nil {
 		return err
 	}
 
