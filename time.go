@@ -4,35 +4,43 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"strconv"
 	"time"
+
+	"gopkg.in/yaml.v3"
 )
 
-// StrToTime parse standard layout string to time
-func StrToTime(s string) (time.Time, error) {
-	for _, layout := range [...]string{
-		time.Layout,
-		time.ANSIC,
-		time.RFC3339,
-		time.UnixDate,
-		time.RubyDate,
-		time.RFC822,
-		time.RFC822Z,
-		time.RFC850,
-		time.RFC1123Z,
-		time.RFC1123,
-		time.RFC3339Nano,
-		time.Kitchen,
-		time.Stamp,
-		time.StampMilli,
-		time.StampMicro,
-		time.StampNano,
+var wellKnownDateTimeLayouts = [...]string{
+	time.Layout,
+	time.ANSIC,
+	time.UnixDate,
+	time.RubyDate,
+	time.RFC822,
+	time.RFC822Z,
+	time.RFC850,
+	time.RFC1123,
+	time.RFC1123Z,
+	time.RFC3339,
+	time.RFC3339Nano,
+	time.Kitchen,
+	time.Stamp,
+	time.StampMilli,
+	time.StampMicro,
+	time.StampNano,
+	time.DateTime,
+	time.DateOnly,
+	time.TimeOnly,
 
-		"2006-01-02 15:04:05.999999999 -0700 MST", // String() format
-		// usually used
-		"2006-01-02T15:04:05Z0700", // RFC3339Z without colon(:)
-		"2006. 1. 2.",
-		"January 2, 2006",
-	} {
+	"2006-01-02 15:04:05.999999999 -0700 MST", // String() format
+	// usually used
+	"2006-01-02T15:04:05Z0700", // RFC3339Z without colon(:)
+	"2006. 1. 2.",
+	"January 2, 2006",
+}
+
+// ParseDateTime parse standard layout string to time
+func ParseDateTime(s string) (time.Time, error) {
+	for _, layout := range wellKnownDateTimeLayouts {
 		if t, err := time.Parse(layout, s); err == nil {
 			return t, err
 		}
@@ -41,6 +49,7 @@ func StrToTime(s string) (time.Time, error) {
 	return time.Time{}, fmt.Errorf("parse failed: %s", s)
 }
 
+// TimeWithLayout time type for struct encoding/decodings
 type TimeWithLayout struct {
 	time.Time
 }
@@ -96,13 +105,8 @@ func (t *TimeWithLayout) marshalYAMLWithLayout(layout string) (interface{}, erro
 	return t.Format(layout), nil
 }
 
-func (t *TimeWithLayout) unmarshalYAMLWithLayout(unmarshal func(interface{}) error, layout string) error {
-	var s string
-	if err := unmarshal(&s); err != nil {
-		return err
-	}
-
-	tm, err := time.Parse(layout, s)
+func (t *TimeWithLayout) unmarshalYAMLWithLayout(value *yaml.Node, layout string) error {
+	tm, err := time.Parse(layout, value.Value)
 	if err != nil {
 		return err
 	}
@@ -115,8 +119,17 @@ type RFC1123ZTime struct {
 	TimeWithLayout
 }
 
-func NewRFC1123ZTime(t time.Time) RFC1123ZTime {
-	return RFC1123ZTime{
+var (
+	_ json.Marshaler   = (*RFC1123ZTime)(nil)
+	_ json.Unmarshaler = (*RFC1123ZTime)(nil)
+	_ yaml.Marshaler   = (*RFC1123ZTime)(nil)
+	_ yaml.Unmarshaler = (*RFC1123ZTime)(nil)
+	_ xml.Marshaler    = (*RFC1123ZTime)(nil)
+	_ xml.Unmarshaler  = (*RFC1123ZTime)(nil)
+)
+
+func NewRFC1123ZTime(t time.Time) *RFC1123ZTime {
+	return &RFC1123ZTime{
 		TimeWithLayout: TimeWithLayout{
 			Time: t,
 		},
@@ -147,16 +160,25 @@ func (t *RFC1123ZTime) MarshalYAML() (interface{}, error) {
 	return t.marshalYAMLWithLayout(t.Layout())
 }
 
-func (t *RFC1123ZTime) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	return t.unmarshalYAMLWithLayout(unmarshal, t.Layout())
+func (t *RFC1123ZTime) UnmarshalYAML(value *yaml.Node) error {
+	return t.unmarshalYAMLWithLayout(value, t.Layout())
 }
 
 type RFC3339Time struct {
 	TimeWithLayout
 }
 
-func NewRFC3339Time(t time.Time) RFC3339Time {
-	return RFC3339Time{
+var (
+	_ json.Marshaler   = (*RFC3339Time)(nil)
+	_ json.Unmarshaler = (*RFC3339Time)(nil)
+	_ yaml.Marshaler   = (*RFC3339Time)(nil)
+	_ yaml.Unmarshaler = (*RFC3339Time)(nil)
+	_ xml.Marshaler    = (*RFC3339Time)(nil)
+	_ xml.Unmarshaler  = (*RFC3339Time)(nil)
+)
+
+func NewRFC3339Time(t time.Time) *RFC3339Time {
+	return &RFC3339Time{
 		TimeWithLayout: TimeWithLayout{
 			Time: t,
 		},
@@ -187,6 +209,75 @@ func (t *RFC3339Time) MarshalYAML() (interface{}, error) {
 	return t.marshalYAMLWithLayout(t.Layout())
 }
 
-func (t *RFC3339Time) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	return t.unmarshalYAMLWithLayout(unmarshal, t.Layout())
+func (t *RFC3339Time) UnmarshalYAML(value *yaml.Node) error {
+	return t.unmarshalYAMLWithLayout(value, t.Layout())
 }
+
+type UnixTimestamp struct {
+	time.Time
+}
+
+var (
+	_ json.Marshaler   = (*UnixTimestamp)(nil)
+	_ json.Unmarshaler = (*UnixTimestamp)(nil)
+	_ yaml.Marshaler   = (*UnixTimestamp)(nil)
+	_ yaml.Unmarshaler = (*UnixTimestamp)(nil)
+	_ xml.Marshaler    = (*UnixTimestamp)(nil)
+	_ xml.Unmarshaler  = (*UnixTimestamp)(nil)
+)
+
+func NewUnixtimestamp(t int64) *UnixTimestamp {
+	return &UnixTimestamp{
+		Time: time.Unix(t, 0),
+	}
+}
+
+func (t *UnixTimestamp) String() string { return strconv.FormatInt(t.Unix(), 10) }
+
+func (t *UnixTimestamp) Parse(s string) error {
+	v, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return err
+	}
+	t.Time = time.Unix(v, 0)
+	return nil
+}
+
+func (t *UnixTimestamp) UnmarshalJSON(data []byte) error {
+	var v int64
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	t.Time = time.Unix(v, 0)
+	return nil
+}
+
+func (t *UnixTimestamp) MarshalJSON() ([]byte, error) { return json.Marshal(t.Unix()) }
+
+func (t *UnixTimestamp) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var v int64
+
+	if err := d.DecodeElement(&v, &start); err != nil {
+		return err
+	}
+
+	t.Time = time.Unix(v, 0)
+
+	return nil
+}
+
+func (t *UnixTimestamp) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	return e.EncodeElement(t.Unix(), start)
+}
+
+func (t *UnixTimestamp) UnmarshalYAML(value *yaml.Node) error {
+	v, err := strconv.ParseInt(value.Value, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	t.Time = time.Unix(v, 0)
+	return nil
+}
+
+func (t *UnixTimestamp) MarshalYAML() (interface{}, error) { return t.Unix(), nil }

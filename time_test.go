@@ -13,7 +13,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func TestStrToTime(t *testing.T) {
+func TestParseDateTime(t *testing.T) {
 	type args struct {
 		str  string
 		want time.Time
@@ -45,7 +45,7 @@ func TestStrToTime(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := StrToTime(tt.args.str)
+			got, err := ParseDateTime(tt.args.str)
 			if (err != nil) != tt.wantErr {
 				require.Failf(t, `StrToTime() failed`, `error = %+v, wantErr = %v`, err, tt.wantErr)
 			}
@@ -59,7 +59,7 @@ type layter interface {
 	Layout() string
 }
 
-func TestRFC3339Time(t *testing.T) {
+func TestTimeWithLayout(t *testing.T) {
 	now := time.Now()
 	type args struct {
 		v any
@@ -69,8 +69,8 @@ func TestRFC3339Time(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{`valid`, args{&RFC1123ZTime{}}, false},
-		{`valid`, args{&RFC3339Time{}}, false},
+		{`RFC1123ZTime`, args{&RFC1123ZTime{}}, false},
+		{`RFC3339Time`, args{&RFC3339Time{}}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name+"-json", func(t *testing.T) {
@@ -116,25 +116,55 @@ func TestRFC3339Time(t *testing.T) {
 	}
 }
 
-func TestMarshalYAML(t *testing.T) {
-	tm := RFC1123ZTime{}
-
-	got, err := yaml.Marshal(&tm)
-	require.NoError(t, err)
-	require.Equal(t, "Mon, 01 Jan 0001 00:00:00 +0000\n", string(got))
-}
-
-func TestMarshalXML(t *testing.T) {
-	type S struct {
-		Text string
-		T    RFC3339Time `xml:"time,attr"`
+func TestUnixTimestamp(t *testing.T) {
+	now := time.Now()
+	type args struct {
+		v any
 	}
-
-	s := &S{
-		Text: "hello",
+	tests := [...]struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{`UnixTimestamp`, args{&UnixTimestamp{}}, false},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name+"-json", func(t *testing.T) {
+			want := fmt.Sprintf("%d", now.Unix())
+			err := json.Unmarshal([]byte(want), tt.args.v)
+			require.NoError(t, err)
 
-	got, err := xml.Marshal(&s)
-	require.NoError(t, err)
-	require.Equal(t, `<S time="0001-01-01T00:00:00Z"><Text>hello</Text></S>`, string(got))
+			got, err := json.Marshal(tt.args.v)
+			if (err != nil) != tt.wantErr {
+				require.Failf(t, `json.Marshal() failed`, `error = %+v, wantErr = %v`, err, tt.wantErr)
+			}
+			require.Equal(t, want, string(got))
+		})
+
+		t.Run(tt.name+"-yaml", func(t *testing.T) {
+			want := fmt.Sprintf("%d\n", now.Unix())
+			err := yaml.Unmarshal([]byte(want), tt.args.v)
+			require.NoError(t, err)
+
+			got, err := yaml.Marshal(tt.args.v)
+			if (err != nil) != tt.wantErr {
+				require.Failf(t, `yaml.Marshal() failed`, `error = %+v, wantErr = %v`, err, tt.wantErr)
+			}
+
+			require.Equal(t, want, string(got))
+		})
+
+		t.Run(tt.name+"-xml", func(t *testing.T) {
+			typName := reflect.TypeOf(tt.args.v).Elem().Name()
+			want := fmt.Sprintf(`<%s>%d</%s>`, typName, now.Unix(), typName)
+			err := xml.Unmarshal([]byte(want), tt.args.v)
+			require.NoError(t, err)
+
+			got, err := xml.Marshal(tt.args.v)
+			if (err != nil) != tt.wantErr {
+				require.Failf(t, `xml.Marshal() failed`, `error = %+v, wantErr = %v`, err, tt.wantErr)
+			}
+			require.Equal(t, want, string(got))
+		})
+	}
 }
