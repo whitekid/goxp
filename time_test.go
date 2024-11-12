@@ -13,7 +13,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func TestStrToTime(t *testing.T) {
+func TestParseDateTime(t *testing.T) {
 	type args struct {
 		str  string
 		want time.Time
@@ -45,7 +45,7 @@ func TestStrToTime(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := StrToTime(tt.args.str)
+			got, err := ParseDateTime(tt.args.str)
 			if (err != nil) != tt.wantErr {
 				require.Failf(t, `StrToTime() failed`, `error = %+v, wantErr = %v`, err, tt.wantErr)
 			}
@@ -59,7 +59,7 @@ type layter interface {
 	Layout() string
 }
 
-func TestRFC3339Time(t *testing.T) {
+func TestTimeWithLayout(t *testing.T) {
 	now := time.Now()
 	type args struct {
 		v any
