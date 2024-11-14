@@ -13,12 +13,13 @@ need more detailed usage? please refer test cases.
 | `After()`            | run function with delay                                 |
 | `Async()`,`Async2()` | run function with goroutine and get result asynchronous |
 
-## JSON/ XML IO
+## JSON/ XML/ YAML IO
 
 |                 |                     |
 | --------------- | ------------------- |
 | `ReadJSON[T]()` | decode json to type |
 | `ReadXML[T]()`  | decode xml to type  |
+| `ReadYAML[T]()` | decode yaml to type |
 
 ## misc
 
