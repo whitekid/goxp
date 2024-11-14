@@ -44,3 +44,9 @@ func TestGroupBy(t *testing.T) {
 	r := GroupBy(s, func(e int) int { return e % 2 })
 	require.Equal(t, map[int][]int{0: {0, 2, 4, 6}, 1: {1, 3, 5}}, r)
 }
+
+func TestConcat(t *testing.T) {
+	s := Of[[]int](0, 1, 2)
+	got := s.Concat([]int{3, 4, 5}).Slice()
+	require.Equal(t, []int{0, 1, 2, 3, 4, 5}, got)
+}

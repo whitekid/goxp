@@ -48,5 +48,6 @@ func TernaryCF[T any](cond bool, trueFn func() T, falseFn func() T) T {
 	if cond {
 		return trueFn()
 	}
+
 	return falseFn()
 }

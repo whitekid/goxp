@@ -16,7 +16,6 @@ var (
 
 // RandomString generate random string
 func RandomString(size int) string { return RandomStringWith(size, randomChars) }
-
 func RandomStringWith(size int, source []rune) string {
 	if size < 0 {
 		panic("size must be greater than 0")
@@ -32,7 +31,7 @@ func RandomStringWith(size int, source []rune) string {
 			panic(err)
 		}
 
-		r[i] = source[v.Int64()%l]
+		r[i] = source[v.Int64()]
 	}
 
 	return string(r)
