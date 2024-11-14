@@ -15,11 +15,14 @@ need more detailed usage? please refer test cases.
 
 ## JSON/ XML/ YAML IO
 
-|                 |                     |
-| --------------- | ------------------- |
-| `ReadJSON[T]()` | decode json to type |
-| `ReadXML[T]()`  | decode xml to type  |
-| `ReadYAML[T]()` | decode yaml to type |
+|                              |                      |
+| ---------------------------- | -------------------- |
+| `ReadJSON[T]()`              | decode json to type  |
+| `WriteJSON[T](io.Writer, T)` | encode json towriter |
+| `ReadXML[T]()`               | decode xml to type   |
+| `WriteXML[T](io.Writer, T)`  | encode json towriter |
+| `ReadYAML[T]()`              | decode yaml to type  |
+| `WriteYAML[T](io.Writer, T)` | encode json towriter |
 
 ## misc
 
