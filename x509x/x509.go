@@ -10,13 +10,13 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"errors"
 	"fmt"
 	"maps"
 	"math/big"
 	"slices"
 	"sort"
 
+	"github.com/whitekid/goxp/errors"
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/mapx"
 )
@@ -161,17 +161,23 @@ func ParsePrivateKey(keyPemBytes []byte) (PrivateKey, error) {
 func PrivateKeyAlgorithm(priv PrivateKey) x509.SignatureAlgorithm {
 	switch p := priv.(type) {
 	case *ecdsa.PrivateKey:
-		return map[int]x509.SignatureAlgorithm{
+		if alg, ok := map[int]x509.SignatureAlgorithm{
 			256: x509.ECDSAWithSHA256,
 			384: x509.ECDSAWithSHA384,
 			521: x509.ECDSAWithSHA512,
-		}[p.Params().BitSize]
+		}[p.Params().BitSize]; ok {
+			return alg
+		}
+
 	case *rsa.PrivateKey:
-		return map[int]x509.SignatureAlgorithm{
+		if alg, ok := map[int]x509.SignatureAlgorithm{
 			256: x509.SHA256WithRSA,
 			384: x509.SHA384WithRSA,
 			512: x509.SHA512WithRSA,
-		}[p.Size()]
+		}[p.Size()]; ok {
+			return alg
+		}
+
 	case ed25519.PrivateKey:
 		return x509.PureEd25519
 	}

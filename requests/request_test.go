@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+
 	"github.com/whitekid/goxp"
 	"github.com/whitekid/goxp/log"
 )

@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
 	"github.com/whitekid/goxp/flags"
 	"github.com/whitekid/goxp/requests"
 )

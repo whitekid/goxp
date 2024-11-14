@@ -1,9 +1,9 @@
 package validate
 
 import (
-	"errors"
-
 	"github.com/go-playground/validator/v10"
+
+	"github.com/whitekid/goxp/errors"
 )
 
 var validate = validator.New()

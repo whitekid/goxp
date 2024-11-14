@@ -4,11 +4,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"github.com/whitekid/goxp"
 )
 
-func Must(err error){
-	if err!=nil{
+func Must(err error) {
+	if err != nil {
 		panic(err)
 	}
 }

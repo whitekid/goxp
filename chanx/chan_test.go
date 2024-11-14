@@ -9,8 +9,9 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/goxp/log"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/whitekid/goxp/log"
 )
 
 func TestIterChan(t *testing.T) {

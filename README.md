@@ -137,9 +137,11 @@ doSomething()
 - [chanx](chanx) - `chan` extensions
 - [cobrax](cobrax) - `cobra` and `viper` utility functions
 - [cryptox](cryptox) - encrypt/ decrypt functions
+- [errors](errors) - errors with stack tracd
 - [fixtures](fixtures) - useful fixture functions for test
 - [flags](flags) - cobra & viper make easy
 - [fx](fx) - experimental: some functional functions by `iter.Seq`
+- [fx/gen](fx/gen) - experimental: generator
 - [httptest](httptest) - test http sever make easy
 - [iterx](iterx) - `iter.Seq` extensions
 - [log](log) - simple log powered by zap
@@ -151,6 +153,5 @@ doSomething()
 - [slicex](slicex) - slice extensions
 - [slug](slug) - uuid to slug
 - [testx](testx) - unit test utility functions
-- [types](types) - Some useful types like `OrderedMap`
 - [validate](validate) - validator make easy
 - [x509x](x509x) - x509 utility functions
