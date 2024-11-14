@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"github.com/whitekid/goxp"
 	"github.com/whitekid/goxp/mapx"
 	"github.com/whitekid/goxp/slicex"

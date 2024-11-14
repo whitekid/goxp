@@ -5,9 +5,10 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"errors"
 	"fmt"
 	"io"
+
+	"github.com/whitekid/goxp/errors"
 )
 
 type aesCipher struct {

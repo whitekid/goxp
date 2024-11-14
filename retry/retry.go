@@ -2,10 +2,10 @@ package retry
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/whitekid/goxp"
+	"github.com/whitekid/goxp/errors"
 	"github.com/whitekid/goxp/log"
 )
 

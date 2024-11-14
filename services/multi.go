@@ -2,9 +2,10 @@ package services
 
 import (
 	"context"
-	"errors"
 
 	"golang.org/x/sync/errgroup"
+
+	"github.com/whitekid/goxp/errors"
 )
 
 type MultiService interface {

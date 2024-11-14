@@ -21,7 +21,7 @@ func TestParseCSR(t *testing.T) {
 		province           string
 		locality           string
 	}
-	tests := []struct {
+	tests := [...]struct {
 		name    string
 		args    args
 		wantErr bool
@@ -66,7 +66,7 @@ func TestParseRevocationList(t *testing.T) {
 	type args struct {
 		crlBytes []byte
 	}
-	tests := []struct {
+	tests := [...]struct {
 		name       string
 		args       args
 		wantErr    bool
@@ -92,7 +92,7 @@ func TestGenerateKey(t *testing.T) {
 	type args struct {
 		algorithm x509.SignatureAlgorithm
 	}
-	tests := []struct {
+	tests := [...]struct {
 		name    string
 		args    args
 		wantErr bool
@@ -103,15 +103,15 @@ func TestGenerateKey(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotPrivateKey, err := GenerateKey(tt.args.algorithm)
+			got, err := GenerateKey(tt.args.algorithm)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GenerateKey() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			_, err = EncodePrivateKeyToPEM(gotPrivateKey)
+			_, err = EncodePrivateKeyToPEM(got)
 			require.NoError(t, err)
 
-			pemBytes, err := x509.MarshalPKIXPublicKey(gotPrivateKey.Public())
+			pemBytes, err := x509.MarshalPKIXPublicKey(got.Public())
 			require.NoError(t, err)
 			require.NotNil(t, pemBytes)
 		})
@@ -122,7 +122,7 @@ func TestPrivateKeyAlgorithm(t *testing.T) {
 	type args struct {
 		algo x509.SignatureAlgorithm
 	}
-	tests := []struct {
+	tests := [...]struct {
 		name string
 		args args
 	}{

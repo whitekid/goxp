@@ -5,9 +5,10 @@ import (
 	"crypto/cipher"
 	"crypto/des"
 	"crypto/rand"
-	"errors"
 	"fmt"
 	"io"
+
+	"github.com/whitekid/goxp/errors"
 )
 
 type desCipher struct {

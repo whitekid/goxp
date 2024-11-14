@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"maps"
 	"mime"
 	"strings"
 	"sync"
@@ -34,7 +35,5 @@ func setMimeTypes(types map[string]string) {
 	muSetMimeTypes.Lock()
 	defer muSetMimeTypes.Unlock()
 
-	for k, v := range types {
-		mimeTypes[k] = v
-	}
+	maps.Copy(mimeTypes, types)
 }

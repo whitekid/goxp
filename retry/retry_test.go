@@ -2,11 +2,12 @@ package retry
 
 import (
 	"context"
-	"errors"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/whitekid/goxp/errors"
 )
 
 func TestRetry(t *testing.T) {

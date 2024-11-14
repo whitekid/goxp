@@ -2,13 +2,14 @@ package goxp
 
 import (
 	"context"
-	"errors"
 	"iter"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/whitekid/goxp/errors"
 )
 
 func TestDoWithWorker(t *testing.T) {
