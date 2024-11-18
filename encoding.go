@@ -25,3 +25,7 @@ func ReadXML[T any](r io.Reader) (*T, error) { return decode[T](xml.NewDecoder(r
 
 // ReadYAML decode yaml with generics
 func ReadYAML[T any](r io.Reader) (*T, error) { return decode[T](yaml.NewDecoder(r)) }
+
+func WriteJSON[T any](w io.Writer, v T) error { return json.NewEncoder(w).Encode(v) }
+func WriteXML[T any](w io.Writer, v T) error  { return xml.NewEncoder(w).Encode(v) }
+func WriteYAML[T any](w io.Writer, v T) error { return yaml.NewEncoder(w).Encode(v) }

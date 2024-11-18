@@ -12,7 +12,8 @@ type Set[S ~[]E, E comparable] struct {
 
 func New[E comparable](e ...E) *Set[[]E, E] {
 	s := &Set[[]E, E]{
-		keys: make(map[E]struct{}),
+		keys:   make(map[E]struct{}, len(e)),
+		values: make([]E, 0, len(e)),
 	}
 
 	s.Set(e...)
@@ -20,15 +21,8 @@ func New[E comparable](e ...E) *Set[[]E, E] {
 	return s
 }
 
-func (s *Set[S, E]) Slice() (r S) {
-	r = make(S, len(s.values))
-	copy(r, s.values)
-	return r
-}
-
-func (s *Set[S, E]) Len() int {
-	return len(s.values)
-}
+func (s *Set[S, E]) Slice() S { return slices.Clone(s.values) }
+func (s *Set[S, E]) Len() int { return len(s.values) }
 
 func (s *Set[S, E]) Set(elements ...E) {
 	for _, e := range elements {

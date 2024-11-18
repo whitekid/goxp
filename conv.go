@@ -20,14 +20,15 @@ func ParseBoolDef(s string, def bool) bool {
 	if err != nil {
 		return def
 	}
+
 	return v
 }
 
-func ParseIntDef[T constraints.Integer](s string, defaultValue, minValue, maxValue T) T {
+func ParseIntDef[T constraints.Integer](s string, defaultValue T) T {
 	value, err := strconv.ParseInt(s, 10, 0)
 	if err != nil {
 		return defaultValue
 	}
 
-	return min(max(T(value), minValue), maxValue)
+	return T(value)
 }

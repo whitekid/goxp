@@ -28,14 +28,18 @@ func Gen[S ~[]E, E any](next gen.Gen[E]) Slice[S, E] {
 func (s Slice[S, E]) All() iter.Seq2[int, E]                { return slices.All(s) }
 func (s Slice[S, E]) AppendSeq(seq iter.Seq[E]) Slice[S, E] { return slices.AppendSeq(s, seq) }
 func (s Slice[S, E]) Backward() iter.Seq2[int, E]           { return slices.Backward(s) }
-func (s Slice[S, E]) Concat(ss ...S) S                      { return slices.Concat(append([]S{S(s)}, ss...)...) }
-func (s Slice[S, E]) Chunk(n int) iter.Seq[S]               { return slices.Chunk[S, E](s.Slice(), n) }
-func (s Slice[S, E]) Clip() Slice[S, E]                     { return slices.Clip(s) }
-func (s Slice[S, E]) Clone() Slice[S, E]                    { return slices.Clone(s) }
-func (s Slice[S, E]) Delete(i, j int) Slice[S, E]           { return slices.Delete(s, i, j) }
-func (s Slice[S, E]) Grow(n int) Slice[S, E]                { return slices.Grow(s, n) }
-func (s Slice[S, E]) Insert(i int, v ...E) Slice[S, E]      { return slices.Insert(s, i, v...) }
-func (s Slice[S, E]) Replace(i, j int, v ...E) Slice[S, E]  { return slices.Replace(s, i, j, v...) }
+
+func (s Slice[S, E]) Concat(ss ...S) Slice[S, E] {
+	return Slice[S, E](slices.Concat(append([]S{S(s)}, ss...)...))
+}
+
+func (s Slice[S, E]) Chunk(n int) iter.Seq[S]              { return slices.Chunk[S, E](s.Slice(), n) }
+func (s Slice[S, E]) Clip() Slice[S, E]                    { return slices.Clip(s) }
+func (s Slice[S, E]) Clone() Slice[S, E]                   { return slices.Clone(s) }
+func (s Slice[S, E]) Delete(i, j int) Slice[S, E]          { return slices.Delete(s, i, j) }
+func (s Slice[S, E]) Grow(n int) Slice[S, E]               { return slices.Grow(s, n) }
+func (s Slice[S, E]) Insert(i int, v ...E) Slice[S, E]     { return slices.Insert(s, i, v...) }
+func (s Slice[S, E]) Replace(i, j int, v ...E) Slice[S, E] { return slices.Replace(s, i, j, v...) }
 func (s Slice[S, E]) Reverse() Slice[S, E] {
 	s1 := slices.Clone(s)
 	slices.Reverse(s1)
@@ -47,7 +51,7 @@ func Repeat[S ~[]E, E any](x S, count int) Slice[S, E] {
 	return Slice[S, E](slices.Repeat(x, count))
 }
 
-func (s Slice[S, E]) Map(fx func(E) E) S { return Map(s, fx) }
+func (s Slice[S, E]) Map(fx func(E) E) Slice[S, E] { return Map(s, fx) }
 func Map[S ~[]T1, T1 any, T2 any](s S, fx func(T1) T2) []T2 {
 	if s == nil {
 		return nil
@@ -71,6 +75,36 @@ func Sample[S ~[]E, E any](s S) E {
 	}
 
 	return s[i.Int64()]
+}
+
+// Samples sample elements in random order, returns nil if size < 0, returns Slices.Clone(s) if size greater than len(s)
+func Samples[S ~[]E, E comparable](s S, size int) S {
+	if size < 0 {
+		return nil
+	}
+
+	if size >= len(s) {
+		return slices.Clone(s)
+	}
+
+	r := make([]E, 0, size)
+	seen := make(map[E]struct{}, size)
+
+	for {
+		e := Sample(s)
+		if _, ok := seen[e]; ok {
+			continue
+		}
+
+		r = append(r, e)
+		if len(r) >= size {
+			break
+		}
+
+		seen[e] = struct{}{}
+	}
+
+	return r
 }
 
 func Times[T any](count int, f func(int) T) Slice[[]T, T] {
@@ -132,7 +166,7 @@ func Shuffle[S ~[]E, E any](s S) S {
 }
 
 func Uniq[S ~[]E, E comparable](s S) S {
-	seen := map[E]struct{}{}
+	seen := make(map[E]struct{}, len(s))
 	r := make([]E, 0, len(s))
 
 	for _, e := range s {

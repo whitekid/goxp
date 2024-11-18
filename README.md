@@ -15,37 +15,43 @@ need more detailed usage? please refer test cases.
 
 ## JSON/ XML/ YAML IO
 
-|                 |                     |
-| --------------- | ------------------- |
-| `ReadJSON[T]()` | decode json to type |
-| `ReadXML[T]()`  | decode xml to type  |
-| `ReadYAML[T]()` | decode yaml to type |
+|               |                      |
+| ------------- | -------------------- |
+| `ReadJSON()`  | decode json to type  |
+| `WriteJSON()` | encode json towriter |
+| `ReadXML()`   | decode xml to type   |
+| `WriteXML()`  | encode json towriter |
+| `ReadYAML()`  | decode yaml to type  |
+| `WriteYAML()` | encode json towriter |
 
 ## misc
 
-|                   |                        |
-| ----------------- | ---------------------- |
-| `SetBits()`       |                        |
-| `ClearBits()`     |                        |
-| `IsContextDone()` |                        |
-| `Must(error)`     | panic if error not nil |
+|                   |                                |
+| ----------------- | ------------------------------ |
+| `SetBits()`       |                                |
+| `ClearBits()`     |                                |
+| `IsContextDone()` | return true if context is done |
+| `WithTimeout()`   | run fn() with timeout context  |
+| `Must(error)`     | panic if error not nil         |
+| `NewPool[T]()`    | `sync.Pool` with generics      |
+| `Abs()`           |                                |
 
 ## string parse with defaults
 
-|                  |     |
-| ---------------- | --- |
-| `AtoiDef()`      |     |
-| `BarseBoolDef()` |     |
-| `ParseIntDef()`  |     |
+|                  |                                          |
+| ---------------- | ---------------------------------------- |
+| `AtoiDef()`      | `strconv.Atoi()` with default value      |
+| `ParseBoolDef()` | `strconv.ParseBool()` with default value |
+| `ParseIntDef()`  | `strconv.ParseInt()` with default value  |
 
 ## Parse time and format
 
-|                 |                                             |
-| --------------- | ------------------------------------------- |
-| `StrToTime()`   | parse string to time for well known layouts |
-| `TimeWithLayout | `time.Time` with layouts                    |
-| `RFC1123ZTime`  | `Mon, 02 Jan 2006 15:04:05 -0700`           |
-| `RFC3339Time`   | `2006-01-02T15:04:05Z07:00`                 |
+|                   |                                             |
+| ----------------- | ------------------------------------------- |
+| `ParseDateTime()` | parse string to time for well known layouts |
+| `TimeWithLayout`  | `time.Time` with layouts                    |
+| `RFC1123ZTime`    | `Mon, 02 Jan 2006 15:04:05 -0700`           |
+| `RFC3339Time`     | `2006-01-02T15:04:05Z07:00`                 |
 
 ## Shell execution
 

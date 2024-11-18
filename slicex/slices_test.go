@@ -1,7 +1,6 @@
 package slicex
 
 import (
-	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -9,7 +8,43 @@ import (
 
 func TestSample(t *testing.T) {
 	s := []int{12, 3, 4, 5}
-	slices.Contains(s, Sample(s))
+	e := Sample(s)
+	require.Contains(t, s, e)
+}
+
+func TestSamples(t *testing.T) {
+	s := []int{12, 3, 4, 5}
+
+	type args struct {
+		size int
+	}
+	tests := [...]struct {
+		name string
+		args args
+	}{
+		{`valid`, args{3}},
+		{`valid`, args{-1}},
+		{`valid`, args{4}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Samples(s, tt.args.size)
+			
+			if tt.args.size < 1 {
+				require.Nil(t, got)
+				return
+			}
+			if tt.args.size >= len(s) {
+				require.Equal(t, got, s)
+				return
+			}
+
+			require.Equal(t, len(got), tt.args.size)
+			for _, e := range got {
+				require.Contains(t, s, e)
+			}
+		})
+	}
 }
 
 func TestToPtr(t *testing.T) {
@@ -43,4 +78,10 @@ func TestGroupBy(t *testing.T) {
 	s := []int{0, 1, 2, 3, 4, 5, 6}
 	r := GroupBy(s, func(e int) int { return e % 2 })
 	require.Equal(t, map[int][]int{0: {0, 2, 4, 6}, 1: {1, 3, 5}}, r)
+}
+
+func TestConcat(t *testing.T) {
+	s := Of[[]int](0, 1, 2)
+	got := s.Concat([]int{3, 4, 5}).Slice()
+	require.Equal(t, []int{0, 1, 2, 3, 4, 5}, got)
 }
