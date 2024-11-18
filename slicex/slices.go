@@ -77,6 +77,36 @@ func Sample[S ~[]E, E any](s S) E {
 	return s[i.Int64()]
 }
 
+// Samples sample elements in random order, returns nil if size < 0, returns Slices.Clone(s) if size greater than len(s)
+func Samples[S ~[]E, E comparable](s S, size int) S {
+	if size < 0 {
+		return nil
+	}
+
+	if size >= len(s) {
+		return slices.Clone(s)
+	}
+
+	r := make([]E, 0, size)
+	seen := make(map[E]struct{}, size)
+
+	for {
+		e := Sample(s)
+		if _, ok := seen[e]; ok {
+			continue
+		}
+
+		r = append(r, e)
+		if len(r) >= size {
+			break
+		}
+
+		seen[e] = struct{}{}
+	}
+
+	return r
+}
+
 func Times[T any](count int, f func(int) T) Slice[[]T, T] {
 	r := make([]T, count)
 
