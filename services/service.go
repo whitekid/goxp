@@ -11,6 +11,8 @@ type Interface interface {
 	Serve(ctx context.Context) error
 }
 
+type Factory func() Interface
+
 // AddrGetter for get listen address
 type AddrGetter interface {
 	GetAddr() *net.TCPAddr

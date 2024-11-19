@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -26,4 +27,10 @@ func (r *Response) String() string {
 	body, _ := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	return string(body)
+}
+
+// JSON return body as json
+func (r *Response) JSON(v any) error {
+	defer r.Body.Close()
+	return json.NewDecoder(r.Body).Decode(v)
 }
