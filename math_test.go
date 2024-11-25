@@ -67,3 +67,43 @@ func FuzzAbs(f *testing.F) {
 		testAbs(t, int(n), int(math.Abs(n)))
 	})
 }
+
+func TestPercent(t *testing.T) {
+	type args struct {
+		a any
+		b any
+	}
+	tests := [...]struct {
+		name string
+		args args
+		want float64
+	}{
+		{`valid`, args{0, 0}, 0},
+		{`valid`, args{1, 10}, 10},
+		{`valid`, args{1.0, 10.0}, 10},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			switch tt.args.a.(type) {
+			case int:
+				testPercent(t, tt.args.a.(int), tt.args.b.(int), tt.want)
+			case float64:
+				testPercent(t, tt.args.a.(float64), tt.args.b.(float64), tt.want)
+			default:
+				require.Failf(t, "unsupported type", "%v (%T)", tt.args.a, tt.args.a)
+			}
+		})
+	}
+}
+
+func testPercent[T RealNumber](t *testing.T, a T, b T, want float64) {
+	got := Percent(a, b)
+	require.Equal(t, want, got)
+}
+
+func FuzzPercent(f *testing.F) {
+	f.Add(1.2345, 1.2345)
+	f.Fuzz(func(t *testing.T, a, b float64) {
+		testPercent(t, a, b, (a*100)/b)
+	})
+}

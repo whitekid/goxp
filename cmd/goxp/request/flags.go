@@ -2,20 +2,18 @@ package request
 
 import (
 	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 
 	"github.com/whitekid/goxp/flags"
 )
 
-const (
-	fkUserAgent = "request.user-agent"
-	fkVerbose   = "request.verbose"
+var (
+	flag = struct {
+		userAgent *string
+		verbose   *bool
+	}{}
 )
 
 func SetFlags(pfs *pflag.FlagSet, fs *pflag.FlagSet, version string) {
-	flags.String(fs, fkUserAgent, "user-agent", "A", "goxp requests "+version, "use agent")
-	flags.Bool(fs, fkVerbose, "verbose", "v", false, "verbose")
+	flag.userAgent = flags.String(fs, "request.user-agent", "user-agent", "A", "goxp requests "+version, "use agent")
+	flag.verbose = flags.Bool(fs, "request.verbose", "verbose", "v", false, "verbose")
 }
-
-func userAgent() string { return viper.GetString(fkUserAgent) }
-func verbose() bool     { return viper.GetBool(fkVerbose) }

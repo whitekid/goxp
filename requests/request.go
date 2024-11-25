@@ -2,6 +2,8 @@ package requests
 
 import (
 	"bytes"
+	"compress/flate"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -10,17 +12,26 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/andybalholm/brotli"
+	"github.com/klauspost/compress/zstd"
+
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/mapx"
 	"github.com/whitekid/goxp/slicex"
 )
 
 const (
-	HeaderUserAgent     = "User-Agent"
-	HeaderReferer       = "Referer"
-	HeaderContentType   = "Content-Type"
-	HeaderAuthorization = "Authorization"
-	HeaderLocation      = "Location"
+	HeaderUserAgent       = "User-Agent"
+	HeaderReferer         = "Referer"
+	HeaderContentType     = "Content-Type"
+	HeaderContentEncoding = "Content-Encoding"
+	HeaderAuthorization   = "Authorization"
+	HeaderLocation        = "Location"
+
+	headerAccept         = "Accept"
+	headerAcceptEncoding = "Accept-Encoding"
+
+	defaultAcceptEncoding = "gzip, deflate, br, zstd"
 )
 
 var (
@@ -220,6 +231,10 @@ func (r *Request) makeRequest() (*http.Request, error) {
 		}
 	}
 
+	if req.Header.Get(headerAcceptEncoding) == "" {
+		req.Header.Set(headerAcceptEncoding, defaultAcceptEncoding)
+	}
+
 	return req, nil
 }
 
@@ -259,5 +274,46 @@ func (r *Request) Do(ctx context.Context) (*Response, error) {
 		return nil, err
 	}
 
+	var body io.ReadCloser
+	switch enc := resp.Header.Get(HeaderContentEncoding); enc {
+	case "gzip":
+		r, err := gzip.NewReader(resp.Body)
+		if err != nil {
+			panic(err)
+		}
+		body = newReadCloser(r, resp.Body)
+	case "br":
+		body = newReadCloser(brotli.NewReader(resp.Body), resp.Body)
+	case "zstd":
+		decoder, err := zstd.NewReader(resp.Body)
+		if err != nil {
+			panic(err)
+		}
+		body = newReadCloser(decoder, resp.Body)
+	case "deflate":
+		body = newReadCloser(flate.NewReader(resp.Body), resp.Body)
+	}
+
+	if body != nil {
+		resp.Body = body
+	}
+
 	return &Response{resp}, nil
+}
+
+type readCloser struct {
+	io.Reader
+	c io.Closer
+}
+
+func newReadCloser(r io.Reader, c io.Closer) io.ReadCloser {
+	return &readCloser{Reader: r, c: c}
+}
+
+func (rc *readCloser) Close() error {
+	if rc.c != nil {
+		return rc.c.Close()
+	}
+
+	return nil
 }
