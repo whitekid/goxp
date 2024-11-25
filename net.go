@@ -1,10 +1,11 @@
 package goxp
 
 import (
-	"fmt"
 	"net"
 	"net/url"
 	"strconv"
+
+	"github.com/whitekid/goxp/errors"
 )
 
 // AvailablePort return any available TCP ports
@@ -78,7 +79,7 @@ func URLToListenAddr(addr string) (string, string, string, error) {
 		case "https":
 			port = "443"
 		default:
-			return "", "", "", fmt.Errorf("unsupported scheme: %s", u.Scheme)
+			return "", "", "", errors.Errorf(nil, "unsupported scheme: %s", u.Scheme)
 		}
 	case "0":
 		p, err := AvailablePort()

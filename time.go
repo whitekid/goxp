@@ -3,11 +3,12 @@ package goxp
 import (
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"strconv"
 	"time"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/whitekid/goxp/errors"
 )
 
 var wellKnownDateTimeLayouts = [...]string{
@@ -46,7 +47,7 @@ func ParseDateTime(s string) (time.Time, error) {
 		}
 	}
 
-	return time.Time{}, fmt.Errorf("parse failed: %s", s)
+	return time.Time{}, errors.Errorf(nil, "parse failed: %s", s)
 }
 
 // TimeWithLayout time type for struct encoding/decodings

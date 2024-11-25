@@ -10,7 +10,6 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
 	"maps"
 	"math/big"
 	"slices"
@@ -66,7 +65,7 @@ func ParseCertificateChain(pemBytes []byte) ([]*x509.Certificate, error) {
 
 		cert, err := ParseCertificate(p.Bytes)
 		if err != nil {
-			return nil, fmt.Errorf("certificate parse failed: %+w", err)
+			return nil, errors.Errorf(err, "certificate parse failed")
 		}
 		certs = append(certs, cert)
 		pemBytes = rest
@@ -121,7 +120,7 @@ func GenerateKey(algorithm x509.SignatureAlgorithm) (privateKey PrivateKey, err 
 	case x509.PureEd25519:
 		_, privateKey, err = ed25519.GenerateKey(rand.Reader)
 	default:
-		return nil, fmt.Errorf("unknown algorithm: %s", algorithm.String())
+		return nil, errors.Errorf(nil, "unknown algorithm: %s", algorithm.String())
 	}
 
 	if err != nil {
@@ -152,7 +151,7 @@ func ParsePrivateKey(keyPemBytes []byte) (PrivateKey, error) {
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("fail to parse private key, %+w", err)
+		return nil, errors.Errorf(err, "fail to parse private key")
 	}
 	return key, nil
 }
@@ -226,18 +225,18 @@ func EncodePrivateKeyToPEM(privateKey PrivateKey) ([]byte, error) {
 		pemType = EcdsaPrivateKeyPEMBlockType
 		derBytes, err := x509.MarshalECPrivateKey(key)
 		if err != nil {
-			return nil, fmt.Errorf("fail to encode private key, %+w", err)
+			return nil, errors.Errorf(err, "fail to encode private key")
 		}
 		keyBytes = derBytes
 	case ed25519.PrivateKey:
 		pemType = EcdsaPrivateKeyPEMBlockType
 		derBytes, err := x509.MarshalPKCS8PrivateKey(key)
 		if err != nil {
-			return nil, fmt.Errorf("fail to encode private key, %+w", err)
+			return nil, errors.Errorf(err, "fail to encode private key")
 		}
 		keyBytes = derBytes
 	default:
-		return nil, fmt.Errorf("unsupported private key: %T", privateKey)
+		return nil, errors.Errorf(nil, "unsupported private key: %T", privateKey)
 	}
 
 	return pem.EncodeToMemory(&pem.Block{
@@ -317,16 +316,16 @@ var (
 func ValidCertificateAlgorithm(isCA bool, keyAlgorithm x509.SignatureAlgorithm, signatureAlgorithm x509.SignatureAlgorithm) error {
 	// unsupported
 	if slices.Contains(unsupportedAlgorithm, keyAlgorithm) || slices.Contains(unsupportedAlgorithm, signatureAlgorithm) {
-		return fmt.Errorf("invalid algorithm: %s", keyAlgorithm.String())
+		return errors.Errorf(nil, "invalid algorithm: %s", keyAlgorithm.String())
 	}
 
 	if !isCA {
 		if !slices.Contains(leafAlgorithms, keyAlgorithm) {
-			return fmt.Errorf("invalid key algorithm: %s", keyAlgorithm.String())
+			return errors.Errorf(nil, "invalid key algorithm: %s", keyAlgorithm.String())
 		}
 
 		if signatureAlgorithm != x509.UnknownSignatureAlgorithm && !slices.Contains(leafAlgorithms, keyAlgorithm) {
-			return fmt.Errorf("invalid signature algorithm: %s", signatureAlgorithm.String())
+			return errors.Errorf(nil, "invalid signature algorithm: %s", signatureAlgorithm.String())
 		}
 	}
 
