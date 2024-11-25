@@ -9,17 +9,18 @@ import (
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 
+	"github.com/whitekid/goxp/cobrax"
 	"github.com/whitekid/goxp/slicex"
 	"github.com/whitekid/goxp/slug"
 )
 
 func init() {
-	cmd := &cobra.Command{
+	cmd := cobrax.Add(rootCmd, &cobra.Command{
 		Use:   "slug",
 		Short: "slug package examples",
-	}
+	}, nil)
 
-	cmd.AddCommand(&cobra.Command{
+	cobrax.Add(cmd, &cobra.Command{
 		Use:   "uuid",
 		Short: "encode uuid to URL friendly",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -33,9 +34,9 @@ func init() {
 					fmt.Printf("%s => %s => %s\n", x, slug, uid1)
 				})
 		},
-	})
+	}, nil)
 
-	cmd.AddCommand(&cobra.Command{
+	cobrax.Add(cmd, &cobra.Command{
 		Use:   "short",
 		Short: "encode int to URL friendly.",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -54,16 +55,14 @@ func init() {
 					fmt.Printf("%d => %s => %d\n", n, code, decoded)
 				})
 		},
-	})
+	}, nil)
 
-	cmd.AddCommand(&cobra.Command{
+	cobrax.Add(cmd, &cobra.Command{
 		Use:   "new",
 		Short: "generate new random encoding",
 		Run: func(cmd *cobra.Command, args []string) {
 			enc := slicex.Shuffle([]rune(slug.EncodeURL))
 			fmt.Printf("%s\n", string(enc))
 		},
-	})
-
-	rootCmd.AddCommand(cmd)
+	}, nil)
 }

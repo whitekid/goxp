@@ -11,12 +11,13 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/whitekid/goxp"
+	"github.com/whitekid/goxp/cobrax"
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/slicex"
 )
 
 func init() {
-	cmd := &cobra.Command{
+	cmd := cobrax.Add(rootCmd, &cobra.Command{
 		Use: "worker",
 		Run: func(cmd *cobra.Command, args []string) {
 			loggers := slicex.Times(runtime.NumCPU(), func(i int) log.Interface {
@@ -41,9 +42,9 @@ func init() {
 				}
 			})
 		},
-	}
+	}, nil)
 
-	cmd.AddCommand(&cobra.Command{
+	cobrax.Add(cmd, &cobra.Command{
 		Use: "every",
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := cmd.Context()
@@ -52,7 +53,5 @@ func init() {
 			})
 			<-ctx.Done()
 		},
-	})
-
-	rootCmd.AddCommand(cmd)
+	}, nil)
 }

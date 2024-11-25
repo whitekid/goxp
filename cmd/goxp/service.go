@@ -8,11 +8,12 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/whitekid/goxp"
+	"github.com/whitekid/goxp/cobrax"
 	"github.com/whitekid/goxp/services"
 )
 
 func init() {
-	cmd := &cobra.Command{
+	cobrax.Add(rootCmd, &cobra.Command{
 		Use:   "service",
 		Short: "service example",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -25,8 +26,7 @@ func init() {
 			fmt.Printf("timer will be terminated after %s\n", ttl)
 			srv.Serve(ctx)
 		},
-	}
-	rootCmd.AddCommand(cmd)
+	}, nil)
 }
 
 type timerService struct{}
