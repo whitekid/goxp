@@ -5,15 +5,16 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/whitekid/goxp/cobrax"
 	"github.com/whitekid/goxp/cryptox"
 )
 
 func init() {
-	cmd := &cobra.Command{
+	cmd := cobrax.Add(rootCmd, &cobra.Command{
 		Use: "cryptox",
-	}
+	}, nil)
 
-	cmd.AddCommand(&cobra.Command{
+	cobrax.Add(cmd, &cobra.Command{
 		Use:  "encrypt key data",
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -25,9 +26,9 @@ func init() {
 			fmt.Printf("%s\n", s)
 			return nil
 		},
-	})
+	}, nil)
 
-	cmd.AddCommand(&cobra.Command{
+	cobrax.Add(cmd, &cobra.Command{
 		Use:  "decrypt key data",
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -39,7 +40,5 @@ func init() {
 			fmt.Printf("%s\n", s)
 			return nil
 		},
-	})
-
-	rootCmd.AddCommand(cmd)
+	}, nil)
 }

@@ -5,7 +5,6 @@ import (
 	"crypto/cipher"
 	"crypto/des"
 	"crypto/rand"
-	"fmt"
 	"io"
 
 	"github.com/whitekid/goxp/errors"
@@ -30,7 +29,7 @@ func (c *desCipher) newCipher(key []byte) (cipher.Block, error) {
 func (c *desCipher) Encrypt(data []byte) ([]byte, error) {
 	block, err := c.newCipher(c.key)
 	if err != nil {
-		return nil, fmt.Errorf("encrypt failed: %w", err)
+		return nil, errors.Errorf(err, "encrypt failed")
 	}
 
 	if mod := len(data) % block.BlockSize(); mod != 0 {
@@ -41,7 +40,7 @@ func (c *desCipher) Encrypt(data []byte) ([]byte, error) {
 	ciphertext := make([]byte, block.BlockSize()+len(data))
 	iv := ciphertext[:block.BlockSize()]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return nil, fmt.Errorf("random read failed: %w", err)
+		return nil, errors.Errorf(err, "random read failed")
 	}
 
 	mode := cipher.NewCBCEncrypter(block, iv)
@@ -53,7 +52,7 @@ func (c *desCipher) Encrypt(data []byte) ([]byte, error) {
 func (c *desCipher) Decrypt(data []byte) ([]byte, error) {
 	block, err := c.newCipher(c.key)
 	if err != nil {
-		return nil, fmt.Errorf("decrypt failed: %w", err)
+		return nil, errors.Errorf(err, "decrypt failed")
 	}
 
 	if len(data)%block.BlockSize() != 0 {

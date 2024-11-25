@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/whitekid/goxp"
+	"github.com/whitekid/goxp/cobrax"
 )
 
 var rootCmd = &cobra.Command{
@@ -19,7 +20,7 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(&cobra.Command{
+	cobrax.Add(rootCmd, &cobra.Command{
 		Use:   "randomstring length",
 		Short: "generate random string",
 		Args:  cobra.ExactArgs(1),
@@ -32,15 +33,15 @@ func init() {
 			fmt.Printf("%s\n", goxp.RandomString(n))
 			return nil
 		},
-	})
+	}, nil)
 
-	rootCmd.AddCommand(&cobra.Command{
+	cobrax.Add(rootCmd, &cobra.Command{
 		Use:   "randomuuid",
 		Short: "generate random uuid",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("%s\n", uuid.New().String())
 		},
-	})
+	}, nil)
 }
 
 func main() {

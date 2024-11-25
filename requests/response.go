@@ -2,9 +2,10 @@ package requests
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/whitekid/goxp/errors"
 )
 
 type Response struct {
@@ -17,7 +18,7 @@ func (r *Response) Success() error {
 		return nil
 	}
 
-	return fmt.Errorf("request failed with status %d: %s", r.StatusCode, r.Status)
+	return errors.Errorf(nil, "request failed with status %d: %s", r.StatusCode, r.Status)
 }
 
 // String return body as string
