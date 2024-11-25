@@ -31,3 +31,11 @@ func Max[T RealNumber](a, b T) T {
 
 	return b
 }
+
+func Percent[T1 RealNumber, T2 RealNumber](num T1, total T2) float64 {
+	if total == 0 {
+		return 0
+	}
+
+	return float64(num) * 100 / float64(total)
+}
