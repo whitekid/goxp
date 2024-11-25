@@ -5,8 +5,10 @@ go 1.23.3
 retract [v0.0.1, v0.0.10]
 
 require (
+	github.com/andybalholm/brotli v1.1.1
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/google/uuid v1.6.0
+	github.com/klauspost/compress v1.17.11
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.19.0

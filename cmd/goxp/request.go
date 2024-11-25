@@ -9,7 +9,7 @@ import (
 
 func init() {
 	cobrax.Add(rootCmd, &cobra.Command{
-		Use:   "request url",
+		Use:   "req url",
 		Short: "request package example",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
