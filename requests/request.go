@@ -44,6 +44,8 @@ var (
 	MIMEVCard           = mimeByExt(".vcf")
 )
 
+var logger = log.Named("request")
+
 type Request struct {
 	ctx_              context.Context
 	URL               string
@@ -74,9 +76,11 @@ func New(method, URL string, args ...any) *Request {
 	}
 
 	return &Request{
-		method:     method,
-		URL:        URL,
-		header:     http.Header{},
+		method: method,
+		URL:    URL,
+		header: http.Header{
+			headerAcceptEncoding: []string{defaultAcceptEncoding},
+		},
 		query:      url.Values{},
 		formValues: url.Values{},
 		jsonValues: make([]any, 0),
@@ -205,7 +209,7 @@ func (r *Request) makeRequest() (*http.Request, error) {
 			buffer := slicex.Map(r.jsonValues, func(v any) io.Reader {
 				buf := &bytes.Buffer{}
 				if err := json.NewEncoder(buf).Encode(v); err != nil {
-					log.Errorf("encode error: %v", err)
+					logger.Errorf("encode error: %v", err)
 				}
 				return buf
 			})
@@ -227,12 +231,8 @@ func (r *Request) makeRequest() (*http.Request, error) {
 
 	for k, vv := range r.header {
 		for _, v := range vv {
-			req.Header.Add(k, v)
+			req.Header.Set(k, v)
 		}
-	}
-
-	if req.Header.Get(headerAcceptEncoding) == "" {
-		req.Header.Set(headerAcceptEncoding, defaultAcceptEncoding)
 	}
 
 	return req, nil
