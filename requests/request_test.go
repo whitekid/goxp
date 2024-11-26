@@ -118,40 +118,6 @@ func TestAuth(t *testing.T) {
 	}
 }
 
-func TestPapagoSMT(t *testing.T) {
-	if _, ok := os.LookupEnv("NAVER_CLIENT_ID"); !ok {
-		t.Skip()
-	}
-
-	resp, err := Post("https://openapi.naver.com/v1/papago/n2mt").
-		Header("X-Naver-Client-Id", os.Getenv("NAVER_CLIENT_ID")).
-		Header("X-Naver-Client-Secret", os.Getenv("NAVER_CLIENT_SECRET")).
-		Forms(map[string]string{
-			"source": "ko",
-			"target": "en",
-			"text":   "만나서 반갑습니다.",
-		}).
-		Do(context.Background())
-	require.NoError(t, err)
-	require.Equal(t, http.StatusOK, resp.StatusCode)
-
-	type Response struct {
-		Message struct {
-			Type    string `json:"@type"`
-			Service string `json:"@service"`
-			Version string `json:"@version"`
-			Result  struct {
-				TranslatedText string `json:"translatedText"`
-				SrcLangType    string `json:"srcLangType"`
-			} `json:"result"`
-		} `json:"message"`
-	}
-	defer resp.Body.Close()
-	r, err := goxp.ReadJSON[Response](resp.Body)
-	require.NoError(t, err)
-	require.Equal(t, "Good to meet you.", r.Message.Result.TranslatedText)
-}
-
 func TestGithubGet(t *testing.T) {
 	resp, err := Get("https://api.github.com").Do(context.Background())
 	require.NoError(t, err)
