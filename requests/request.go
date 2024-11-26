@@ -47,7 +47,6 @@ var (
 var logger = log.Named("request")
 
 type Request struct {
-	ctx_              context.Context
 	URL               string
 	method            string
 	header            http.Header
@@ -238,11 +237,6 @@ func (r *Request) makeRequest() (*http.Request, error) {
 	return req, nil
 }
 
-func (r *Request) Context(ctx context.Context) *Request {
-	r.ctx_ = ctx
-	return r
-}
-
 // Do call http request
 func (r *Request) Do(ctx context.Context) (*Response, error) {
 	req, err := r.makeRequest()
@@ -261,15 +255,7 @@ func (r *Request) Do(ctx context.Context) (*Response, error) {
 		client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
 	}
 
-	if r.ctx_ != nil {
-		req = req.WithContext(r.ctx_)
-	}
-
-	if ctx != nil {
-		req = req.WithContext(ctx)
-	}
-
-	resp, err := client.Do(req)
+	resp, err := client.Do(req.WithContext(ctx))
 	if err != nil {
 		return nil, err
 	}
