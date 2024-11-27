@@ -45,12 +45,16 @@ func (e *withStack) Format(f fmt.State, c rune) {
 }
 
 func Errorf(err error, format string, args ...any) error {
+	return wrap(err, fmt.Sprintf(format, args...), 3)
+}
+
+func wrap(err error, message string, skip int) error {
 	stackBuf := make([]uintptr, 32)
-	length := runtime.Callers(2, stackBuf[:])
+	length := runtime.Callers(skip, stackBuf[:])
 	stackBuf = stackBuf[:length]
 
 	return &withStack{
-		messsage: fmt.Sprintf(format, args...),
+		messsage: message,
 		err:      err,
 		stack:    stackBuf,
 	}
