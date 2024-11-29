@@ -48,6 +48,14 @@ func Errorf(err error, format string, args ...any) error {
 	return wrap(err, fmt.Sprintf(format, args...), 3)
 }
 
+func Wrapf(err error, format string, args ...any) error {
+	return wrap(err, fmt.Sprintf(format, args...), 3)
+}
+
+func Wrap(err error, message string) error {
+	return wrap(err, message, 3)
+}
+
 func wrap(err error, message string, skip int) error {
 	stackBuf := make([]uintptr, 32)
 	length := runtime.Callers(skip, stackBuf[:])

@@ -11,11 +11,11 @@ import (
 
 func TestDefaultLoggerHasArgs(t *testing.T) {
 	type fields struct {
-		logFn func(string, ...interface{})
+		logFn func(string, ...any)
 	}
 	type args struct {
 		format string
-		args   []interface{}
+		args   []any
 	}
 	tests := [...]struct {
 		name   string
@@ -24,7 +24,7 @@ func TestDefaultLoggerHasArgs(t *testing.T) {
 		want   string
 	}{
 		{"nil args", fields{Infof}, args{"Hello", nil}, "Hello"},
-		{"has args", fields{Infof}, args{"Hello %s", []interface{}{"world"}}, "Hello world"},
+		{"has args", fields{Infof}, args{"Hello %s", []any{"world"}}, "Hello world"},
 	}
 
 	for _, tt := range tests {

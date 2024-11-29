@@ -14,7 +14,7 @@ var (
 )
 
 // Timer log execution time
-func Timer(format string, args ...interface{}) Teardown {
+func Timer(format string, args ...any) Teardown {
 	timerLoggerOnce.Do(func() { timerLogger = log.New() })
 	start := time.Now()
 

@@ -61,12 +61,13 @@ type Request struct {
 	client            *http.Client
 }
 
-func Post(url string, args ...any) *Request   { return New(http.MethodPost, url, args...) }
-func Get(url string, args ...any) *Request    { return New(http.MethodGet, url, args...) }
-func Delete(url string, args ...any) *Request { return New(http.MethodDelete, url, args...) }
-func Put(url string, args ...any) *Request    { return New(http.MethodPut, url, args...) }
-func Patch(url string, args ...any) *Request  { return New(http.MethodPatch, url, args...) }
-func Head(url string, args ...any) *Request   { return New(http.MethodHead, url, args...) }
+func Post(url string, args ...any) *Request    { return New(http.MethodPost, url, args...) }
+func Get(url string, args ...any) *Request     { return New(http.MethodGet, url, args...) }
+func Delete(url string, args ...any) *Request  { return New(http.MethodDelete, url, args...) }
+func Put(url string, args ...any) *Request     { return New(http.MethodPut, url, args...) }
+func Patch(url string, args ...any) *Request   { return New(http.MethodPatch, url, args...) }
+func Options(url string, args ...any) *Request { return New(http.MethodOptions, url, args...) }
+func Head(url string, args ...any) *Request    { return New(http.MethodHead, url, args...) }
 
 // New create new request
 func New(method, URL string, args ...any) *Request {

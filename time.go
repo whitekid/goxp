@@ -102,7 +102,7 @@ func (t *TimeWithLayout) unmarshalXMLWithLayout(d *xml.Decoder, start xml.StartE
 	return nil
 }
 
-func (t *TimeWithLayout) marshalYAMLWithLayout(layout string) (interface{}, error) {
+func (t *TimeWithLayout) marshalYAMLWithLayout(layout string) (any, error) {
 	return t.Format(layout), nil
 }
 
@@ -157,7 +157,7 @@ func (t *RFC1123ZTime) MarshalXML(e *xml.Encoder, start xml.StartElement) error 
 	return t.marshalXMLWithLayout(e, start, t.Layout())
 }
 
-func (t *RFC1123ZTime) MarshalYAML() (interface{}, error) {
+func (t *RFC1123ZTime) MarshalYAML() (any, error) {
 	return t.marshalYAMLWithLayout(t.Layout())
 }
 
@@ -206,7 +206,7 @@ func (t *RFC3339Time) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return t.marshalXMLWithLayout(e, start, t.Layout())
 }
 
-func (t *RFC3339Time) MarshalYAML() (interface{}, error) {
+func (t *RFC3339Time) MarshalYAML() (any, error) {
 	return t.marshalYAMLWithLayout(t.Layout())
 }
 
@@ -281,4 +281,4 @@ func (t *UnixTimestamp) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
-func (t *UnixTimestamp) MarshalYAML() (interface{}, error) { return t.Unix(), nil }
+func (t *UnixTimestamp) MarshalYAML() (any, error) { return t.Unix(), nil }
