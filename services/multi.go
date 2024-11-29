@@ -40,7 +40,13 @@ func (s *multiServiceImpl) Serve(ctx context.Context) error {
 
 	// run sub service
 	for _, service := range s.services {
-		eg.Go(func() error { return service.Serve(ctx) })
+		eg.Go(func() error {
+			if err := service.Serve(ctx); err != nil {
+				return err
+			}
+
+			return nil
+		})
 	}
 
 	return eg.Wait()
