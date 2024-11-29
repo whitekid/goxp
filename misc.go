@@ -31,7 +31,7 @@ func FileExists(name string) bool {
 	return err == nil
 }
 
-func JsonRecode(dest, src interface{}) error {
+func JsonRecode(dest, src any) error {
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(src); err != nil {
 		return err

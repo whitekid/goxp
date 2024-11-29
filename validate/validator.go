@@ -9,7 +9,7 @@ import (
 var validate = validator.New()
 
 // Validate shortcuts
-func Struct(s interface{}) error {
+func Struct(s any) error {
 	if err := validate.Struct(s); err != nil {
 		return errors.Errorf(err, "validation failed")
 	}
@@ -17,7 +17,7 @@ func Struct(s interface{}) error {
 	return nil
 }
 
-func Var(field interface{}, tag string) error {
+func Var(field any, tag string) error {
 	if err := validate.Var(field, tag); err != nil {
 		return errors.Errorf(err, "validation failed")
 	}
@@ -25,7 +25,7 @@ func Var(field interface{}, tag string) error {
 	return nil
 }
 
-func Vars(vars ...interface{}) error {
+func Vars(vars ...any) error {
 	for i := 0; i < len(vars); i += 2 {
 		if err := Var(vars[i], (vars[i+1]).(string)); err != nil {
 			return err

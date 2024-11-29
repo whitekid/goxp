@@ -19,7 +19,7 @@ type Options struct {
 	Params      url.Values
 	Forms       url.Values
 	Body        io.Reader   // for raw data
-	JSON        interface{} // for json request, string or struct
+	JSON        any // for json request, string or struct
 }
 
 // ResponseRecorder is httptest.ResponseRecorder wrapper
@@ -102,6 +102,6 @@ func (r *ResponseRecorder) CloseNotify() <-chan bool {
 }
 
 // JSON read json form response
-func (r *ResponseRecorder) JSON(intf interface{}) error {
+func (r *ResponseRecorder) JSON(intf any) error {
 	return json.NewDecoder(r.Body).Decode(intf)
 }

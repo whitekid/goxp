@@ -9,7 +9,7 @@ import (
 
 type logWritter struct {
 	logger Interface
-	out    func(args ...interface{})
+	out    func(args ...any)
 }
 
 func (l *logWritter) Write(p []byte) (int, error) {
@@ -22,7 +22,7 @@ func newLogWriter(level Level) io.Writer {
 		logger: New(zap.AddCallerSkip(-1)),
 	}
 
-	w.out = map[Level]func(args ...interface{}){
+	w.out = map[Level]func(args ...any){
 		DebugLevel:  w.logger.Debug,
 		InfoLevel:   w.logger.Info,
 		WarnLevel:   w.logger.Warn,

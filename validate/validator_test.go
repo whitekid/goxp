@@ -8,7 +8,7 @@ import (
 
 func TestStruct(t *testing.T) {
 	type args struct {
-		s interface{}
+		s any
 	}
 	tests := [...]struct {
 		name    string
@@ -35,7 +35,7 @@ func TestStruct(t *testing.T) {
 
 func TestVar(t *testing.T) {
 	type args struct {
-		v    interface{}
+		v    any
 		spec string
 	}
 	tests := [...]struct {
