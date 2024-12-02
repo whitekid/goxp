@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"golang.org/x/sync/errgroup"
-
-	"github.com/whitekid/goxp/errors"
 )
 
 type MultiService interface {
@@ -33,7 +31,7 @@ func (s *multiServiceImpl) Append(srv Interface) {
 // Serve runs sub services
 func (s *multiServiceImpl) Serve(ctx context.Context) error {
 	if len(s.services) == 0 {
-		return errors.New("no registered services")
+		return ErrNoRegisteredService
 	}
 
 	eg, ctx := errgroup.WithContext(ctx)
