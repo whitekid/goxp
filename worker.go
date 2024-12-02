@@ -2,7 +2,6 @@ package goxp
 
 import (
 	"context"
-	"iter"
 	"runtime"
 	"time"
 
@@ -63,35 +62,23 @@ func After(ctx context.Context, duration time.Duration, fn func(ctx context.Cont
 }
 
 // Async run func in background and returns with iter.Seq
-func Async[T any](ctx context.Context, fn func(ctx context.Context) T) iter.Seq[T] {
+func Async[T any](ctx context.Context, fn func(ctx context.Context) T) <-chan T {
 	ch := make(chan T)
 	go func() {
 		ch <- fn(ctx)
 		close(ch)
 	}()
 
-	return func(yield func(T) bool) {
-		for c := range ch {
-			if !yield(c) {
-				return
-			}
-		}
-	}
+	return ch
 }
 
 // Async2 run func in background and returns with iter.Seq
-func Async2[U1, U2 any](fn func() (U1, U2)) iter.Seq2[U1, U2] {
+func Async2[U1, U2 any](fn func() (U1, U2)) <-chan *Tuple2[U1, U2] {
 	ch := make(chan *Tuple2[U1, U2])
 	go func() {
 		ch <- T2(fn())
 		close(ch)
 	}()
 
-	return func(yield func(U1, U2) bool) {
-		for v := range ch {
-			if !yield(v.V1, v.V2) {
-				return
-			}
-		}
-	}
+	return ch
 }
