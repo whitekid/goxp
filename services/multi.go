@@ -6,12 +6,14 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/whitekid/goxp/errors"
+	"github.com/whitekid/goxp/log"
 )
 
 type MultiService interface {
 	Interface
 
 	Append(Interface)
+	Len() int
 }
 
 // multiServiceImpl 여러 sub service들을 돌릴 수 있는 서비스
@@ -26,14 +28,13 @@ func NewMulti(services ...Interface) MultiService {
 	}
 }
 
-func (s *multiServiceImpl) Append(srv Interface) {
-	s.services = append(s.services, srv)
-}
+func (s *multiServiceImpl) Append(srv Interface) { s.services = append(s.services, srv) }
+func (s *multiServiceImpl) Len() int             { return len(s.services) }
 
 // Serve runs sub services
 func (s *multiServiceImpl) Serve(ctx context.Context) error {
 	if len(s.services) == 0 {
-		return errors.New("no registered services")
+		return ErrNoRegisteredService
 	}
 
 	eg, ctx := errgroup.WithContext(ctx)
@@ -42,6 +43,10 @@ func (s *multiServiceImpl) Serve(ctx context.Context) error {
 	for _, service := range s.services {
 		eg.Go(func() error {
 			if err := service.Serve(ctx); err != nil {
+				if !errors.Is(err, context.DeadlineExceeded) {
+					log.Errorf("error: %+v", err)
+				}
+
 				return err
 			}
 

@@ -2,7 +2,6 @@ package goxp
 
 import (
 	"context"
-	"iter"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -121,28 +120,20 @@ func TestAsync(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	it := Async(ctx, func(ctx context.Context) int {
+	got := <-Async(ctx, func(ctx context.Context) int {
 		time.Sleep(time.Second)
 		return 7
 	})
-	next, stop := iter.Pull(it)
-	defer stop()
 
-	got, ok := next()
-	require.True(t, ok)
 	require.Equal(t, 7, got)
 }
 
 func TestAsync2(t *testing.T) {
-	it := Async2(func() (int, time.Time) {
+	got := <-Async2(func() (int, time.Time) {
 		time.Sleep(time.Second)
 		return 7, time.Now()
 	})
-	next, stop := iter.Pull2(it)
-	defer stop()
-	v1, v2, ok := next()
-	require.True(t, ok)
 
-	require.Equal(t, 7, v1)
-	require.True(t, v2.Before(time.Now()))
+	require.Equal(t, 7, got.V1)
+	require.True(t, got.V2.Before(time.Now()))
 }

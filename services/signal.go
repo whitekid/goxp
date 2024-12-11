@@ -25,7 +25,7 @@ func SetupSignal(ctx context.Context, signals ...os.Signal) context.Context {
 	signal.Notify(c, signals...)
 	log.Debugf("setup signals for %s", signals)
 
-	termCtx, cancel := context.WithCancel(ctx)
+	ctx, cancel := context.WithCancel(ctx)
 	go func() {
 		defer close(c)
 
@@ -60,5 +60,5 @@ func SetupSignal(ctx context.Context, signals ...os.Signal) context.Context {
 		}
 	}()
 
-	return termCtx
+	return ctx
 }
