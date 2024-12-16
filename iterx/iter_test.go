@@ -91,3 +91,22 @@ func TestChunk2(t *testing.T) {
 		})
 	}
 }
+
+func TestEnumerate(t *testing.T) {
+	type args struct {
+		values []int
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"valud", args{[]int{1, 2, 3, 4, 5}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for i, e := range Enumerate(slices.Values(tt.args.values)) {
+				require.Equal(t, tt.args.values[i], e)
+			}
+		})
+	}
+}

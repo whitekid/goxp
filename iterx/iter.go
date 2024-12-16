@@ -216,3 +216,16 @@ func Repeat[E any](v E, count int) Seq[E] {
 }
 
 func Sorted[E cmp.Ordered](seq Seq[E]) []E { return slices.Sorted(seq.Iter()) }
+
+// Enumerate like a python's enumerate
+func Enumerate[T any](it iter.Seq[T]) iter.Seq2[int, T] {
+	return func(yield func(int, T) bool) {
+		i := 0
+		for e := range it {
+			if !yield(i, e) {
+				return
+			}
+			i++
+		}
+	}
+}
