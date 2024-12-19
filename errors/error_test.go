@@ -8,7 +8,7 @@ import (
 )
 
 func newError(msg string) error {
-	return New("hello")
+	return New(msg)
 }
 
 func TestNew(t *testing.T) {

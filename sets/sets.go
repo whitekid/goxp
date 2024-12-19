@@ -35,6 +35,16 @@ func (s *Set[S, E]) Set(elements ...E) {
 	}
 }
 
+// SetNX adds elements to the set if they are not already present.
+func (s *Set[S, E]) SetNX(e E) bool {
+	if !s.Contains(e) {
+		return false
+	}
+
+	s.Set(e)
+	return true
+}
+
 func (s *Set[S, E]) Remove(elements ...E) {
 	for _, e := range elements {
 		if _, ok := s.keys[e]; !ok {
