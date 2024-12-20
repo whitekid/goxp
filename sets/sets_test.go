@@ -29,3 +29,24 @@ func TestRemove(t *testing.T) {
 
 	require.Equal(t, []int{0, 1, 3}, slices.Collect(s.Values()))
 }
+
+func TestSetNX(t *testing.T) {
+	s := New[int](1, 2, 3, 4)
+	type args struct {
+		e int
+	}
+	tests := [...]struct {
+		name string
+		args args
+		want bool
+	}{
+		{`valid`, args{1}, false},
+		{`valid`, args{5}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := s.SetNX(tt.args.e)
+			require.Equal(t, tt.want, got, `SetNX() failed: got = %+v, want = %v`, got, tt.want)
+		})
+	}
+}

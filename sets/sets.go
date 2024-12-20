@@ -37,7 +37,7 @@ func (s *Set[S, E]) Set(elements ...E) {
 
 // SetNX adds elements to the set if they are not already present.
 func (s *Set[S, E]) SetNX(e E) bool {
-	if !s.Contains(e) {
+	if s.Contains(e) {
 		return false
 	}
 
