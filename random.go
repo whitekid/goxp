@@ -27,9 +27,7 @@ func RandomStringWith(size int, source []rune) string {
 	max := big.NewInt(l)
 	for i := 0; i < size; i++ {
 		v, err := rand.Int(rand.Reader, max)
-		if err != nil {
-			panic(err)
-		}
+		Must(err)
 
 		r[i] = source[v.Int64()]
 	}

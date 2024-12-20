@@ -3,14 +3,14 @@ package fixtures
 import (
 	"os"
 	"sync"
+
+	"github.com/whitekid/goxp"
 )
 
 // TempFile tempfile
 func TempFile(dir, pattern string, callbacks ...func(string)) func() {
 	f, err := os.CreateTemp(dir, pattern)
-	if err != nil {
-		panic(err)
-	}
+	goxp.Must(err)
 
 	for _, callback := range callbacks {
 		callback(f.Name())

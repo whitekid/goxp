@@ -15,6 +15,7 @@ import (
 	"github.com/andybalholm/brotli"
 	"github.com/klauspost/compress/zstd"
 
+	"github.com/whitekid/goxp"
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/mapx"
 	"github.com/whitekid/goxp/slicex"
@@ -265,17 +266,13 @@ func (r *Request) Do(ctx context.Context) (*Response, error) {
 	switch enc := resp.Header.Get(HeaderContentEncoding); enc {
 	case "gzip":
 		r, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			panic(err)
-		}
+		goxp.Must(err)
 		body = newReadCloser(r, resp.Body)
 	case "br":
 		body = newReadCloser(brotli.NewReader(resp.Body), resp.Body)
 	case "zstd":
 		decoder, err := zstd.NewReader(resp.Body)
-		if err != nil {
-			panic(err)
-		}
+		goxp.Must(err)
 		body = newReadCloser(decoder, resp.Body)
 	case "deflate":
 		body = newReadCloser(flate.NewReader(resp.Body), resp.Body)

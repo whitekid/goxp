@@ -287,16 +287,12 @@ func TestRequestEncodingPure(t *testing.T) {
 			switch enc := resp.Header.Get(HeaderContentEncoding); enc {
 			case "gzip":
 				reader, err = gzip.NewReader(resp.Body)
-				if err != nil {
-					panic(err)
-				}
+				require.NoError(t, err)
 			case "br":
 				reader = io.NopCloser(brotli.NewReader(resp.Body))
 			case "zstd":
 				decoder, err := zstd.NewReader(resp.Body)
-				if err != nil {
-					panic(err)
-				}
+				require.NoError(t, err)
 				defer decoder.Close()
 				reader = io.NopCloser(decoder)
 			case "deflate":

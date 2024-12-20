@@ -50,13 +50,11 @@ func Every(ctx context.Context, interval time.Duration, initialRun bool, fn func
 
 // After run func after duration
 func After(ctx context.Context, duration time.Duration, fn func(ctx context.Context) error) error {
-	after := time.NewTimer(duration)
-
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
 
-	case <-after.C:
+	case <-time.After(duration):
 		return fn(ctx)
 	}
 }
