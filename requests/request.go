@@ -15,6 +15,8 @@ import (
 	"github.com/andybalholm/brotli"
 	"github.com/klauspost/compress/zstd"
 
+	"github.com/whitekid/goxp"
+	"github.com/whitekid/goxp/errors"
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/mapx"
 	"github.com/whitekid/goxp/slicex"
@@ -57,17 +59,19 @@ type Request struct {
 	jsonValues        []any
 	body              io.Reader
 	noFollowRedirect  bool
+	host              string
 	options           []option
 	client            *http.Client
 }
 
-func Post(url string, args ...any) *Request    { return New(http.MethodPost, url, args...) }
-func Get(url string, args ...any) *Request     { return New(http.MethodGet, url, args...) }
-func Delete(url string, args ...any) *Request  { return New(http.MethodDelete, url, args...) }
-func Put(url string, args ...any) *Request     { return New(http.MethodPut, url, args...) }
-func Patch(url string, args ...any) *Request   { return New(http.MethodPatch, url, args...) }
-func Options(url string, args ...any) *Request { return New(http.MethodOptions, url, args...) }
-func Head(url string, args ...any) *Request    { return New(http.MethodHead, url, args...) }
+func Post(url string, args ...any) *Request                { return New(http.MethodPost, url, args...) }
+func Get(url string, args ...any) *Request                 { return New(http.MethodGet, url, args...) }
+func Delete(url string, args ...any) *Request              { return New(http.MethodDelete, url, args...) }
+func Put(url string, args ...any) *Request                 { return New(http.MethodPut, url, args...) }
+func Patch(url string, args ...any) *Request               { return New(http.MethodPatch, url, args...) }
+func Options(url string, args ...any) *Request             { return New(http.MethodOptions, url, args...) }
+func Head(url string, args ...any) *Request                { return New(http.MethodHead, url, args...) }
+func Verb(method string, url string, args ...any) *Request { return New(method, url, args...) }
 
 // New create new request
 func New(method, URL string, args ...any) *Request {
@@ -109,6 +113,10 @@ func (r *Request) addOptF(fn func()) *Request { r.addOpt(newFuncOption(fn)); ret
 // FollowRedirect default action will be follow redirect
 func (r *Request) FollowRedirect(follow bool) *Request {
 	return r.addOptF(func() { r.noFollowRedirect = !follow })
+}
+
+func (r *Request) Host(host string) *Request {
+	return r.addOptF(func() { r.host = host })
 }
 
 func (r *Request) Header(key, value string) *Request {
@@ -188,7 +196,7 @@ func (r *Request) makeRequest() (*http.Request, error) {
 	if len(r.query) > 0 {
 		URL, err := url.Parse(u)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "fail to parse url")
 		}
 
 		URL.RawQuery = url.Values(mapx.Merge(URL.Query(), r.query)).Encode()
@@ -222,7 +230,11 @@ func (r *Request) makeRequest() (*http.Request, error) {
 
 	req, err := http.NewRequest(r.method, u, body)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "fail to create request")
+	}
+
+	if r.host != "" {
+		req.Host = r.host
 	}
 
 	if r.basicAuthUser != "" {
@@ -258,24 +270,20 @@ func (r *Request) Do(ctx context.Context) (*Response, error) {
 
 	resp, err := client.Do(req.WithContext(ctx))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "request failed")
 	}
 
 	var body io.ReadCloser
 	switch enc := resp.Header.Get(HeaderContentEncoding); enc {
 	case "gzip":
 		r, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			panic(err)
-		}
+		goxp.Must(err)
 		body = newReadCloser(r, resp.Body)
 	case "br":
 		body = newReadCloser(brotli.NewReader(resp.Body), resp.Body)
 	case "zstd":
 		decoder, err := zstd.NewReader(resp.Body)
-		if err != nil {
-			panic(err)
-		}
+		goxp.Must(err)
 		body = newReadCloser(decoder, resp.Body)
 	case "deflate":
 		body = newReadCloser(flate.NewReader(resp.Body), resp.Body)

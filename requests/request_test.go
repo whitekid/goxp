@@ -69,6 +69,13 @@ func TestMakeRequest(t *testing.T) {
 	}
 }
 
+func TestMakeRequestHeader(t *testing.T) {
+	host := "hostname"
+	req, err := Get("htt:.....").Host(host).makeRequest()
+	require.NoError(t, err)
+	require.Equal(t, host, req.Host)
+}
+
 func TestRequest(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 
@@ -287,16 +294,12 @@ func TestRequestEncodingPure(t *testing.T) {
 			switch enc := resp.Header.Get(HeaderContentEncoding); enc {
 			case "gzip":
 				reader, err = gzip.NewReader(resp.Body)
-				if err != nil {
-					panic(err)
-				}
+				require.NoError(t, err)
 			case "br":
 				reader = io.NopCloser(brotli.NewReader(resp.Body))
 			case "zstd":
 				decoder, err := zstd.NewReader(resp.Body)
-				if err != nil {
-					panic(err)
-				}
+				require.NoError(t, err)
 				defer decoder.Close()
 				reader = io.NopCloser(decoder)
 			case "deflate":

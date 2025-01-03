@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/whitekid/goxp"
 )
 
 func TestParseCSR(t *testing.T) {
@@ -146,9 +148,7 @@ func TestPrivateKeyAlgorithm(t *testing.T) {
 
 func MustReadFile(name string) []byte {
 	data, err := os.ReadFile(name)
-	if err != nil {
-		panic(err)
-	}
+	goxp.Must(err)
 
 	return data
 }

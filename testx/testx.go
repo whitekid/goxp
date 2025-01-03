@@ -8,11 +8,6 @@ import (
 	"github.com/whitekid/goxp"
 )
 
-func Must(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
 
 func NotNil[T1 any](t *testing.T, values *goxp.Tuple2[T1, error]) T1 {
 	v, err := values.Unpack()

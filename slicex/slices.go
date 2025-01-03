@@ -8,6 +8,7 @@ import (
 	mrand "math/rand/v2"
 	"slices"
 
+	"github.com/whitekid/goxp"
 	"github.com/whitekid/goxp/fx/gen"
 	"github.com/whitekid/goxp/sets"
 )
@@ -70,9 +71,7 @@ func Min[E cmp.Ordered](s ...E) E { return slices.Min(s) }
 
 func Sample[S ~[]E, E any](s S) E {
 	i, err := rand.Int(rand.Reader, big.NewInt(int64(len(s))))
-	if err != nil {
-		panic(err)
-	}
+	goxp.Must(err)
 
 	return s[i.Int64()]
 }

@@ -31,6 +31,7 @@ func WriteXML[T any](w io.Writer, v T) error  { return xml.NewEncoder(w).Encode(
 func WriteYAML[T any](w io.Writer, v T) error { return yaml.NewEncoder(w).Encode(v) }
 
 func MustMarshalJson(v any) []byte {
-	payload, _ := json.Marshal(v)
+	payload, err := json.Marshal(v)
+	Must(err)
 	return payload
 }
