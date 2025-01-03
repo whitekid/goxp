@@ -59,6 +59,7 @@ type Request struct {
 	jsonValues        []any
 	body              io.Reader
 	noFollowRedirect  bool
+	host              string
 	options           []option
 	client            *http.Client
 }
@@ -111,6 +112,10 @@ func (r *Request) addOptF(fn func()) *Request { r.addOpt(newFuncOption(fn)); ret
 // FollowRedirect default action will be follow redirect
 func (r *Request) FollowRedirect(follow bool) *Request {
 	return r.addOptF(func() { r.noFollowRedirect = !follow })
+}
+
+func (r *Request) Host(host string) *Request {
+	return r.addOptF(func() { r.host = host })
 }
 
 func (r *Request) Header(key, value string) *Request {
@@ -225,6 +230,10 @@ func (r *Request) makeRequest() (*http.Request, error) {
 	req, err := http.NewRequest(r.method, u, body)
 	if err != nil {
 		return nil, errors.Wrap(err, "fail to create request")
+	}
+
+	if r.host != "" {
+		req.Host = r.host
 	}
 
 	if r.basicAuthUser != "" {

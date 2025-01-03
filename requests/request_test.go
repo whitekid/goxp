@@ -69,6 +69,13 @@ func TestMakeRequest(t *testing.T) {
 	}
 }
 
+func TestMakeRequestHeader(t *testing.T) {
+	host := "hostname"
+	req, err := Get("htt:.....").Host(host).makeRequest()
+	require.NoError(t, err)
+	require.Equal(t, host, req.Host)
+}
+
 func TestRequest(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 
