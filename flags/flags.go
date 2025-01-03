@@ -43,14 +43,14 @@ func StringVar(fs *pflag.FlagSet, p *string, key string, name string, shorthand 
 }
 
 func StringArray(fs *pflag.FlagSet, key string, name string, shorthand string, value []string, usage string) *[]string {
-	r := fs.StringArrayP(name, shorthand, nil, usage)
+	r := fs.StringArrayP(name, shorthand, value, usage)
 	viper.BindPFlag(key, fs.Lookup(name))
 
 	return r
 }
 
 func StringArrayVar(fs *pflag.FlagSet, p *[]string, key string, name string, shorthand string, value []string, usage string) {
-	fs.StringArrayVarP(p, name, shorthand, nil, usage)
+	fs.StringArrayVarP(p, name, shorthand, value, usage)
 	viper.BindPFlag(key, fs.Lookup(name))
 }
 
