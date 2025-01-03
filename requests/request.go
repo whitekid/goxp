@@ -16,6 +16,7 @@ import (
 	"github.com/klauspost/compress/zstd"
 
 	"github.com/whitekid/goxp"
+	"github.com/whitekid/goxp/errors"
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/mapx"
 	"github.com/whitekid/goxp/slicex"
@@ -189,7 +190,7 @@ func (r *Request) makeRequest() (*http.Request, error) {
 	if len(r.query) > 0 {
 		URL, err := url.Parse(u)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "fail to parse url")
 		}
 
 		URL.RawQuery = url.Values(mapx.Merge(URL.Query(), r.query)).Encode()
@@ -223,7 +224,7 @@ func (r *Request) makeRequest() (*http.Request, error) {
 
 	req, err := http.NewRequest(r.method, u, body)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "fail to create request")
 	}
 
 	if r.basicAuthUser != "" {
@@ -259,7 +260,7 @@ func (r *Request) Do(ctx context.Context) (*Response, error) {
 
 	resp, err := client.Do(req.WithContext(ctx))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "request failed")
 	}
 
 	var body io.ReadCloser
