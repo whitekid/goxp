@@ -17,6 +17,7 @@ func DoWithWorker(ctx context.Context, workers int, do func(ctx context.Context,
 	eg.SetLimit(workers)
 
 	for i := 0; i < workers; i++ {
+		i := i
 		eg.Go(func() error { return do(ctx, i) })
 	}
 
@@ -35,14 +36,15 @@ func Every(ctx context.Context, interval time.Duration, initialRun bool, fn func
 		}
 	}
 
-	for {
-		after := time.NewTimer(interval)
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
 
+	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 
-		case <-after.C:
+		case <-ticker.C:
 			fn(ctx)
 		}
 	}
@@ -50,18 +52,21 @@ func Every(ctx context.Context, interval time.Duration, initialRun bool, fn func
 
 // After run func after duration
 func After(ctx context.Context, duration time.Duration, fn func(ctx context.Context) error) error {
+	timer := time.NewTimer(duration)
+	defer timer.Stop()
+
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
 
-	case <-time.After(duration):
+	case <-timer.C:
 		return fn(ctx)
 	}
 }
 
 // Async run func in background and returns with iter.Seq
 func Async[T any](ctx context.Context, fn func(ctx context.Context) T) <-chan T {
-	ch := make(chan T)
+	ch := make(chan T, 1)
 	go func() {
 		ch <- fn(ctx)
 		close(ch)
@@ -72,7 +77,7 @@ func Async[T any](ctx context.Context, fn func(ctx context.Context) T) <-chan T 
 
 // Async2 run func in background and returns with iter.Seq
 func Async2[U1, U2 any](fn func() (U1, U2)) <-chan *Tuple2[U1, U2] {
-	ch := make(chan *Tuple2[U1, U2])
+	ch := make(chan *Tuple2[U1, U2], 1)
 	go func() {
 		ch <- T2(fn())
 		close(ch)

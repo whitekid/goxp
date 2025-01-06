@@ -6,20 +6,20 @@ import (
 )
 
 type withStack struct {
-	messsage string
-	err      error
-	stack    []uintptr
+	message string
+	err     error
+	stack   []uintptr
 }
 
-func (e *withStack) Error() string  { return e.messsage }
-func (e *withStack) String() string { return e.messsage }
+func (e *withStack) Error() string  { return e.message }
+func (e *withStack) String() string { return e.message }
 func (e *withStack) Unwrap() error  { return e.err }
 
 func (e *withStack) Format(f fmt.State, c rune) {
 	switch c {
 	case 'v':
 		if f.Flag('+') {
-			fmt.Fprintf(f, "%s\n", e.messsage)
+			fmt.Fprintf(f, "%s\n", e.message)
 			for _, pc := range e.stack {
 				fn := runtime.FuncForPC(pc)
 				if fn == nil {
@@ -37,10 +37,10 @@ func (e *withStack) Format(f fmt.State, c rune) {
 				}
 			}
 		} else {
-			fmt.Fprintf(f, "%v", e.messsage)
+			fmt.Fprintf(f, "%v", e.message)
 		}
 	case 's':
-		fmt.Fprintf(f, "%s", e.messsage)
+		fmt.Fprintf(f, "%s", e.message)
 	}
 }
 
@@ -62,8 +62,8 @@ func wrap(err error, message string, skip int) error {
 	stackBuf = stackBuf[:length]
 
 	return &withStack{
-		messsage: message,
-		err:      err,
-		stack:    stackBuf,
+		message: message,
+		err:     err,
+		stack:   stackBuf,
 	}
 }

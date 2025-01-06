@@ -199,8 +199,17 @@ func Intersect[S ~[]E, E comparable](s1, s2 S) S {
 }
 
 func Flatten[T any](s [][]T) []T {
-	r := []T{}
+	if len(s) == 0 {
+		return nil
+	}
 
+	// Calculate total capacity to avoid reallocations
+	capacity := 0
+	for _, slice := range s {
+		capacity += len(slice)
+	}
+
+	r := make([]T, 0, capacity)
 	for _, e := range s {
 		r = append(r, e...)
 	}
