@@ -48,7 +48,7 @@ func Decrypt(key, data string) (string, error) {
 func MustEncrypt(key, data string) string {
 	enc, err := Encrypt(key, data)
 	if err != nil {
-		log.Fatalf("%+v key=%s data=%s", err, key, data)
+		log.Fatalf("encryption failed: %+v", err)
 	}
 	return enc
 }
@@ -56,7 +56,7 @@ func MustEncrypt(key, data string) string {
 func MustDecrypt(key, data string) string {
 	dec, err := Decrypt(key, data)
 	if err != nil {
-		log.Fatalf("%+v key=%s data=%s", err, key, data)
+		log.Fatalf("decryption failed: %+v", err)
 	}
 	return dec
 }

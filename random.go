@@ -18,7 +18,12 @@ var (
 func RandomString(size int) string { return RandomStringWith(size, randomChars) }
 func RandomStringWith(size int, source []rune) string {
 	if size < 0 {
-		panic("size must be greater than 0")
+		return ""
+	}
+	// Prevent excessive memory allocation - limit to 1MB of runes
+	const maxSize = 1024 * 1024 / 4 // 4 bytes per rune
+	if size > maxSize {
+		panic("size too large: maximum allowed is 262144")
 	}
 
 	l := int64(len(source))

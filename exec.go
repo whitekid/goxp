@@ -45,6 +45,8 @@ func (exc *Executor) buildCmd(ctx context.Context) (*exec.Cmd, error) {
 	var args []string
 
 	if exc.shell {
+		// WARNING: Shell execution can be dangerous with untrusted input
+		// Ensure command strings are properly validated before use
 		name = "sh"
 		args = append([]string{"-c"}, exc.command...)
 	} else if len(exc.command) > 0 {

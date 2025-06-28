@@ -16,6 +16,8 @@ type desCipher struct {
 
 var _ Interface = (*desCipher)(nil)
 
+// Deprecated: DES is cryptographically broken and should not be used for security purposes.
+// Use AES instead. This function is provided only for legacy compatibility.
 func NewDes(key []byte) Interface { return &desCipher{key: key} }
 
 func (c *desCipher) newCipher(key []byte) (cipher.Block, error) {
