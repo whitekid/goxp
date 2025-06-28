@@ -3,9 +3,8 @@ package mapx
 import (
 	"iter"
 	"maps"
+	mrand "math/rand/v2"
 	"slices"
-
-	"github.com/whitekid/goxp/slicex"
 )
 
 type MapX[M ~map[K]V, K comparable, V any] map[K]V
@@ -106,8 +105,27 @@ func Merge[M ~map[K]V, K comparable, V any](m1 map[K]V, m2 ...M) M {
 
 func (m MapX[M, K, V]) Sample() (K, V) { return Sample(m) }
 func Sample[M ~map[K]V, K comparable, V any](m M) (K, V) {
-	k := slicex.Sample(slices.Collect(maps.Keys(m)))
-	return k, m[k]
+	if len(m) == 0 {
+		var zeroK K
+		var zeroV V
+		return zeroK, zeroV
+	}
+
+	// Optimized: avoid creating intermediate slice, use direct random selection
+	target := mrand.IntN(len(m))
+
+	i := 0
+	for k, v := range m {
+		if i == target {
+			return k, v
+		}
+		i++
+	}
+
+	// Should never reach here due to len(m) check above
+	var zeroK K
+	var zeroV V
+	return zeroK, zeroV
 }
 
 func (m MapX[M, K, V]) SetNx(k K, v V) bool { return SetNX[M](m, k, v) }
