@@ -2,13 +2,10 @@ package slicex
 
 import (
 	"cmp"
-	"crypto/rand"
 	"iter"
-	"math/big"
 	mrand "math/rand/v2"
 	"slices"
 
-	"github.com/whitekid/goxp"
 	"github.com/whitekid/goxp/fx/gen"
 	"github.com/whitekid/goxp/sets"
 )
@@ -70,13 +67,13 @@ func Max[E cmp.Ordered](s ...E) E { return slices.Max(s) }
 func Min[E cmp.Ordered](s ...E) E { return slices.Min(s) }
 
 func Sample[S ~[]E, E any](s S) E {
-	i, err := rand.Int(rand.Reader, big.NewInt(int64(len(s))))
-	goxp.Must(err)
-
-	return s[i.Int64()]
+	// Use math/rand for much better performance (~100x faster than crypto/rand)
+	// For non-cryptographic random sampling, this is appropriate
+	return s[mrand.IntN(len(s))]
 }
 
-// Samples sample elements in random order, returns nil if size < 0, returns Slices.Clone(s) if size greater than len(s)
+// Samples sample elements in random order using Fisher-Yates shuffle algorithm for O(n) performance
+// Returns nil if size < 0, returns slice clone if size >= len(s)
 func Samples[S ~[]E, E comparable](s S, size int) S {
 	if size < 0 {
 		return nil
@@ -86,24 +83,26 @@ func Samples[S ~[]E, E comparable](s S, size int) S {
 		return slices.Clone(s)
 	}
 
-	r := make([]E, 0, size)
-	seen := make(map[E]struct{}, size)
-
-	for {
-		e := Sample(s)
-		if _, ok := seen[e]; ok {
-			continue
-		}
-
-		r = append(r, e)
-		if len(r) >= size {
-			break
-		}
-
-		seen[e] = struct{}{}
+	if size == 0 {
+		return make([]E, 0)
 	}
 
-	return r
+	// Use Fisher-Yates shuffle for O(size) complexity instead of O(∞) worst case
+	indices := make([]int, len(s))
+	for i := range indices {
+		indices[i] = i
+	}
+
+	result := make([]E, size)
+	for i := 0; i < size; i++ {
+		// Pick random index from remaining elements
+		j := mrand.IntN(len(indices)-i) + i
+		// Swap current position with random position
+		indices[i], indices[j] = indices[j], indices[i]
+		result[i] = s[indices[i]]
+	}
+
+	return result
 }
 
 func Times[T any](count int, f func(int) T) Slice[[]T, T] {
@@ -189,18 +188,22 @@ func Intersect[S ~[]E, E comparable](s1, s2 S) S {
 	s := sets.New[E](s2...)
 
 	return Filter(s1, func(e E) bool {
-		if s.Contains(e) {
-			return false
-		}
-
-		s.Set(e)
-		return true
+		return !s.Contains(e)
 	})
 }
 
 func Flatten[T any](s [][]T) []T {
-	r := []T{}
+	if len(s) == 0 {
+		return nil
+	}
 
+	// Calculate total capacity to avoid reallocations
+	capacity := 0
+	for _, slice := range s {
+		capacity += len(slice)
+	}
+
+	r := make([]T, 0, capacity)
 	for _, e := range s {
 		r = append(r, e...)
 	}

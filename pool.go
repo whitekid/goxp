@@ -18,4 +18,16 @@ func NewPool[T any](New func() T) *Pool[T] {
 }
 
 func (p *Pool[T]) Put(x T) { p.Pool.Put(x) }
-func (p *Pool[T]) Get() T  { return p.Pool.Get().(T) }
+func (p *Pool[T]) Get() T {
+	v := p.Pool.Get()
+	if v == nil {
+		var zero T
+		return zero
+	}
+	result, ok := v.(T)
+	if !ok {
+		var zero T
+		return zero
+	}
+	return result
+}

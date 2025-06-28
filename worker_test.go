@@ -2,6 +2,7 @@ package goxp
 
 import (
 	"context"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -136,4 +137,178 @@ func TestAsync2(t *testing.T) {
 
 	require.Equal(t, 7, got.V1)
 	require.True(t, got.V2.Before(time.Now()))
+}
+
+// Test edge cases and error conditions
+func TestDoWithWorkerErrorPropagation(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Test error propagation
+	expectedErr := errors.New("worker error")
+	err := DoWithWorker(ctx, 2, func(ctx context.Context, i int) error {
+		if i == 0 {
+			return expectedErr
+		}
+		// This should be canceled when the other worker returns an error
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(time.Hour):
+			return nil
+		}
+	})
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "worker error")
+}
+
+func TestDoWithWorkerIndexCapture(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	workerCount := 5
+	indices := make([]int, workerCount)
+	var mu sync.Mutex
+
+	err := DoWithWorker(ctx, workerCount, func(ctx context.Context, i int) error {
+		mu.Lock()
+		indices[i] = i // This tests the closure variable capture fix
+		mu.Unlock()
+		return nil
+	})
+
+	require.NoError(t, err)
+
+	// Verify each worker got the correct index
+	for i := 0; i < workerCount; i++ {
+		require.Equal(t, i, indices[i], "Worker %d should have index %d", i, i)
+	}
+}
+
+func TestEveryPanicRecovery(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+	defer cancel()
+
+	callCount := int32(0)
+
+	// Every function doesn't recover from panics, so test that it panics
+	require.Panics(t, func() {
+		Every(ctx, 50*time.Millisecond, true, func(ctx context.Context) {
+			atomic.AddInt32(&callCount, 1)
+			if atomic.LoadInt32(&callCount) == 1 {
+				// First call panics
+				panic("test panic")
+			}
+		})
+	})
+
+	// Should have called at least once before panicking
+	require.Greater(t, atomic.LoadInt32(&callCount), int32(0))
+}
+
+func TestEveryContextCancellation(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	callCount := int32(0)
+	done := make(chan struct{})
+
+	go func() {
+		defer close(done)
+		Every(ctx, 10*time.Millisecond, false, func(ctx context.Context) {
+			atomic.AddInt32(&callCount, 1)
+		})
+	}()
+
+	time.Sleep(50 * time.Millisecond) // Let it run a few times
+	cancel()                          // Cancel context
+
+	select {
+	case <-done:
+		// Should exit quickly after cancellation
+	case <-time.After(100 * time.Millisecond):
+		t.Fatal("Every did not respect context cancellation")
+	}
+
+	finalCount := atomic.LoadInt32(&callCount)
+	require.Greater(t, finalCount, int32(0))
+	require.Less(t, finalCount, int32(20)) // Should not run too many times
+}
+
+func TestAfterConcurrentCalls(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	const numCalls = 10
+	results := make(chan int, numCalls)
+
+	// Start multiple After calls concurrently
+	for i := 0; i < numCalls; i++ {
+		i := i
+		go func() {
+			err := After(ctx, 10*time.Millisecond, func(ctx context.Context) error {
+				results <- i
+				return nil
+			})
+			require.NoError(t, err)
+		}()
+	}
+
+	// Collect all results
+	received := make(map[int]bool)
+	for i := 0; i < numCalls; i++ {
+		select {
+		case result := <-results:
+			received[result] = true
+		case <-time.After(time.Second):
+			t.Fatal("Timeout waiting for After results")
+		}
+	}
+
+	// Verify all calls completed
+	require.Len(t, received, numCalls)
+}
+
+func TestAsyncContextCancellation(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	ch := Async(ctx, func(ctx context.Context) int {
+		select {
+		case <-ctx.Done():
+			return -1 // Signal that context was canceled
+		case <-time.After(time.Hour):
+			return 42
+		}
+	})
+
+	// Cancel context immediately
+	cancel()
+
+	select {
+	case result := <-ch:
+		require.Equal(t, -1, result) // Should receive cancellation signal
+	case <-time.After(time.Second):
+		t.Fatal("Async did not respect context cancellation")
+	}
+}
+
+func TestAsyncChannelBuffering(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Test that channel is buffered (won't block sender)
+	ch := Async(ctx, func(ctx context.Context) int {
+		return 42
+	})
+
+	// Don't read from channel immediately
+	time.Sleep(100 * time.Millisecond)
+
+	// Should still be able to read the result
+	select {
+	case result := <-ch:
+		require.Equal(t, 42, result)
+	case <-time.After(time.Second):
+		t.Fatal("Channel should be buffered")
+	}
 }

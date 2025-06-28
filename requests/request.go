@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/andybalholm/brotli"
 	"github.com/klauspost/compress/zstd"
@@ -19,8 +21,21 @@ import (
 	"github.com/whitekid/goxp/errors"
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/mapx"
-	"github.com/whitekid/goxp/slicex"
 )
+
+// defaultClient is a shared HTTP client optimized for performance
+var defaultClient = &http.Client{
+	Timeout: 30 * time.Second,
+	Transport: &http.Transport{
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 10,
+		IdleConnTimeout:     90 * time.Second,
+		TLSHandshakeTimeout: 5 * time.Second,
+		// Optimize for throughput
+		DisableCompression: false,
+		DisableKeepAlives:  false,
+	},
+}
 
 const (
 	HeaderUserAgent       = "User-Agent"
@@ -47,6 +62,13 @@ var (
 )
 
 var logger = log.Named("request")
+
+// Buffer pool for JSON encoding to reduce memory allocations
+var bufferPool = sync.Pool{
+	New: func() interface{} {
+		return &bytes.Buffer{}
+	},
+}
 
 type Request struct {
 	URL               string
@@ -125,7 +147,8 @@ func (r *Request) Header(key, value string) *Request {
 
 func (r *Request) Headers(headers map[string]string) *Request {
 	for k, v := range headers {
-		r.addOptF(func() { r.header.Add(k, v) })
+		key, value := k, v
+		r.addOptF(func() { r.header.Add(key, value) })
 	}
 
 	return r
@@ -143,11 +166,17 @@ func (r *Request) AuthBasic(user, password string) *Request {
 }
 
 func (r *Request) AuthBearer(token string) *Request {
-	return r.Header(HeaderAuthorization, "Bearer "+token)
+	var builder strings.Builder
+	builder.WriteString("Bearer ")
+	builder.WriteString(token)
+	return r.Header(HeaderAuthorization, builder.String())
 }
 
 func (r *Request) AuthToken(token string) *Request {
-	return r.Header(HeaderAuthorization, "Token "+token)
+	var builder strings.Builder
+	builder.WriteString("Token ")
+	builder.WriteString(token)
+	return r.Header(HeaderAuthorization, builder.String())
 }
 
 // Query set query parameters
@@ -157,7 +186,8 @@ func (r *Request) Query(key, value string) *Request {
 
 func (r *Request) Queries(params map[string]string) *Request {
 	for k, v := range params {
-		r.addOptF(func() { r.query.Add(k, v) })
+		key, value := k, v
+		r.addOptF(func() { r.query.Add(key, value) })
 	}
 
 	return r
@@ -169,7 +199,8 @@ func (r *Request) Form(key, value string) *Request {
 
 func (r *Request) Forms(values map[string]string) *Request {
 	for k, v := range values {
-		r.addOptF(func() { r.formValues.Add(k, v) })
+		key, value := k, v
+		r.addOptF(func() { r.formValues.Add(key, value) })
 	}
 	return r
 }
@@ -214,14 +245,22 @@ func (r *Request) makeRequest() (*http.Request, error) {
 		case len(r.jsonValues) > 0:
 			r.header.Set(HeaderContentType, MIMEApplicationJSON)
 
-			buffer := slicex.Map(r.jsonValues, func(v any) io.Reader {
-				buf := &bytes.Buffer{}
-				if err := json.NewEncoder(buf).Encode(v); err != nil {
-					logger.Errorf("encode error: %v", err)
+			// Use buffer pool to reduce memory allocations
+			buf := bufferPool.Get().(*bytes.Buffer)
+			buf.Reset()
+			defer bufferPool.Put(buf)
+
+			enc := json.NewEncoder(buf)
+			for _, v := range r.jsonValues {
+				if err := enc.Encode(v); err != nil {
+					return nil, errors.Wrap(err, "failed to encode JSON value")
 				}
-				return buf
-			})
-			body = io.MultiReader(buffer...)
+			}
+
+			// Create a copy since we're returning the buffer to the pool
+			data := make([]byte, buf.Len())
+			copy(data, buf.Bytes())
+			body = bytes.NewReader(data)
 
 		case r.body != nil:
 			body = r.body
@@ -257,15 +296,16 @@ func (r *Request) Do(ctx context.Context) (*Response, error) {
 		return nil, err
 	}
 
-	var client *http.Client
-	if r.client == nil {
-		client = &http.Client{}
-	} else {
-		client = r.client
+	client := r.client
+	if client == nil {
+		client = defaultClient
 	}
 
 	if r.noFollowRedirect {
-		client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
+		// Create a copy of client to avoid modifying the original
+		clientCopy := *client
+		clientCopy.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
+		client = &clientCopy
 	}
 
 	resp, err := client.Do(req.WithContext(ctx))
