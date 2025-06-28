@@ -150,8 +150,13 @@ func TestDoWithWorkerErrorPropagation(t *testing.T) {
 		if i == 0 {
 			return expectedErr
 		}
-		time.Sleep(time.Hour) // This should be canceled
-		return nil
+		// This should be canceled when the other worker returns an error
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(time.Hour):
+			return nil
+		}
 	})
 
 	require.Error(t, err)
