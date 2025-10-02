@@ -2,7 +2,6 @@ package goxp
 
 import (
 	"crypto/rand"
-	"math/big"
 )
 
 var (
@@ -14,8 +13,12 @@ var (
 	randomChars  = append(append(letters, digits...), specialChars...)
 )
 
-// RandomString generate random string
+// RandomString generate cryptographically secure random string
 func RandomString(size int) string { return RandomStringWith(size, randomChars) }
+
+// RandomStringWith generates a cryptographically secure random string from the given source runes.
+// It uses crypto/rand for security-critical applications.
+// For better performance in non-security contexts, consider using math/rand/v2.
 func RandomStringWith(size int, source []rune) string {
 	if size < 0 {
 		return ""
@@ -25,16 +28,21 @@ func RandomStringWith(size int, source []rune) string {
 	if size > maxSize {
 		panic("size too large: maximum allowed is 262144")
 	}
+	if len(source) == 0 {
+		panic("source cannot be empty")
+	}
 
-	l := int64(len(source))
 	r := make([]rune, size)
+	bytes := make([]byte, size)
 
-	max := big.NewInt(l)
-	for i := 0; i < size; i++ {
-		v, err := rand.Int(rand.Reader, max)
-		Must(err)
+	// Batch read random bytes for better performance
+	_, err := rand.Read(bytes)
+	Must(err)
 
-		r[i] = source[v.Int64()]
+	// Map bytes to source runes
+	sourceLen := len(source)
+	for i, b := range bytes {
+		r[i] = source[int(b)%sourceLen]
 	}
 
 	return string(r)

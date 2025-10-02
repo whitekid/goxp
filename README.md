@@ -5,50 +5,60 @@
 
 A comprehensive collection of Go utility functions and packages designed for modern Go development (Go 1.24+). Features performance-optimized implementations, type-safe generics, and comprehensive testing.
 
-**Recent Updates:**
-- Critical performance optimizations (100x improvement in sampling operations)
-- Security enhancements and vulnerability fixes
-- HTTP client with connection pooling and buffer optimization
-- Comprehensive test coverage improvements
-
 For detailed usage examples, please refer to the test cases in each package.
 
 ## Core Functionality
 
 ### Goroutines & Concurrency
 
-|                      |                                                         |
-| -------------------- | ------------------------------------------------------- |
-| `DoWithWorker()`     | iterate `chan` and do with workers (optimized pool)     |
-| `Every()`            | run func with interval (context-aware)                  |
-| `After()`            | run function with delay                                 |
-| `Async()`,`Async2()` | run function with goroutine and get result asynchronous |
+|                      |                                                            |
+| -------------------- | ---------------------------------------------------------- |
+| `DoWithWorker()`     | execute function with worker pool (context-aware)          |
+| `Every()`            | run function at regular intervals (context-aware)          |
+| `After()`            | run function after delay (context-aware)                   |
+| `Async()`,`Async2()` | run function asynchronously and receive result via channel |
 
 ```go
 // Worker pool with optimized performance
-err := DoWithWorker(ctx, jobs, func(job Job) error {
-    return processJob(job)
-}, WithWorkerCount(runtime.NumCPU()))
+err := DoWithWorker(ctx, 4, func(ctx context.Context, workerID int) error {
+    fmt.Printf("Worker %d processing\n", workerID)
+    return processJob(ctx)
+})
+
+// Periodic execution
+err := Every(ctx, 5*time.Second, true, func(ctx context.Context) {
+    updateMetrics(ctx)
+})
+
+// Asynchronous execution
+resultCh := Async(ctx, func(ctx context.Context) string {
+    return fetchData(ctx)
+})
+result := <-resultCh
 ```
 
 ### Data Encoding/Decoding (Type-Safe Generics)
 
-|                |                                    |
-| -------------- | ---------------------------------- |
-| `ReadJSON[T]`  | decode JSON to type with generics  |
-| `WriteJSON[T]` | encode type to JSON writer         |
-| `ReadXML[T]`   | decode XML to type with generics   |
-| `WriteXML[T]`  | encode type to XML writer          |
-| `ReadYAML[T]`  | decode YAML to type with generics  |
-| `WriteYAML[T]` | encode type to YAML writer         |
+|                     |                                    |
+| ------------------- | ---------------------------------- |
+| `ReadJSON[T]`       | decode JSON to type with generics  |
+| `WriteJSON[T]`      | encode type to JSON writer         |
+| `MustMarshalJson()` | marshal JSON or panic              |
+| `ReadXML[T]`        | decode XML to type with generics   |
+| `WriteXML[T]`       | encode type to XML writer          |
+| `ReadYAML[T]`       | decode YAML to type with generics  |
+| `WriteYAML[T]`      | encode type to YAML writer         |
 
 ```go
 // Type-safe JSON operations
 var config Config
-err := ReadJSON[Config]("config.json", &config)
+err := ReadJSON[Config](reader, &config)
+
+// Must marshal - panic on error
+payload := MustMarshalJson(data)
 
 // Direct type inference
-users, err := ReadJSON[[]User]("users.json")
+users, err := ReadJSON[[]User](reader)
 ```
 
 ### Utility Functions
@@ -232,7 +242,7 @@ result := T3(getData())
 ### Data Structure Extensions
 - **[slicex](slicex)** - Performance-optimized slice operations with generics and `iter.Seq` support
 - **[mapx](mapx)** - Map extensions with functional operations and optimized sampling
-- **[sets](sets)** - Set data structure implementation
+- **[sets](sets)** - Set data structure implementation with `SetNX()` support
 - **[chanx](chanx)** - Channel extensions and utilities
 
 ### Functional Programming
@@ -246,10 +256,9 @@ result := T3(getData())
 
 ### Development Tools
 - **[log](log)** - Simple structured logging powered by Zap
-- **[errors](errors)** - Errors with stack traces
+- **[errors](errors)** - Errors with stack traces and rich formatting
 - **[retry](retry)** - Retry mechanisms with backoff strategies
 - **[services](services)** - Simple service framework with lifecycle management
-- **[worker](worker)** - Optimized worker pool implementation
 
 ### Testing & Validation
 - **[testx](testx)** - Unit test utility functions
@@ -258,7 +267,15 @@ result := T3(getData())
 - **[validate](validate)** - Struct validation made easy
 
 ### CLI & Configuration
-- **[cobrax](cobrax)** - Cobra and Viper utility functions
+- **[cobrax](cobrax)** - Cobra command utilities with simplified command creation
+  ```go
+  // Create root command
+  rootCmd := cobrax.Add(nil, &cobra.Command{Use: "app"}, nil)
+  // Add subcommand with configuration
+  cobrax.Add(rootCmd, &cobra.Command{Use: "sub"}, func(cmd *cobra.Command) {
+      cmd.Flags().StringP("name", "n", "", "name flag")
+  })
+  ```
 - **[flags](flags)** - Command-line flag management
 - **[slug](slug)** - UUID to slug conversion
 

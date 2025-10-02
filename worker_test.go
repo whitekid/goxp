@@ -130,7 +130,8 @@ func TestAsync(t *testing.T) {
 }
 
 func TestAsync2(t *testing.T) {
-	got := <-Async2(func() (int, time.Time) {
+	ctx := context.Background()
+	got := <-Async2(ctx, func(ctx context.Context) (int, time.Time) {
 		time.Sleep(time.Second)
 		return 7, time.Now()
 	})

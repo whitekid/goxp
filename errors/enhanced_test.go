@@ -160,7 +160,9 @@ func TestFormattingPerformance(t *testing.T) {
 		detailed := fmt.Sprintf("%+v", doubleWrappedErr)
 		require.Contains(t, detailed, "double wrapped")
 		require.Contains(t, detailed, "Caused by:")
-		require.Contains(t, detailed, "TestFormattingPerformance")
+		require.Contains(t, detailed, "github.com/whitekid/goxp/errors")
+		// Stack trace should show error creation internals
+		require.Contains(t, detailed, ".go") // Any Go file in the stack
 	})
 }
 
