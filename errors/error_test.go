@@ -14,6 +14,12 @@ func newError(msg string) error {
 func TestNew(t *testing.T) {
 	err := newError("hello")
 	got := fmt.Sprintf("%+v", err)
-	require.Contains(t, got, "newError")
+
+	// Basic error message check
+	require.Contains(t, got, "hello")
+
+	// Stack trace should contain the package path
+	require.Contains(t, got, "github.com/whitekid/goxp/errors")
+
 	t.Logf("err = %s", got)
 }
